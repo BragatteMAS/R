@@ -1,34 +1,33 @@
 
 #install
-install.packages("tidyverse")
+packs=c("tidyr","devtools","plotly","ggpubr","esquisse")
+lapply(packs, install.packages, character.only=TRUE)
+#install.packages("tidyverse")
   #install.packages("dplyr")
   #install.packages("tidyr")
   #install.packages("ggplot2")#, dependencies = TRUE, repos = "http://cran.us.r-project.org")
-install.packages("devtools")
-install.packages("plotly")
-install.packages("ggpubr")
-install.packages("esquisse")
-#install.packages("foreign")
-
-
+#install.packages("devtools")
+#install.packages("plotly")
+#install.packages("ggpubr")
+#install.packages("esquisse")
 #--------------------------------------------------------------------------------------------------------------------------------------------------
-
+lapply(packs, require, character.only=TRUE)
 #libraries
-library("tidyverse")
+#library("tidyverse")
   #library("dplyr") 
   #library("tidyr")
   #library("ggplot2")
-library("devtools")
-library("plotly")
-library("ggpubr")
-library("esquisse")
+#library("devtools")
+#library("plotly")
+#library("ggpubr")
+#library("esquisse")
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 
 #Dataset
 con <- gzcon(url(paste("https://data.brasil.io/dataset/covid19/caso_full.csv.gz", sep=",")))
 txt <- readLines(con)
-dados <- read.csv(textConnection(txt)) %>%
-  mutate_all(~replace(., is.na(.), 0)) # dados[is.na(dados)] <-  0 #old form BaseR slower
+dados <- read.csv(textConnection(txt))# %>%
+  #mutate_all(~replace(., is.na(.), 0)) # dados[is.na(dados)] <-  0 #old form BaseR slower
 
 # relevant columns
 colnames(dados)[13] <-'deaths'
@@ -82,7 +81,7 @@ dados_ne <- dados %>%
 dados_ne$date <- as.Date(dados_ne$date)
 
 
-###Média móvel
+###Media movel
 #AL
 dados_al <- dados %>%
   filter(place_type=="state", state =="AL") 
@@ -193,7 +192,7 @@ dados_teresina <- dados_teresina%>%
   mutate(ma7_confirmed = stats::filter(dados_teresina$new_confirmed, filter=rep(1/7, 7), method="convolution", sides=1, circular=F)) %>%
   mutate(ma7_deaths = stats::filter(dados_teresina$new_deaths, filter=rep(1/7, 7), method="convolution", sides=1, circular=F))
 
-#São Luís	
+#S?o Lu?s	
 dados_sao_luis <- dados %>%
   filter(place_type=="city",  city_ibge_code=="2111300") 
 
@@ -211,7 +210,7 @@ dados_salvador <- dados_salvador%>%
   mutate(ma7_confirmed = stats::filter(dados_salvador$new_confirmed, filter=rep(1/7, 7), method="convolution", sides=1, circular=F)) %>%
   mutate(ma7_deaths = stats::filter(dados_salvador$new_deaths, filter=rep(1/7, 7), method="convolution", sides=1, circular=F))
 
-#Maceió		 
+#Macei?		 
 dados_maceio <- dados %>%
   filter(place_type=="city",  city_ibge_code=="2704302") 
 
@@ -238,7 +237,7 @@ dados_recife <- dados_recife%>%
   mutate(ma7_confirmed = stats::filter(dados_recife$new_confirmed, filter=rep(1/7, 7), method="convolution", sides=1, circular=F)) %>%
   mutate(ma7_deaths = stats::filter(dados_recife$new_deaths, filter=rep(1/7, 7), method="convolution", sides=1, circular=F))
 
-#João Pessoa		 
+#Jo?o Pessoa		 
 dados_joao_pessoa <- dados %>%
   filter(place_type=="city",  city_ibge_code=="2507507") 
 
@@ -312,7 +311,7 @@ filter <- dados_brasil %>%
 casos31 <- ggplot() + 
   geom_bar(data = filter, aes(x=date, y=new_confirmed), stat = 'identity', fill = "#0c4c8a") +
   geom_line(data = filter, aes(x=date, y=ma7_confirmed),size = 1.82, colour = "#d67d2a") +
-  ggtitle("Últimos 31 dias")+
+  ggtitle("?ltimos 31 dias")+
   labs(x="", y="")
 #  ggtitle("Novos casos confirmados e mÃ©dia mÃ³vel de Alagoas Ãºltimos 31 dias")+
 #  labs(x="Tempo de pandemia", y = "Casos confirmados de COVID-19")
@@ -321,10 +320,10 @@ casos31 <- ggplot() +
 obitos <- ggplot() + 
   geom_bar(data = dados_brasil, aes(x=date, y=new_deaths), stat = 'identity', fill = "#0c4c8a") +
   geom_line(data = dados_brasil, aes(x=date, y=ma7_deaths),size = 1.82, colour = "#FF0000") +
-  labs(y="Óbitos") +
+  labs(y="?bitos") +
   labs(x="")
 #  ggtitle("Novos Ã³bitos confirmados e mÃ©dia mÃ³vel de Alagoas")+
-#  labs(x="Tempo de pandemia", y = "Óbitos confirmados de COVID-19")
+#  labs(x="Tempo de pandemia", y = "?bitos confirmados de COVID-19")
 
 #Filter 31 days deaths
 filter_obitos <- dados_brasil %>%
@@ -334,7 +333,7 @@ obitos31 <- ggplot() +
   geom_line(data = filter_obitos, aes(x=date, y=ma7_deaths),size = 1.82, colour = "#FF0000") +
   labs(x="",y="")
 #  ggtitle("Novos Ã³bitos confirmados e mÃ©dia mÃ³vel de Alagoas Ãºltimos 31 dias")+
-#  labs(x="Tempo de pandemia", y = "Óbitos confirmados de COVID-19")
+#  labs(x="Tempo de pandemia", y = "?bitos confirmados de COVID-19")
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 #Grid ggarrange

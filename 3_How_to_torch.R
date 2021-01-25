@@ -24,7 +24,7 @@ x$grad
 #gradient_descend
 #x[t+1] = x[t] - a * df/dx[t]
 
-optim <- optim_adam(x) #improve formulas
+optim <- optim_adam(x, lr=0.01) #improve formulas
 
 fx <- f(x) #calc f(x)
 fx$backward() #backpropagation - f direction calc derivative

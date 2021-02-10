@@ -1,6 +1,6 @@
 # Univer**R**se
 
-Researches in R
+Researches in R language. &reg;
 
 Refs:
 

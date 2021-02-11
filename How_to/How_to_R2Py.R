@@ -2,23 +2,17 @@
 "R2Py"
 created by "Bragatte" 20210211
 '''
+#seeting env py at the first time and restart R
+##add this to open file: Sys.setenv(RETICULATE_PYTHON = "/home/bragatte/anaconda3/envs/dsz/bin/python")
+'''
+usethis::edit_r_profile()
+'''
+#check py version
+reticulate::py_config()
 #libraries
 packs = c("reticulate", "png")
 lapply(packs, install.packages, character.only = TRUE)
 lapply(packs, require, character.only = TRUE)
 
-usethis::edit_r_profile()
-
-#Load py shell
+#Load python shell into console of RStudio  >>>python >R
 repl_python()
-
-#check py version
-reticulate::py_config()
-
-#alternative load env py - in the term use "which python"
-#use_python(" path for python OS", required=TRUE)
-use_python("/usr/bin/python3", required=TRUE)
-use_python("/home/bragatte/anaconda3/envs/dsz/bin/python", required=TRUE)
-
-
-

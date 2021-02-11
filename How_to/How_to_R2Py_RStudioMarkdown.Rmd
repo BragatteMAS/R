@@ -5,17 +5,30 @@ date: "11/02/2021"
 output: html_document
 ---
 
+# Using Python with R in Rstudio
+
+First at Console:
+
+usethis::edit_r\_profile()
+
+When a new Rprofile file open put this code with path for OS or env python:
+
+Sys.setenv(RETICULATE_PYTHON = "../bin/python")
+
+after this restart R.\
+\
+Inside the markdown file it is possible to edit the same DataFrame and operate with both languages.
+
 ```{r setup, include=FALSE, echo = TRUE}
 knitr::opts_chunk$set(echo = TRUE)
+
 library(reticulate)
 ```
 
 ```{python}
-olar = 'Hello Guille'
+olar = 'Python in R is real!'
 print(olar)
 
 import numpy as np
 import pandas as pd
 ```
-
-

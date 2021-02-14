@@ -1,5 +1,5 @@
 ---
-title: "Plot_Coord"
+title: "Polar_Coord_plot"
 author: "Bragatte"
 date: "14/02/2021"
 output: html_document
@@ -11,7 +11,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Número de Óbitos Polar Plot
 
-Reference [\@coulmont from twitter](https://twitter.com/coulmont/status/1360545213144592385){.uri}
+### Ref. France
+
+[\@coulmont from twitter](https://twitter.com/coulmont/status/1360545213144592385){.uri}
 
 Número diário de mortes, 2000-2021, em coordenadas polares (até 1 de fevereiro de 2021, atualização em 13 de fevereiro). Versão animada. \#covid \# covid19 (dados @InseeFr )
 
@@ -98,7 +100,7 @@ ggsave("~/Desktop/deces-2001-2020-blog.png",width=1100/120,height=700/120,dpi=12
 
 ```
 
-# 
+### SRAG Brazil
 
 ```{r SRAG}
 packs = c("tidyverse", "lubridate","hrbrthemes")
@@ -109,7 +111,7 @@ lapply(packs, require, character.only = TRUE)
 
 ```
 
-## Including Plots
+### Including Plots
 
 ```{r pressure, echo=FALSE}
 

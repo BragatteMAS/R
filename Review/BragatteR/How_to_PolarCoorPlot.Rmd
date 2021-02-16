@@ -18,225 +18,222 @@ knitr::opts_chunk$set(echo = TRUE)
 Número diário de mortes, 2000-2021, em coordenadas polares (até 1 de fevereiro de 2021, atualização em 13 de fevereiro). Versão animada. \#covid \# covid19 (dados @InseeFr )
 
 ```{r}
-library(tidyverse)
-library(lubridate)
-#library(ngram)
-library(hrbrthemes)
+# ajout des informations pour l'animation
+# ---------------------------------------
 
-# données en provenance de
-# data.gouv.fr : fichier des personnes décédées
-# insee.fr : fichier provisoire des personnes décédées : https://www.insee.fr/fr/information/4470857
-# données agrégées par jour
-load("dc_2020.Rdata")
+library(gganimate)
+library(broom)
 
-
-# Bisextilisation -------------------------------------
-# pour superposer les années l'une sur l'autre, il faut
-# créer des faux 29 février 
-# et leur affecter une valeur moyenne
-
-ving_neuf_fevriers <- dc_jour %>%
-  #  mutate(date_fictive = dmy(paste(jour,mois,"2020",sep="-"))) %>%
-  filter((mois == 2 & jour %in% c(28,29))  | (mois == 3 & jour ==1)) %>%
-  complete(annee, nesting(jour, mois)) %>% 
-  group_by(annee) %>%
+dc <- bind_rows(dc_jour,dc_insee_jour,deces_ecdc,deces_insee_provisoires)
+# on démarre du fichier dc utilisé pour le graphique surmortalité
+#
+# correction année et mois pour les données de 2020
+dc <- dc %>%
+  mutate(jour = ifelse(annee==2020, day(date_fictive),jour),
+         mois = ifelse(annee==2020, month(date_fictive),mois))
+dc <- dc %>%
   arrange(annee,mois,jour) %>%
-  mutate(N = case_when(is.na(N) ~  as.integer(round(.5*(lead(N) + lag(N)))) ,
-                       TRUE ~ N) ) %>%
-  group_by(jour) %>%
-  mutate(maxi = max(N),
-         mini = min(N)) 
+  filter(categorie !="ecdc") # on enleve ecdc pour l'instant
+# 
+# dc %>% 
+#   select(annee,mois,jour,date_fictive,N) %>% 
+#   ggplot(aes(date_fictive,N,group=annee)) +
+#   geom_line() +
+#   scale_x_date(expand = expansion(add=c(2,2))) +
+#   coord_polar()
+# 
+# df <- tibble(jour = seq(ymd("2001-01-01"), ymd("2004-01-30"), by ="day") ,
+#              valeur = 10 + rnorm(1125)) %>%
+#   mutate(valeur = valeur + row_number()/100 )
+# 
+# 
+# df <- df %>%
+#   mutate(annee = year(jour),
+#          annee_fictive = 2020,
+#          restant = str_sub(jour,5,10),
+#          date_fictive = ymd(glue("{annee_fictive}{restant}")))
+# 
+# df %>%
+#   ggplot(aes(jour,valeur)) +
+#   geom_path() +
+#   coord_polar() 
 
-# jointure du fichier des 29 février
-dc_jour <- dc_jour %>%
-  filter(! (mois == 2 & jour == 29)) %>%
-  bind_rows(ving_neuf_fevriers %>% filter(mois == 2 & jour == 29))
 
 
-# graphique 1
 
-dc_jour %>% 
+# ralentir 2020
+# 4 fois plus lent
+
+dc <- bind_rows( dc %>% filter(annee != 2020) %>% mutate(repetition = 0),
+                 dc %>% filter(annee == 2020) %>% mutate(repetition = 1),
+                 dc %>% filter(annee == 2020) %>% mutate(repetition = 2),
+                  dc %>% filter(annee == 2020) %>% mutate(repetition = 3),
+                  dc %>% filter(annee == 2020) %>% mutate(repetition = 4) ) %>%
+  arrange(annee,mois,jour) %>%
+  mutate(groupage = as.numeric(str_sub(annee,3,4))  ) %>%
+  group_by(annee) %>%
+  mutate(numero_frame = row_number()) %>%
   ungroup() %>%
-  # la date fictive, c'est une "fausse" année 2020 qui sert d'abscisse
-  mutate(date_fictive = dmy(paste(jour,mois,"2020",sep="-"))) %>% 
-  filter(annee<2020) %>%
-  ggplot(aes(date_fictive,N, group = annee, color = I(couleur))) +
-  geom_line(color="black",alpha=.5,size=.1) +
-  geom_ribbon(data = . %>% filter(annee == 2016) ,
-              aes(ymin = mini, ymax = maxi), alpha=.2, color=NA) +
-  geom_line(data = dc_insee_jour, aes(date_fictive, N),
-            color= "firebrick1") + 
-  geom_line(data = . %>% group_by(date_fictive) %>% 
-              summarize(N=mean(N)) %>% ungroup() %>%
-              mutate(annee=2010),
-            aes(date_fictive,N),
-            size=.5, color="black") +
-  geom_line(data = . %>% filter(annee==2003),
-            color="navyblue", size=.2) +
-  # annotations
-  annotate(geom="text",x= ymd("2020-08-15"), y = 3500, label = "Canicule de 2003", adj =0 ) +
-  annotate(geom="text",x= ymd("2020-04-15"), y = 2500, 
-           label = "2020\nchiffres provisoires", adj=0, color="firebrick1") +
-  annotate(geom="text",x= ymd("2020-11-01"), y = 1250, label = "Moyenne\n2001-2019", adj=0, size=4) +
-  geom_segment(data = data.frame(x=ymd("2020-10-30"), y=1250, 
-                                 xend = ymd("2020-10-01"), yend = 1490, 
-                                 annee=2010),
-               aes(x=x,y=y,xend=xend,yend=yend), color = "black", 
-               arrow = arrow(length = unit(0.1, "inches"), type="closed") ) +
-  # finalisation du graphique
-  scale_x_date(date_breaks = "2 months", date_labels = "%B", expand = c(0.01,0.01)) +
+  mutate(numero_frame = 366*(groupage-1) + numero_frame) %>%
+  mutate(texte = annee)
+
+
+# pour éviter que le label de l'année bouge dans tous les sens
+# on le trace sur la courbe "loess"
+# 
+dc <- dc %>%
+  left_join( dc %>% group_by(annee) %>% 
+               do(augment(loess(N ~ numero_frame, .,span=.1))) %>% 
+               ungroup() %>%
+               select(annee,numero_frame,.fitted) ,
+             by=c("annee","numero_frame"))
+
+# dc <- dc %>%
+#   mutate(numero_frame = (max(dc$numero_frame) + row_number())) %>%
+#   mutate(texte = annee)
+
+
+# graphique animé
+# ---------------
+p <- dc %>%
+  #filter(annee %in% c(2001,2002,2003,2019)) %>% 
+
+  mutate(couleur = case_when(annee == 2003 ~ "navyblue",
+                             annee == 2020 ~ "firebrick1",
+                             TRUE ~ "gray"),
+         couleur_texte = ifelse(annee<2020,"black","firebrick1"),
+         transparence = case_when(annee %in% c(2003,2020) ~ 1,
+                                  TRUE ~ .5)) %>%
+  #na.omit() %>%
+  ggplot(aes(date_fictive, N, group = annee, 
+             color=I(couleur), alpha=I(transparence)) )+
+  #geom_smooth(data = . %>% filter(annee==2020) , se=F, span = .15) +
+  geom_ribbon(data = . %>% filter(annee == 2019) ,
+              aes(ymin = mini, ymax = maxi), 
+              alpha=.5, fill="gray") +
+  geom_line(size=.5, aes(group=annee)) +
+  geom_point(color="black") +
+  # geom_text_repel(aes(date_fictive,.fitted,
+  #                     group=annee,
+  #               label = texte, 
+  #               color = I(couleur_texte)), 
+  #               box.padding= 1,
+  #           nudge_x = 5, alpha=1 ) +
+  geom_text(aes(date_fictive,.fitted,
+                      group=annee,
+                label = texte,
+                color = I(couleur_texte)),
+            size=6,
+            nudge_x = 25, alpha=1 ) +
+
+  # geom_line(data = dc_insee_jour, aes(date_fictive, N),
+  #           color= "firebrick1") + 
+  # geom_point(data = dc_insee_jour, 
+  #            aes(date_fictive, N),
+  #            color= "firebrick1") +
+  # geom_text(data = dc_insee_jour,
+  #           aes(date_fictive, N, label = texte),
+  #           color= "firebrick1", nudge_x = 5) +
+  # scale_x_date(date_labels = "%b",
+  #              minor_breaks = NULL) +
+  coord_polar() +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b", expand=expansion(add=c(0,-26))) +
+  scale_y_continuous(limits = c(0,3655),
+                     breaks = c(0,500,1000,1500,2000,2500),
+                     minor_breaks = NULL,
+                     expand=expansion(add=c(0,-800))) +
   labs(title = "Nombre quotidien de décès en France, 2001-2020",
-       subtitle = "En rouge, l'année 2020, en gris les années 2001 à 2019. En bleu foncé : 2003",
-       y="",x="",
-       caption = "Sources : Fichier des décès sur data.gouv.fr et Fichier des décès sur insee.fr (24 avril 2020) | Graphique : B. Coulmont") +
+       subtitle = "En rouge, l'année 2020, en bleu 2003, en gris les années 2001 à 2019.",
+       y=NULL,x=NULL,
+       caption = "Sources : Fichier des décès sur data.gouv.fr et Fichier des décès sur insee.fr | Graphique : B. Coulmont") +
   theme_ipsum(plot_margin = margin(5, 5, 0, 5), 
               plot_title_margin=5 , 
               subtitle_margin=5,
               base_family = "Helvetica") +
-  theme(plot.title.position="plot")
+  theme(plot.title.position="plot") +
+  transition_reveal(along = numero_frame, keep_last = FALSE)
 
-# enregistrement du graphique :
-ggsave("~/Documentos/GitHub/R/How_to/deces-2001-2020-blog.png",width=1100/120,height=700/120,dpi=120)
+#p
+animate(p, nframes = 10,fps=1)
+ #animate(p, nframes = 1000,width=800,height=500,fps=5, end_pause = 73)
+animate(p , nframes= 8442, fps= 60,
+        width=1200,height=1200, end_pause = 200,
+        res = 130,
+        renderer = av_renderer(glue("~/Documentos/GitHub/R/Review/BragatteR/output-deces-{today()}.mp4"), codec = "libx264"))
 
+ # animate(p , nframes= 245, fps=6,
+ #         width=1200,height=676, end_pause = 200,
+ #         res = 130,
+ #         renderer = av_renderer("~/Desktop/output-deces-2.mp4", codec = "libx264"))
+ # 
 ```
 
 ```{r}
-# reproduction de "ASSESSED VALUE OF HOUSEHOLD AND KITCHEN FURNITURE"
-# par W.E.B. du Bois
-# source : https://www.loc.gov/pictures/item/2013650445/
+library(ggplot2)
+library(gganimate)
+#library(av)
+
+# # Daily mortality data from Ministry of interior for various spatial units and age groups.
+xy <- read.csv("mnz_daily_deaths_2021_01_13.csv") #, header = TRUE, sep = ",")
+xy <- xy[, c("Datum.smrti", "Starostna.skupina.COUNT")]
+colnames(xy) <- c("datum", "count")
+
+xy <- aggregate(count ~ datum, FUN = sum, data = xy)
+
+xy$datum <- as.Date(xy$datum, format = "%d/%m/%Y")
+xy$fake_datum <- as.Date(strftime(xy$datum, format = "0-%m-%d"))
+xy$year <- strftime(xy$datum, format = "%Y")
+
+xy <- xy[order(xy$datum), ]
+
+# Variables needed for the animation.
+xy$frame <- 1:nrow(xy)
+# Color and alpha for "regular" years.
+xy$color <- "black"
+xy$alpha <- 0.5
+# Color and transparency of 2020.
+xy[xy$year == 2020, "color"] <- "#F4A460"  # sandybrown
+xy[xy$year == 2020, "alpha"] <- 1
+
+# Create a smoothed count which will be used to draw label near the point.
+xy$smoothed <- predict(loess(count ~ as.numeric(datum), data = xy), newdata = xy[, c("datum")])
+
+# > str(xy)
+# 'data.frame':	3984 obs. of  8 variables:
+# $ datum     : Date, format: "2010-01-01" "2010-01-02" "2010-01-03" ...
+# $ count     : num  58 43 58 65 49 57 56 53 51 49 ...
+# $ fake_datum: Date, format: "1-01-01" "1-01-02" "1-01-03" ...
+# $ year      : chr  "2010" "2010" "2010" "2010" ...
+# $ frame     : int  1 2 3 4 5 6 7 8 9 10 ...
+# $ color     : chr  "grey" "grey" "grey" "grey" ...
+# $ alpha     : num  0.15 0.15 0.15 0.15 0.15 0.15 0.15 0.15 0.15 0.15 ...
+# $ smoothed  : num  54 54 54 54 54 ...
 # 
-# function : spiro_dubois()
+xy <- xy[xy$datum >= as.Date("2016-01-01"), ]
+xy <- xy[xy$datum <= as.Date("2020-12-31"), ]
 
-library(tidyverse)
+minmax <- strftime(xy$datum, format = "%Y")
+minmax <- as.numeric(minmax)
 
-# your dataframe must be structured thusly :
-df <- tribble(~cat, ~nombre,
-              "1900",200,
-              "1901",1200,
-              "1903",1400,
-              "1905",6500,
-              "1906",7500,
-              "1907",9000)
-
-# df <- tribble(~cat, ~nombre,
-#               "1900",8350,
-#               "1901",8300,
-#               "1903",8400,
-#               "1905",8600,
-#               "1906",8800,
-#               "1907",9000)
-
-#n_recouvrement : number of loops (lower number -> more loops)
-
-spiro_dubois <- function(df,n_recouvrement=2.3,titre_graphique="Titre du graphique") {
-  tmp <- df
-  couleurs <- c("#FFCDCB","#989EB4","#b08c71","#FFC942","#EFDECC","#F02C49","#354733","darkorange2","#101010") # add more colors if you have more than 6 rows
-  tmp <- tmp %>% mutate(couleur = couleurs[row_number()])
-  nombre_lignes <- nrow(df)
-  if (nombre_lignes>8) {print("nrow(df)>8 PROBLEM : ADD COLOR !!")}
-  decalage <- 3*nombre_lignes+2
-  tmp <- tmp %>% mutate(y_zero = (decalage+nombre_lignes) - row_number()-1)
-  tmp <- tmp %>% mutate(valeur = scales::dollar(nombre))
-  tmp$taille_nombre <- nchar(tmp$valeur)
-  tmp <- tmp %>% group_by(cat) %>% mutate(separateur = paste0(rep("_",8-taille_nombre),collapse=""))
-  tmp <- tmp %>% mutate(label = paste(cat,separateur,valeur,"  "))
-  pente <- (min(tmp$y_zero)-nombre_lignes) / max(tmp$nombre)
-  tmp <- tmp %>% mutate(y_final = y_zero - nombre*pente)
-  positions <- tmp %>% mutate(x_1=0, x_2=nombre, x_3=nombre, x_4=0,
-                              y_1=y_zero, y_2=y_final, y_3=y_final+1, y_4=y_zero+1) %>%
-    select(cat,x_1:y_4) %>%
-    pivot_longer(cols=-cat,
-                 names_sep="_",
-                 names_to=c("coord","rang")) %>%
-    pivot_wider(names_from = "coord", values_from=value)
-  positions <- positions %>% left_join(tmp %>% select(cat,label,couleur),by="cat")
-  recouvrement <- max(tmp$nombre)/n_recouvrement
-  position_caption <- min(tmp$y_zero) + 3
-  
-  p <- ggplot(positions, aes(x = x, y = y, group=cat)) +
-    geom_polygon(aes(group=cat, fill=I(couleur)),color="black") +
-    scale_y_continuous(expand=expansion(add=c(11,-5))) +
-    scale_x_continuous(expand=expansion(add=c(0,-recouvrement))) +
-    coord_polar() +
-    geom_text(data = . %>% filter(rang==1),
-              aes(label = label),
-              adj=1, nudge_y=.5, nudge_x = -0000, color="black",size=3,family="Courier") +
-    theme_void() +
-    annotate(geom="text",label="Du Bois by Coulmont",
-             y=position_caption,x = ((max(tmp$nombre)-recouvrement))/2.1 ,
-             family="Courier") +
-    theme(legend.position="none",
-          text = element_text(family="Courier"),
-          plot.title = element_text(face = "bold", hjust = 0.55),
-          plot.background = element_rect(fill="#e9d9c9aa", color="#FFFFFF00"),
-          plot.margin = margin(c(0,0,-10,-30))) +
-    labs(title = titre_graphique) # peut-être regarder ggalt::annotate_textp : non ne fonctionne qu'avec coordonnees cartesiennes
-  p
-}
-
-spiro_dubois(df,n_recouvrement=2.1)
-
-# draft code :
-# -------------------------------------------------------------------
-
-# reproduction de "ASSESSED VALUE OF HOUSEHOLD AND KITCHEN FURNITURE"
-# par W.E.B. du Bois
-# source : https://www.loc.gov/pictures/item/2013650445/
-library(tidyverse)
-
-df <- tribble(~cat,~nombre,~y_zero,~couleur,~label,
-              "1875",21186,25,"#FFCDCB",    "1875_____ $ 21,186",
-              "1880",498532,24,"#989EB4",   "1880____ $ 498,532",#BBC0D4 #4682B4
-              "1885",736170,23,"#b08c71",   "1885____ $ 736,170",#c3a288 #DBB6A3
-              "1890",1172624,22,"#FFC942",  "1890__ $ 1,173,624",
-              "1895",1322694,21,"#EFDECC",  "1895__ $ 1,322,694",
-              "1899",1434975,20,"#F02C49",  "1899__ $ 1,434,975")
-
-
-
-# calcul de la pente
-# ------------------
-
-# pente : 
-pente <- (20-6)/1434975
-
-# calcul du point y final
-df <- df %>% mutate(y_final = y_zero - nombre*pente)
-
-# composition des polygones
-positions <- df %>% mutate(x_1=0, x_2=nombre, x_3=nombre, x_4=0,
-                           y_1=y_zero, y_2=y_final, y_3=y_final+1, y_4=y_zero+1) %>%
-  select(cat,x_1:y_4) %>%
-  pivot_longer(cols=-cat,
-               names_sep="_",
-               names_to=c("coord","rang")) %>%
-  pivot_wider(names_from = "coord", values_from=value)
-
-# jointure avec le fichier de départ
-positions <- positions %>% left_join(df,by="cat")
-
-# p <- ggplot(positions, aes(x = x, y = y, group=cat)) +
-#   geom_polygon(aes(group=cat, fill=I(couleur)),color="black")
-# 
-# p
-
-
-p + 
-  scale_y_continuous(expand=expansion(add=c(11,-5))) +
-  scale_x_continuous(expand=expansion(add=c(0,-650000))) +
+fig <- ggplot(xy, aes(x = fake_datum, y = count)) +
+  theme_bw() +
+  theme(
+    rect = element_blank(),
+    axis.title = element_blank(),
+    legend.position = "none"
+  ) +
+  labs(title = sprintf("Daily deaths in Slovenia (%s-%s)", min(minmax), max(minmax)),
+  caption = "Source: Ministry of interior") +
+  geom_line(aes(group = year, color = I(color), alpha = alpha), size = 0.25) +
+  geom_point(color = "gray20") +
+  scale_y_continuous(limits = c(0, 135)) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b", expand = expansion(add = c(0, -15))) +
+  geom_text(aes(y = smoothed, label = year), nudge_x = 15, size = 3, color = "gray20") +
   coord_polar() +
-  geom_text(data = . %>% filter(rang==1),
-            aes(label = paste(label,"   ",sep="")),
-            adj=1, nudge_y=.5, nudge_x = -0000, color="black",size=3,family="Courier") +
-  theme_void() +
-  annotate(geom="text",x=428532,y=23.5,label="W.E.B. Du Bois and {ggplot} by Baptiste Coulmont",
-           family="Courier",adj=0) +
-  theme(legend.position="none",
-        text = element_text(family="Courier"),
-        plot.title = element_text(face = "bold"),
-        plot.background = element_rect(fill="#e9d9c9aa", color="#FFFFFF00"),
-        plot.margin = margin(c(0,0,0,0))) +
-  labs(title = "ASSESSED VALUE OF HOUSEHOLD AND KITCHEN FURNITURE\nOWNED BY GEORGIA NEGROES.")
+  transition_reveal(along = frame, keep_last = FALSE)
+
+animate(fig, nframes = nrow(xy), fps = 60, end_pause = 200, res = 130,
+        render = av_renderer("slovenia_deaths.mp4", codec = "libx264"))
 ```
 
 ### SRAG Brazil
@@ -245,8 +242,6 @@ p +
 packs = c("tidyverse", "lubridate","hrbrthemes")
 #lapply(packs, install.packages, character.only = TRUE)
 lapply(packs, require, character.only = TRUE)
-
-
 
 ```
 

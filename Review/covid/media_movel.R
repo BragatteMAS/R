@@ -2,33 +2,48 @@
 packs=c("dplyr","tidyr","ggplot2","devtools","plotly","ggpubr","esquisse")
 ##install
 lapply(packs, install.packages, character.only=TRUE)
-##auto-active libraries replace #library("*****")
+
+#install.packages("dplyr")
+#install.packages("tidyr")
+#install.packages("ggplot2")
+#install.packages("devtools")
+#install.packages("plotly")
+#install.packages("ggpubr")
+#install.packages("esquisse")
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+##auto-active libraries
 lapply(packs, require, character.only=TRUE)
 
+##libraries
+#library("dplyr")
+#library("tidyr")
+#library("ggplot2")
+#library("devtools")
+#library("plotly")
+#library("ggpubr")
+#library("esquisse")
 --------------------------------------------------------------------------------------------------------------------------------------------------
-##shiny
-packshi=c("shiny", "lubridate", "sf", "tmap", "tmaptools", "rgdal", "leaflet","shinyWidgets","shinydashboard", "shinythemes" )
-lapply(packshi, installed.packages, character.only=TRUE)
-lapply(packshi, require, character.only=TRUE)
-library(shiny)
-library("lubridate")
-library("sf")  
-library("tmap")
-library("tmaptools") 
-library("rgdal")
-library("leaflet")
-library("shinyWidgets")
-library(shinydashboard)
-library(shinythemes)
+##libraries shiny
+#library(shiny)
+#library("lubridate")
+#library("sf")  
+#library("tmap")
+#library("tmaptools")
+#library("rgdal")
+#library("leaflet")
+#library("shinyWidgets")
+#library(shinydashboard)
+#library(shinythemes)
 --------------------------------------------------------------------------------------------------------------------------------------------------
 
 con <- gzcon(url(paste("https://data.brasil.io/dataset/covid19/caso_full.csv.gz", sep=",")))
 txt <- readLines(con)
 dados <- read.csv(textConnection(txt))
 
-colnames(dados)[13] <-'deaths'
-colnames(dados)[10] <- 'confirmed_per_100k'
-colnames(dados)[9] <-'confirmed'
+colnames(dados)[12] <-'deaths'
+colnames(dados)[9] <- 'confirmed_per_100k'
+colnames(dados)[8] <-'confirmed'
 
 dados <- dados %>%
     mutate(deaths_per_100k= (100000*deaths)/estimated_population_2019) 

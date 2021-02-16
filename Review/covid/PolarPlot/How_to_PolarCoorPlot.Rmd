@@ -1,0 +1,596 @@
+---
+title: "Polar_Coord_plot"
+author: "Bragatte"
+date: "14/02/2021"to"16/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Número de Óbitos Polar Plot
+
+### Examples Polar Plot COVID
+
+[\@coulmont from twitter](https://twitter.com/coulmont/status/1360545213144592385){.uri} [coulmont gist.github](https://gist.github.com/coulmont){.uri}
+
+#### France e.g.
+
+Número diário de mortes, 2000-2021, em coordenadas polares (até 1 de fevereiro de 2021, atualização em 13 de fevereiro). Versão animada. \#covid \# covid19 (dados @InseeFr )
+
+[deces_polaire_anime.R](https://gist.github.com/coulmont/b148cabe0694ae8896e4aa7d98777a34){.uri}
+
+```{r}
+# ajout des informations pour l'animation
+# ---------------------------------------
+
+library(gganimate)
+library(broom)
+
+dc <- bind_rows(dc_jour,dc_insee_jour,deces_ecdc,deces_insee_provisoires)
+# on démarre du fichier dc utilisé pour le graphique surmortalité
+#
+# correction année et mois pour les données de 2020
+dc <- dc %>%
+  mutate(jour = ifelse(annee==2020, day(date_fictive),jour),
+         mois = ifelse(annee==2020, month(date_fictive),mois))
+dc <- dc %>%
+  arrange(annee,mois,jour) %>%
+  filter(categorie !="ecdc") # on enleve ecdc pour l'instant
+# 
+# dc %>% 
+#   select(annee,mois,jour,date_fictive,N) %>% 
+#   ggplot(aes(date_fictive,N,group=annee)) +
+#   geom_line() +
+#   scale_x_date(expand = expansion(add=c(2,2))) +
+#   coord_polar()
+# 
+# df <- tibble(jour = seq(ymd("2001-01-01"), ymd("2004-01-30"), by ="day") ,
+#              valeur = 10 + rnorm(1125)) %>%
+#   mutate(valeur = valeur + row_number()/100 )
+# 
+# 
+# df <- df %>%
+#   mutate(annee = year(jour),
+#          annee_fictive = 2020,
+#          restant = str_sub(jour,5,10),
+#          date_fictive = ymd(glue("{annee_fictive}{restant}")))
+# 
+# df %>%
+#   ggplot(aes(jour,valeur)) +
+#   geom_path() +
+#   coord_polar() 
+
+
+
+
+# ralentir 2020
+# 4 fois plus lent
+
+dc <- bind_rows( dc %>% filter(annee != 2020) %>% mutate(repetition = 0),
+                 dc %>% filter(annee == 2020) %>% mutate(repetition = 1),
+                 dc %>% filter(annee == 2020) %>% mutate(repetition = 2),
+                  dc %>% filter(annee == 2020) %>% mutate(repetition = 3),
+                  dc %>% filter(annee == 2020) %>% mutate(repetition = 4) ) %>%
+  arrange(annee,mois,jour) %>%
+  mutate(groupage = as.numeric(str_sub(annee,3,4))  ) %>%
+  group_by(annee) %>%
+  mutate(numero_frame = row_number()) %>%
+  ungroup() %>%
+  mutate(numero_frame = 366*(groupage-1) + numero_frame) %>%
+  mutate(texte = annee)
+
+
+# pour éviter que le label de l'année bouge dans tous les sens
+# on le trace sur la courbe "loess"
+# 
+dc <- dc %>%
+  left_join( dc %>% group_by(annee) %>% 
+               do(augment(loess(N ~ numero_frame, .,span=.1))) %>% 
+               ungroup() %>%
+               select(annee,numero_frame,.fitted) ,
+             by=c("annee","numero_frame"))
+
+# dc <- dc %>%
+#   mutate(numero_frame = (max(dc$numero_frame) + row_number())) %>%
+#   mutate(texte = annee)
+
+
+# graphique animé
+# ---------------
+p <- dc %>%
+  #filter(annee %in% c(2001,2002,2003,2019)) %>% 
+
+  mutate(couleur = case_when(annee == 2003 ~ "navyblue",
+                             annee == 2020 ~ "firebrick1",
+                             TRUE ~ "gray"),
+         couleur_texte = ifelse(annee<2020,"black","firebrick1"),
+         transparence = case_when(annee %in% c(2003,2020) ~ 1,
+                                  TRUE ~ .5)) %>%
+  #na.omit() %>%
+  ggplot(aes(date_fictive, N, group = annee, 
+             color=I(couleur), alpha=I(transparence)) )+
+  #geom_smooth(data = . %>% filter(annee==2020) , se=F, span = .15) +
+  geom_ribbon(data = . %>% filter(annee == 2019) ,
+              aes(ymin = mini, ymax = maxi), 
+              alpha=.5, fill="gray") +
+  geom_line(size=.5, aes(group=annee)) +
+  geom_point(color="black") +
+  # geom_text_repel(aes(date_fictive,.fitted,
+  #                     group=annee,
+  #               label = texte, 
+  #               color = I(couleur_texte)), 
+  #               box.padding= 1,
+  #           nudge_x = 5, alpha=1 ) +
+  geom_text(aes(date_fictive,.fitted,
+                      group=annee,
+                label = texte,
+                color = I(couleur_texte)),
+            size=6,
+            nudge_x = 25, alpha=1 ) +
+
+  # geom_line(data = dc_insee_jour, aes(date_fictive, N),
+  #           color= "firebrick1") + 
+  # geom_point(data = dc_insee_jour, 
+  #            aes(date_fictive, N),
+  #            color= "firebrick1") +
+  # geom_text(data = dc_insee_jour,
+  #           aes(date_fictive, N, label = texte),
+  #           color= "firebrick1", nudge_x = 5) +
+  # scale_x_date(date_labels = "%b",
+  #              minor_breaks = NULL) +
+  coord_polar() +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b", expand=expansion(add=c(0,-26))) +
+  scale_y_continuous(limits = c(0,3655),
+                     breaks = c(0,500,1000,1500,2000,2500),
+                     minor_breaks = NULL,
+                     expand=expansion(add=c(0,-800))) +
+  labs(title = "Nombre quotidien de décès en France, 2001-2020",
+       subtitle = "En rouge, l'année 2020, en bleu 2003, en gris les années 2001 à 2019.",
+       y=NULL,x=NULL,
+       caption = "Sources : Fichier des décès sur data.gouv.fr et Fichier des décès sur insee.fr | Graphique : B. Coulmont") +
+  theme_ipsum(plot_margin = margin(5, 5, 0, 5), 
+              plot_title_margin=5 , 
+              subtitle_margin=5,
+              base_family = "Helvetica") +
+  theme(plot.title.position="plot") +
+  transition_reveal(along = numero_frame, keep_last = FALSE)
+
+#p
+animate(p, nframes = 10,fps=1)
+ #animate(p, nframes = 1000,width=800,height=500,fps=5, end_pause = 73)
+animate(p , nframes= 8442, fps= 60,
+        width=1200,height=1200, end_pause = 200,
+        res = 130,
+        renderer = av_renderer(glue("~/Documentos/GitHub/R/Review/BragatteR/output-deces-{today()}.mp4"), codec = "libx264"))
+
+ # animate(p , nframes= 245, fps=6,
+ #         width=1200,height=676, end_pause = 200,
+ #         res = 130,
+ #         renderer = av_renderer("~/Desktop/output-deces-2.mp4", codec = "libx264"))
+ # 
+```
+
+[deces.R](https://gist.github.com/coulmont/610ed5417f840a3897709ceec81d116c){.uri}
+
+```{r}
+# Comptage des décès covid et de la surmortalité en 2020
+
+library(tidyverse)
+library(lubridate)
+#library(ngram)
+library(hrbrthemes)
+library(glue)
+
+setwd("~/Dropbox/projets-R/2020-covid/")
+
+# date du jour
+aujourdhui <- Sys.Date()
+
+
+# décès 2001-2019 quotidiens
+load("data/dc_jour.Rdata")
+
+# Bisextilisation -------------------------------------
+# pour superposer les années l'une sur l'autre, il faut
+# créer des faux 29 février 
+# et leur affecter une valeur moyenne
+
+ving_neuf_fevriers <- dc_jour %>%
+  #  mutate(date_fictive = dmy(paste(jour,mois,"2020",sep="-"))) %>%
+  filter((mois == 2 & jour %in% c(28,29))  | (mois == 3 & jour ==1)) %>%
+  complete(annee, nesting(jour, mois)) %>% 
+  group_by(annee) %>%
+  arrange(annee,mois,jour) %>%
+  mutate(N = case_when(is.na(N) ~  as.integer(round(.5*(lead(N) + lag(N)))) ,
+                       TRUE ~ N) ) %>%
+  group_by(jour) %>%
+  mutate(maxi = max(N),
+         mini = min(N)) 
+
+# jointure du fichier des 29 février
+dc_jour <- dc_jour %>%
+  filter(! (mois == 2 & jour == 29)) %>%
+  bind_rows(ving_neuf_fevriers %>% filter(mois == 2 & jour == 29))
+
+
+
+dc_jour <- dc_jour %>% 
+  filter(annee<2020) %>%
+  mutate(type = "deces_constates",
+         categorie = "fichier_deces") %>%
+  mutate(date_fictive = dmy(paste(jour,mois,"2020",sep="-")))
+
+
+
+
+# décès covid ecdc
+# read the Dataset sheet into “R”. The dataset will be called "deces_ecdc".
+
+# GET("https://www.ecdc.europa.eu/sites/default/files/documents/COVID-19-geographic-disbtribution-worldwide-2020-05-04.xlsx",
+#     write_disk(tf <- tempfile(fileext = ".xlsx")))
+# deces_ecdc <- readxl::read_excel(tf)
+deces_ecdc <- read_csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv") #, na.strings = "", fileEncoding = "UTF-8-BOM")
+
+
+
+
+
+deces_ecdc <- deces_ecdc %>% filter(countriesAndTerritories=="France") %>%
+      # bind_rows(data.frame(deaths=900,
+      #                      dateRep = ("14/11/2020"),
+      #                      date_jour=18581)) %>%
+  #mutate(date_fictive = ymd(dateRep)) %>%
+  mutate(date_fictive = dmy(dateRep)) %>%
+  arrange(date_fictive) %>%
+  select(date_fictive,
+         deces_covid = deaths) %>%
+  left_join(dc_jour %>%    
+              filter(annee<2020, annee>2009) %>%
+              mutate(date_fictive = dmy(paste(jour,mois,"2020",sep="-"))) %>%  
+              group_by(date_fictive) %>% 
+              summarize(N=mean(N))) %>%
+  ungroup() %>%
+  # moyenne sur sept jours car beaucoup de variations (EHPAD en retard, etc...)
+  mutate(deces_covid_m = zoo::rollmean(deces_covid,7,align="left", fill = list(tail(deces_covid,6) ) ) ) %>% 
+  #  filter(deces_covid_m>0) %>%
+  mutate(N = N + deces_covid_m) %>%
+  filter(date_fictive > ymd("2020-02-15")) %>%
+  select(date_fictive,N) %>%
+  mutate(type = "deces_estimes") %>%
+  mutate(categorie = "ecdc")
+
+poids <-c(8,5,4,3,2,1,
+          5,8,5,4,3,2,
+          4,5,8,5,4,3,
+          3,4,5,8,5,4,
+          2,3,4,5,8,5,
+          1,2,3,4,5,8)
+rollwm <- function(valeurs,poids) {
+  wm <- c(0,0,0,0,0,0) 
+  n <- length(poids)/6
+  for (i in 0:(n-1)) {
+    poids_calc <- poids[ (6*i+1):(6*i+6)]
+    wm[i+1] <- weighted.mean(valeurs,poids_calc)
+  }
+  return(wm)
+}
+
+deces_ecdc$N[(length(deces_ecdc$N)-5):length(deces_ecdc$N)] <- rollwm(tail(deces_ecdc$N),poids)
+
+# deces_ecdc <- deces_ecdc %>%
+#   mutate(N = ifelse(date_fictive < (max(date_fictive)-5), N,
+#                     rollwm(tail(deces_ecdc$N),poids) ) )
+
+
+# décès insee, fichier détaillé individuel
+dc_insee_temporaire <- read_csv2("data/2020-04-30_detail/DC_jan2018-avr2020_det.csv")
+# on ne garde que les décès de 2020, car les décès précédents sont dans dc_jour
+
+dc_insee_jour <- dc_insee_temporaire %>%
+  filter(ADEC > 2019) %>%
+  # "date_fictive" pour pouvoir tracer la courbe de 2020 sur le graphique 2001-2019
+  mutate(date_fictive = ymd(paste("2020",MDEC,JDEC,sep="-"))) %>%
+  group_by(date_fictive) %>%
+  summarize(N=n()) %>%
+  mutate(annee = 2020) %>%
+  # on garde Janvier-mars
+  filter(date_fictive<ymd("2020-03-02")) %>%
+  mutate(type = "deces_constates",
+         categorie = "insee_hebdo")
+
+rm(dc_insee_temporaire)
+
+# décès insee estimation s+4
+# --------------------------
+
+load("data/deces_insee_provisoires.Rdata")
+
+# compilation pour graphiques
+# ---------------------------
+
+dc <- bind_rows(dc_jour,dc_insee_jour,deces_ecdc,deces_insee_provisoires)
+
+# calcul de l'aire sous les courbes
+# ---------------------------------
+
+moyenne <- dc %>% 
+  filter(categorie == "fichier_deces") %>% 
+  filter(annee>2009,annee<2020) %>%
+  group_by(date_fictive) %>% 
+  summarize(moyenne=mean(N)) %>% 
+  ungroup()
+
+# aire 2020 avec décès ECDC
+#--------------------------
+# aire_2020 <- dc %>% filter(categorie %in% c("estimation_insee","ecdc")) %>%
+#   group_by(date_fictive) %>%
+#   filter(N == max(N) & date_fictive > ymd("2020-03-07")) %>%
+#   select(date_fictive,N) %>%
+#   ungroup() %>%
+#   left_join(moyenne,by= "date_fictive") %>%
+#   mutate(surmortalite = N-moyenne) 
+# 
+# total_aire_2020 <- aire_2020 %>% 
+#   summarize(total = sum(surmortalite)) %>% 
+#   mutate(total = 1000*(round(total / 1000) )) %>%
+#   as.numeric() %>% round()
+
+# aire_2020 juste avec décès insee
+aire_2020_printemps <- dc %>% filter(categorie %in% c("estimation_insee")) %>%
+  group_by(date_fictive) %>%
+  filter(N == max(N) & date_fictive > ymd("2020-03-07") & date_fictive<ymd("2020-06-01")) %>%
+  select(date_fictive,N) %>%
+  ungroup() %>%
+  left_join(moyenne,by= "date_fictive") %>%
+  mutate(surmortalite = N-moyenne)
+
+total_aire_2020_printemps <- aire_2020_printemps %>%
+  summarize(total = sum(surmortalite)) %>%
+  mutate(total = 1000*(round(total / 1000) )) %>%
+  as.numeric() %>% round()
+
+
+# aire 2020 automne
+
+aire_2020_automne <- dc %>% 
+  filter(categorie %in% c("estimation_insee")) %>%
+  group_by(date_fictive) %>%
+  filter(N == max(N) & date_fictive > ymd("2020-09-01") & date_fictive<ymd("2020-12-31")) %>%
+  select(date_fictive,N) %>%
+  ungroup() %>%
+  left_join(moyenne,by= "date_fictive") %>%
+  mutate(surmortalite = N-moyenne)
+
+total_aire_2020_automne <- aire_2020_automne %>%
+  summarize(total = sum(surmortalite)) %>%
+  mutate(total = 1000*(round(total / 1000) )) %>%
+  as.numeric() %>% round()
+
+# aire 2003
+
+
+aire_2003 <- dc %>% filter(annee == 2003) %>%
+  select(date_fictive,N,date_deces) %>%
+  left_join(moyenne,by= "date_fictive") %>%
+  mutate(surmortalite = N-moyenne) %>%
+  filter(date_deces>ymd("2003-08-01"), 
+         date_deces<ymd("2003-08-20"))
+
+total_aire_2003 <- aire_2003 %>% 
+  summarize(total = sum(surmortalite)) %>% 
+  mutate(total = 1000*(round(total / 1000) )) %>%
+  as.numeric() %>% round()
+
+
+ggplot(dc) +
+  # courbe des décès 2001-2019
+  geom_line(data = . %>% filter(annee<2020),
+            aes(date_fictive,N, group = annee),
+            color="black",alpha=.1,size=.1) +
+  coord_polar() +
+  scale_y_continuous(limits = c(0,3615),
+                     expand=expansion(add=c(0,0))) +
+  # aire grisée maxi - mini quotidien
+  geom_ribbon(data = . %>% filter(annee == 2016) ,
+              aes(x= date_fictive, #y = N,
+                  ymin = mini, ymax = maxi), 
+              inherit.aes = F,
+              alpha=.2, color=NA) +
+  # # aire sous la courbe 2020 printemps
+  geom_ribbon(data = aire_2020_printemps,
+              aes(x = date_fictive, ymin = moyenne, ymax = N),
+              fill = "cornflowerblue", #color="cornflowerblue",
+              alpha=.5,
+              outline.type = "full") +
+  # aire sous la courbe 2020 automne
+  geom_ribbon(data = aire_2020_automne,
+              aes(x = date_fictive, ymin = moyenne, ymax = N),
+              fill = "cornflowerblue", #color="cornflowerblue",
+              alpha=.5,
+              outline.type = "full") +
+  # aire sous la courbe 2003
+  geom_ribbon(data = aire_2003,
+              aes(x = date_fictive, ymin = moyenne, ymax = N),
+              fill = "orange", alpha=.3) +
+  # courbe de l'année 2003 
+  geom_line(data = . %>% filter(annee == 2003),
+            aes(date_fictive,N, group = annee),
+            color="navyblue",alpha=.1,size=.2) +
+  # courbe de la moyenne pour les années 2010-2019
+  geom_line(data = . %>% 
+              filter(categorie == "fichier_deces" & annee>2009 & annee<2020) %>% 
+              group_by(date_fictive) %>% 
+              summarize(N=mean(N)) %>% ungroup() %>%
+              mutate(annee=2010),
+            aes(date_fictive,N),
+            size=.5, color="black") +
+  # en rouge 2020 janvier - mars
+  geom_line(data = . %>% filter(annee==2020, categorie == "insee_hebdo"),
+            aes(date_fictive,N),
+            color="red") +
+  # en rouge 2020 mars - mai , décès estimés
+  geom_line(data = . %>% filter(categorie == "estimation_insee"),
+            aes(date_fictive, N),
+            inherit.aes=F,
+            color="red") +
+  # en vert les décès covid ECDC
+  geom_line(data = . %>% filter(categorie == "ecdc" & date_fictive > ymd("2020-02-29")),
+            aes(date_fictive, N),
+            inherit.aes=F,
+            color="darkgreen") +
+  
+  # annotations
+  annotate(geom="text",x= ymd("2020-08-15"), y = 3200, 
+           label = paste("Canicule de 2003 :\nEnviron", total_aire_2003, "décès\nen plus de la moyenne."), adj =0 ) +
+  annotate(geom="text",x= ymd("2020-05-01"), y = 2000, 
+           label = "2020 : estimations provisoires\n(données INSEE redressées)", adj=0, color="firebrick1", size=2.5) +
+  annotate(geom="text",x= ymd("2020-06-01"), y = 2000, 
+           label = "Moyenne décennale + Décès COVID19 \n(Hôpitaux et Ehpad)", adj=0, color="darkgreen",size=2.5) +
+  annotate(geom="text",x = ymd("2020-01-10"),y = 3100, adj=0,
+           label = paste("Printemps :\n",total_aire_2020_printemps," décès en plus de la moyenne", sep="")) +
+  annotate(geom="text",x= ymd("2020-11-01"), y = 1250, label = "Moyenne\n2010-2019", adj=0, size=4) +
+  geom_segment(data = data.frame(x=ymd("2020-10-30"), y=1250, 
+                                 xend = ymd("2020-10-01"), yend = 1490, 
+                                 annee=2010),
+               aes(x=x,y=y,xend=xend,yend=yend), color = "black", 
+               arrow = arrow(length = unit(0.1, "inches"), type="closed") ) +
+  geom_segment(data = data.frame(x=ymd("2020-02-02"), y=3000, 
+                                 xend = ymd("2020-04-01"), yend = 2000, 
+                                 annee=2020),
+               aes(x=x,y=y,xend=xend,yend=yend), color = "black", 
+               inherit.aes = F,
+               arrow = arrow(length = unit(0.1, "inches"), type="closed") ) +
+  
+  scale_x_date(date_breaks = "1 month", date_labels = "%B", expand=expansion(add=c(0,0))) +
+  labs(title = "Nombre quotidien de décès en France, 2001-2020",
+       subtitle = "En rouge, l'année 2020, en gris les années 2001 à 2019. Vert : Moyenne décennale + décès covid dans les hôpitaux et les Ehpad.",
+       y=NULL,x=NULL,
+       caption = glue('Sources : Fichier des décès sur data.gouv.fr ',
+                      'et Fichier des décès sur insee.fr et ECDC ',
+                      '({format(aujourdhui, "%d %B %Y")}) ',
+                      '| Graphique et erreurs : B. Coulmont.' )) +
+  theme_ipsum(plot_margin = margin(5, 5, 0, 5), 
+              plot_title_margin=5 , 
+              subtitle_margin=5,
+              base_family = "Helvetica") +
+  theme(plot.title.position="plot",
+        legend.position = "none",
+
+```
+
+#### Slovac e.g.
+
+[Slovenia_deaths](https://github.com/romunov/slovenia_death_data/blob/master/slovenia_deaths_animated.R){.uri}
+
+```{r}
+library(ggplot2)
+library(gganimate)
+library(av)
+
+# # Daily mortality data from Ministry of interior for various spatial units and age groups.
+xy <- read.table("mnz_daily_deaths_2021_01_13.csv", header = TRUE, sep = ",")
+
+#xy <-
+#    read.delim2(
+#        "mnz_daily_deaths_2021_01_13.csv",
+#        header = TRUE,
+#        sep = ",",
+#        encoding = "UTF-8"
+#    )
+
+xy <- xy[, c("Datum.smrti", "Starostna.skupina.COUNT")]
+colnames(xy) <- c("datum", "count")
+
+xy <- aggregate(count ~ datum, FUN = sum, data = xy)
+
+xy$datum <- as.Date(xy$datum, format = "%d/%m/%Y")
+xy$fake_datum <- as.Date(strftime(xy$datum, format = "0-%m-%d"))
+xy$year <- strftime(xy$datum, format = "%Y")
+
+xy <- xy[order(xy$datum),]
+
+# Variables needed for the animation.
+xy$frame <- 1:nrow(xy)
+# Color and alpha for "regular" years.
+xy$color <- "black"
+xy$alpha <- 0.5
+# Color and transparency of 2020.
+xy[xy$year == 2020, "color"] <- "#F4A460"  # sandybrown
+xy[xy$year == 2020, "alpha"] <- 1
+
+# Create a smoothed count which will be used to draw label near the point.
+xy$smoothed <-
+    predict(loess(count ~ as.numeric(datum), data = xy), newdata = xy[, c("datum")])
+
+# > str(xy)
+# 'data.frame':	3984 obs. of  8 variables:
+# $ datum     : Date, format: "2010-01-01" "2010-01-02" "2010-01-03" ...
+# $ count     : num  58 43 58 65 49 57 56 53 51 49 ...
+# $ fake_datum: Date, format: "1-01-01" "1-01-02" "1-01-03" ...
+# $ year      : chr  "2010" "2010" "2010" "2010" ...
+# $ frame     : int  1 2 3 4 5 6 7 8 9 10 ...
+# $ color     : chr  "grey" "grey" "grey" "grey" ...
+# $ alpha     : num  0.15 0.15 0.15 0.15 0.15 0.15 0.15 0.15 0.15 0.15 ...
+# $ smoothed  : num  54 54 54 54 54 ...
+#
+###ERROR here
+xy2 <- xy[xy$datum >= as.Date("2016-01-01"), ]
+xy2 <- xy[xy$datum <= as.Date("2020-12-31"), ]
+
+minmax <- strftime(xy$datum, format = "%Y")
+minmax <- as.numeric(minmax)
+
+fig <- ggplot(xy, aes(x = fake_datum, y = count)) +
+    theme_bw() +
+    theme(rect = element_blank(),
+          axis.title = element_blank(),
+          legend.position = "none") +
+    labs(title = sprintf("Daily deaths in Slovenia (%s-%s)"), min(minmax), max(minmax),
+         caption = "Source: Ministry of interior") +
+    geom_line(aes(
+        group = year,
+        color = I(color),
+        alpha = alpha
+    ), size = 0.25) +
+    geom_point(color = "gray20") +
+    scale_y_continuous(limits = c(0, 135)) +
+    scale_x_date(
+        date_breaks = "1 month",
+        date_labels = "%b",
+        expand = expansion(add = c(0,-15))
+    ) +
+    geom_text(
+        aes(y = smoothed, label = year),
+        nudge_x = 15,
+        size = 3,
+        color = "gray20"
+    ) +
+    coord_polar() +
+    transition_reveal(along = frame, keep_last = FALSE)
+
+animate(
+    fig,
+    nframes = nrow(xy),
+    fps = 60,
+    end_pause = 200,
+    res = 130,
+    render = av_renderer("slovenia_deaths.mp4", codec = "libx264")
+)
+```
+
+### SRAG Brazil
+
+```{r SRAG}
+packs = c("tidyverse", "lubridate","hrbrthemes") 
+#lapply(packs, install.packages, character.only = TRUE)
+lapply(packs, require, character.only = TRUE)
+
+```
+
+### Including Plots
+
+```{r pressure, echo=FALSE}
+
+```

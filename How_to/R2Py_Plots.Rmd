@@ -1,0 +1,163 @@
+---
+title: "Plots"
+author: "Bragatte"
+date: "18|27/02/2021"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{get-started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+# Description
+
+This is a document to use easy ways to visualize and check datasets graphically. Used Penguins dataset to change a little bit from Iris or cars.😉 <https://github.com/ttimbers/palmerpenguins>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+1.  Dataset Penguins \#R\
+    1.1 Data
+
+    1.2 Views from Data
+
+    1.3 Clean & Prepare Data
+
+2.  Install & call packages \#R
+
+    2.1 Libraries
+
+    2.2 Esquisse to interact constructing plots (base GGplotBuilder)
+
+3.  R2Py \#R2Py
+
+    3.1 Python packages into R
+
+    3.2 Plot one e.g. with Seaborn library
+
+4.  Pure Python code in R \#Python
+
+    4.1 Py library & R Dataset
+
+    4.2 Seaborn
+
+## Dataset - CC (call & clean)
+
+```{r penguins e.g.}
+install.packages("remotes")
+remotes::install_github("allisonhorst/palmerpenguins")
+
+#Data
+library(palmerpenguins)
+data(package = 'palmerpenguins')
+
+#?penguins
+head(penguins)
+penguins_raw
+str(penguins)
+
+## Including Plots
+library(tidyverse)
+penguins %>%
+    count(species)
+
+penguins %>%
+    group_by(species) %>%
+    summarize(across(where(is.numeric), mean, na.rm = TRUE))
+
+View(penguins)
+
+df <- penguins
+```
+
+# Plots
+
+## R interactive plot
+
+### Libraries
+
+```{r setup}
+library(esquisse) #R packages
+```
+
+\#\#\#Esquisse Already available at 'Addins' in RMarkdown.
+
+```{r console esquisse}
+esquisser() #Must interact - not available for knit
+```
+
+##### About esquisse:
+
+    #esquisse(NAME OF YOUR DATAFRAME)
+        Seetings for view the ggplotbuilder from esquisse
+            esquisser(viewer = "browser")   open into an url - I prefer this option
+            esquisser(viewer = "pane")      open into a RStudio Plot View - could BUG
+                #Set display mode fix e.g.:
+                    #```{r}
+                    #   options("esquisse.viewer" = "browser")
+                    #```
+
+[Ref](https://github.com/dreamRs/esquisse/blob/master/vignettes/get-started.Rmd)
+
+# R2Py
+
+### Python packages into R
+
+```{r}
+library(reticulate) #R package to call Py libraries
+
+#importing required Python libraries/modules
+sns <- import('seaborn')
+plt <- import('matplotlib.pyplot')
+pd <- import('pandas')
+```
+
+### R2Py Plot one e.g.
+
+```{r}
+#building a seaborn pairplot using pairplot()
+sns$pairplot(r_to_py(penguins), hue = 'species')
+#display the plot
+plt$show()
+```
+
+# Pure Python code in R
+
+## Python code interactive Plot
+
+### Py library & R Dataset
+
+```{python}
+import pandas as pd
+print(r.df.head())
+
+df_py = r.df #mark r.YOURDATA
+```
+
+### Seaborn
+
+```{python}
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.set_theme(style="ticks")
+
+# Load the penguins dataset
+penguins = sns.load_dataset("penguins")
+
+# Show the joint distribution using kernel density estimation
+g = sns.jointplot(
+    data=penguins,
+    x="bill_length_mm", y="bill_depth_mm", hue="species",
+    kind="kde"
+)
+plt.show()
+```

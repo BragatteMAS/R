@@ -1,0 +1,86 @@
+---
+title: "T-test_beavers"
+author: "Bragatte"
+date: "27/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Description
+
+This is a medium article about comparison using T-Test
+
+[body temperature series of two beavers](https://medium.com/codex/how-can-i-see-if-body-temperature-significantly-changes-by-month-using-r-hypothesis-testing-d887bced92fb){.uri}.
+
+[Beavers Dataset](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/beavers.html){.uri}
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+
+### Index actions
+
+1.  Call Datasets
+2.  list variables with "name"
+3.  Link temp to variable
+4.  Plots
+
+#### Datasets
+
+```{r beavers}
+dec = beaver1
+nov = beaver2
+```
+
+#### ID temp
+
+```{r}
+names(dec)
+```
+
+#### Temp by object
+
+```{r}
+dec = beaver1$temp
+nov = beaver2$temp
+```
+
+#### Hist plot
+
+```{r}
+hist(dec)
+hist(nov)
+```
+
+#### T-test
+
+![Formula](https://www.biologyforlife.com/uploads/2/2/3/9/22392738/949234_orig.jpg)
+
+```{r}
+t.test(dec,nov)
+```
+
+#### Final Plot
+
+```{r}
+require(graphics)
+(yl <- range(beaver1$temp, beaver2$temp))
+
+beaver.plot <- function(bdat, ...) {
+  nam <- deparse(substitute(bdat))
+  with(bdat, {
+    # Hours since start of day:
+    hours <- time %/% 100 + 24*(day - day[1]) + (time %% 100)/60
+    plot (hours, temp, type = "l", ...,
+          main = paste(nam, "body temperature"))
+    abline(h = 37.5, col = "gray", lty = 2)
+    is.act <- activ == 1
+    points(hours[is.act], temp[is.act], col = 2, cex = .8)
+  })
+}
+op <- par(mfrow = c(2, 1), mar = c(3, 3, 4, 2), mgp = 0.9 * 2:0)
+ beaver.plot(beaver1, ylim = yl)
+ beaver.plot(beaver2, ylim = yl)
+par(op)
+```

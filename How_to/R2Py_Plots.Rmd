@@ -7,6 +7,7 @@ vignette: >
   %\VignetteIndexEntry{get-started}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+Git: https://github.com/BragatteMAS/R/blob/master/How_to/R2Py_Plots.Rmd
 ---
 
 ```{r, include = FALSE}

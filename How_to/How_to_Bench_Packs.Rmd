@@ -1,0 +1,47 @@
+---
+title: "Bench_Packs"
+author: "Bragatte"
+date: "03/03/2021"
+output: html_document
+by @Bragatte 202103032343
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Benchmark packages for use in R
+
+```{r}
+#R packages 
+geodata = c("sf", "stars", "geobr") 
+lapply(geodata, install.packages, character.only = TRUE)
+lapply(geodata, require, character.only = TRUE)
+
+charts = c("ggdist", "ggraph", "ggforce", "ggbeeswarm", "waffle", "ggbump", "ggstream", "gggibbous", "ggridges", "treemapify") 
+lapply(charts, install.packages, character.only = TRUE)
+lapply(charts, require, character.only = TRUE)
+
+scales = c("ggnewsccale") 
+lapply(scales, install.packages, character.only = TRUE)
+lapply(scales, require, character.only = TRUE)
+
+annotations = c("ggforce", "ggrepel") 
+lapply(annotations, install.packages, character.only = TRUE)
+lapply(annotations, require, character.only = TRUE)
+
+color_palettes = c("rcartocolors", "RColorBrewer", "scico", "ggsci") 
+lapply(color_palettes, install.packages, character.only = TRUE)
+lapply(color_palettes, require, character.only = TRUE)
+
+plot_combination = c("patchwork", "cowplot") 
+lapply(plot_combination, install.packages, character.only = TRUE)
+lapply(plot_combination, require, character.only = TRUE)
+
+animation = c("gganimate", "magick") 
+lapply(animation, install.packages, character.only = TRUE)
+lapply(animation, require, character.only = TRUE)
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

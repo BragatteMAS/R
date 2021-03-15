@@ -41,7 +41,7 @@ lapply(packs, require, character.only = TRUE)
 
 ```{r}
 # adding url
-path <- "https://covidmap.umd.edu/api/resources?indicator=covid&type=daily&country=Brazil&daterange=20200101-20210309"
+path <- "https://covidmap.umd.edu/api/resources?indicator=covid&type=daily&country=Brazil&daterange=20200101-20210312"
 
 # adding url
 request <- GET(url = path)
@@ -58,7 +58,7 @@ write.csv(coviddata,"BR_COVID.csv")
 
 ```{r}
 # adding url
-path <- "https://covidmap.umd.edu/api/resources?indicator=covid&type=daily&country=Brazil&region=Rio%20Grande%20do%20Sul&daterange=20200101-20210309"
+path <- "https://covidmap.umd.edu/api/resources?indicator=covid&type=daily&country=Brazil&region=Rio%20Grande%20do%20Sul&daterange=20200101-20210312"
 
 # adding url
 request <- GET(url = path)

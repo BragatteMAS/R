@@ -1,0 +1,58 @@
+---
+title: "How_to_Install_Packages"
+author: "Bragatte"
+date: "02/04/2021"
+output: html_document
+info: '@Bragatte 202104021104'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Install packages
+
+[Ref](https://www.youtube.com/watch?v=gc2zh9pBNKs)actor by \@Bragatte 202104021104
+
+Source: R (CRAN)
+
+```{r}
+install.packages('plotly')
+```
+
+Source: R (GitHub)
+
+```{r}
+devtools::install_github("ropensci/plotly")
+```
+
+Source: R (Bioconductor)
+
+```{r}
+BiocManager::install("drawProteins")
+```
+
+---
+
+## Python Install packages
+
+Source: Python (pip)
+
+```{py}
+pip install scikit-learn
+```
+
+Source: Python (conda)
+
+```{py}
+conda install scikit-learn
+```
+
+## Multiple packs call
+```{r}
+packs = c("plotly", "ggplot2")
+lapply(packs, install.packages, character.only = TRUE)
+lapply(packs, require, character.only = TRUE)
+```
+
+

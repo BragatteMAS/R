@@ -4,7 +4,7 @@ author: "Bragatte"
 date: "01/03/2021"
 output: html_document
 Git: 
-by @Bragatte 202103011108
+Info: by @Bragatte 202103011108
 ---
 
 ```{r setup, include=FALSE}

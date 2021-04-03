@@ -23,16 +23,21 @@ install.packages('plotly')
 Source: R (GitHub)
 
 ```{r}
+install.packages('devtools')
 devtools::install_github("ropensci/plotly")
 ```
 
-Source: R (Bioconductor)
+Source: R [Bioconductor](https://www.bioconductor.org/install/)
 
 ```{r}
-BiocManager::install("drawProteins")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(version = "3.12")
+
+BiocManager::install("drawProteins", "Rcpl")
 ```
 
----
+------------------------------------------------------------------------
 
 ## Python Install packages
 
@@ -49,10 +54,9 @@ conda install scikit-learn
 ```
 
 ## Multiple packs call
+
 ```{r}
 packs = c("plotly", "ggplot2")
 lapply(packs, install.packages, character.only = TRUE)
 lapply(packs, require, character.only = TRUE)
 ```
-
-

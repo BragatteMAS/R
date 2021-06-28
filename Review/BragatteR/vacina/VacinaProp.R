@@ -4,7 +4,7 @@ dados %>%
     tidyr::pivot_wider(names_from = tipo, values_from = n) %>% 
     janitor::clean_names() %>% 
     dplyr::mutate(
-        prop1 = x1a_dose / abs(populacao),
+        prop1 = x1a_dose / abs(populacao)
         prop2 = x2a_dose / abs(populacao)
     ) %>% 
     dplyr::select(sexo, idade, prop1, prop2) %>% 

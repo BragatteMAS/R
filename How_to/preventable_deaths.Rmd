@@ -1,3 +1,13 @@
+---
+title: "Preventable deaths BR"
+author: "Bragatte"
+date: "14/11/2021"
+output:
+  html_document: default
+  pdf_document: default
+info: '@Bragatte 202111141935'
+---
+
 # Preventable deaths BR
 
 Code in R\

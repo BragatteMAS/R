@@ -1,0 +1,185 @@
+#install
+install.packages("tidyverse")
+
+#load
+library(tidyverse)
+
+#operator pipe
+#first argument of previous formula
+vetor <- c(20, 40, 60, 80, 200)
+sqrt(sum(vetor))
+
+vetor %>%
+    sum() %>%
+    sqrt()
+
+#data
+install.packages("nycflights13")
+library(nycflights13)
+
+data("flights")
+
+flights %>%
+    slice_head(n = 5)
+
+class(flights)
+dim(flights) #size of dataset
+
+# Verbs
+## Select
+flights %>% 
+    select(carrier, year, month, day)
+
+flights %>% 
+    select(-year, -month, -day)
+
+flights %>% 
+    select(carrier, origin, everything()) #everything complete with the other columns
+
+flights %>% 
+    select("ano" = year, "mes" = month, "dias" = day)
+
+## Filter
+flights %>% 
+    filter(month == 1, day == 1) #AND = ,
+
+flights %>% 
+    filter(origin %in% c("JFK", "EWR"),
+           dest == "LAX") # IN = inside the conjunt
+
+## Arrange
+flights %>% 
+    arrange(dep_delay) %>% 
+    View()
+    
+result_desc <- flights %>% 
+    arrange(desc(dep_delay))
+
+result_desc %>% 
+    View()
+
+flights %>% 
+    arrange(desc(month), desc(day))
+
+flights$origin
+
+##Combine verbs
+flights %>% 
+    filter(origin == "JFK", dest == "LAX") %>% 
+    select(carrier, dep_delay, month, day) %>% 
+    arrange(desc(dep_delay)) %>% 
+    slice_head(n=1)
+
+flights %>% 
+    filter(origin == "JFK", dest == "LAX") %>% 
+    select(carrier, dep_delay, month, day) %>% 
+    slice_max(dep_delay,n=1)
+
+data("airlines")
+airlines
+
+airlines %>% 
+    filter(carrier == "DL")
+
+## Mutate
+flights %>% 
+    mutate(speed = distanc  / (air_time / 60)) %>% 
+    select(year:day, flight, origin, distance, air_time, speed)
+
+flights %>% 
+    select(year:day, flight, origin, distance, air_time) %>% 
+    mutate(hours = air_time / 60,
+           speed = distance / hours)
+
+flights %>% 
+    select(year: day, ends_with("delay"),
+           distance, air_time) %>% 
+    transmute(hours = air_time / 60,
+              speed = distance / hours) #add new variables and delete older ones
+
+## summarise
+flights %>% 
+    filter(!is.na(dep_delay)) %>% 
+    summarise(mean_delay = mean(dep_delay),
+              var_delay = var(dep_delay), 
+              n = n())
+
+## group_by
+flights %>% 
+    filter(!is.na(dep_delay)) %>% 
+    group_by(carrier) %>% 
+    summarise(mean_delay = mean(dep_delay),
+              max_delay = max(dep_delay),
+              number_of_flights = n())
+flights %>% 
+    filter(!is.na(dep_delay)) %>% 
+    group_by(dest) %>% 
+    summarise(n = n(),
+              distance = mean(distance),
+              delay = mean(dep_delay)) %>% 
+    arrange(distance)
+ 
+flights %>% 
+    filter(!is.na(dep_delay)) %>% 
+    group_by(carrier, dest) %>% 
+    summarise(delay = mean(dep_delay), n=n())
+
+flights %>% 
+    filter(!is.na(dep_delay)) %>% 
+    group_by(dest) %>% 
+    summarise(n = n(),
+              distance = mean(distance),
+              delay = mean(dep_delay)) %>% 
+    slice_max(delay, n = 15) %>% 
+    ggplot(aes(fct_reorder(dest, delay), delay))+
+    geom_col()+
+    coord_flip()+
+    labs(x = NULL,
+         y = "Delay (minutes)")+
+    theme_bw()
+
+airports
+
+flights %>% 
+    filter(!is.na(dep_delay)) %>% 
+    group_by(dest) %>% 
+    summarise(n = n(),
+              distance = mean(distance),
+              delay = mean(dep_delay)) %>% 
+    slice_max(delay, n = 15) %>% 
+    merge(airports, by.x = "dest", by.y = "faa") %>% 
+    mutate(name = fct_reorder(name, delay))  %>% 
+    ggplot(aes(fct_reorder(name, delay), delay))+
+    geom_col()+
+    coord_flip()+
+    labs(x = NULL,
+         y = "Delay (minutes)")+
+    theme_bw()
+
+---
+# tidy data
+library(tidyr)
+
+table1 %>% 
+    mutate(rate = cases / population * 10000)
+
+table4a
+#table in long form
+table4a %>% 
+    pivot_longer(cols = -country,
+                 names_to = "year",
+                 values_to = "cases")
+
+table4b
+table4b %>% 
+    pivot_longer(cols = -country,
+                 names_to = "year",
+                 values_to = "cases")
+#pivot_longer pivot_wider very useful
+
+table2
+table2 %>% 
+    pivot_wider(names_from = "type",
+                values_from = "count") %>% 
+    mutate(rate = cases / population * 10000)
+

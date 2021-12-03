@@ -11,7 +11,7 @@ info: '@Bragatte 202111141935'
 # Preventable deaths BR
 
 Code in R\
-source: \[Function to create COVID-19 dataset from JHU github\](<https://gist.github.com/fernandobarbalho/38478e7a4054242db2c442a20c584860)>
+source: [Function to create COVID-19 dataset from JHU github](https://gist.github.com/fernandobarbalho/38478e7a4054242db2c442a20c584860)
 
 ```{r}
 get_covid_data_jhu<- function(dt_ini, dt_fim, us_columns = TRUE, country = NULL ){ #data inicial para o download, data final para o download, indicação se trabalha com colunas dos EUA (TRUE por default) e lista de países (todos por default)

@@ -165,4 +165,3 @@ Automatização com conjunto de dados para gerar relatório.
 ```{r}
 
 ```
-g

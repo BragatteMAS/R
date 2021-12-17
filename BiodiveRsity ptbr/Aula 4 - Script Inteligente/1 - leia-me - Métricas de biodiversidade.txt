@@ -1,0 +1,11 @@
+Instruções de como usar o arquivo "Métricas de Biodiversidade.Rmd"
+
+- Tenha instalado o R e o RStudio em seu computador, e o pacote rmarkdown instalado.
+- Crie uma pasta, e use-a para criar um projeto do RStudio.
+- Dentro da pasta criada, você deverá salvar:
+	- O arquivo "Métricas de Biodiversidade.Rmd"
+	- O arquivo "curvacum.R"
+	- O arquivo "dadosbio.csv"
+- O arquivo "dadosbio.csv" pode ser o arquivo de exemplo fornecido ou seu próprio arquivo de dados.
+	- Se for o seu, ele deve ter apenas unidades amostrais nas linhas e espécies nas colunas.
+- Com todos os arquivos no lugar, abra o "Métricas de Biodiversidade.Rmd" no RStudio, confira se os demais arquivos estão na pasta (use a aba "files do Rstudio") e use o botão "Knit" do RStudio para gerar seu relatório em formato html

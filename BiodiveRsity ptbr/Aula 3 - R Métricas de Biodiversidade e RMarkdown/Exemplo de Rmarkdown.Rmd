@@ -1,0 +1,29 @@
+## Um exemplo de RMarkdown
+
+**Script criado durante a Maratona de Análise de Biodiversidade no R, pela Academia do R com o prof Marcos Vital**
+
+*Script criado em 15-12-2021*
+
+***
+
+Eu posso escrever texto em RMarkdown, e o R não vai tentar ler isso e interprertar. Isto é texto como um doc ou pdf ou qualquer coisa do tipo.
+
+Se quiser código do R, eu crio um chunk. No exemplo a seguir, vamos carregar os dados iris e criar um gráfico com eles!
+
+```{r}
+data (iris)
+
+boxplot (iris$Petal.Length ~ iris$Species, las=1, xlab="Espécie", ylab="Comprimento da pétala")
+```
+
+Agora eu posso, se quiser, comentar sobre os meus resultados.
+
+Eu posso fazer vááááárias coisas aqui. Por exemplo, o resultado de um summary:
+
+```{r}
+summary (iris)
+```
+
+E por aí vai. Mas vou parar por aqui...
+
+***

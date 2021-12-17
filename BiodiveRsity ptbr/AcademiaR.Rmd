@@ -1,0 +1,168 @@
+---
+title: "Análises de Biodiversidade no R"
+author: "Bragatte"
+date: "15/12/2021"
+output: html_document
+---
+
+# Academia do R
+
+Conteúdo disponibilizado através do canal do youtube [Academia do R](https://www.youtube.com/channel/UCGf2GyMJ9AMlCI0AlxySUQA).\
+
+## 1. Introdução
+
+## 2. Organização e leitura dos dados
+
+Importe seus dados para o R e organize-os para análise!
+
+### Regra de ouro:
+
+***Unidades amostrais nas linhas e variáveis nas colunas!***
+
+-   Atribuir nome sempre sem espaço, objetivos e curtos.
+
+-   Usar sinal de atribuição do R \<- (atalho ***Crtl*** + ***Shift*** + ***-***)
+
+-   Dar preferência para arquivos .csv
+
+-   Função para ler arquivos **read**
+
+```{r}
+dados.exemplo <- read.csv("exemplo.csv")
+dados.exemplo
+```
+
+### Boas práticas
+
+1.  Conferir arquivo a ser lido esta no diretório/pasta do projeto de trabalho.
+
+2.  Verificar se arquivos .csv estão usando vírgula ou ponto-e-vírgula
+
+    1.  dec = determina o separador decimal (**.** ou ,)
+
+    2.  sep = determina o separador de colunas (**,** ou ;)
+
+    3.  abrir arquivo de interesse com bloco de notas para verificar separadores
+
+3.  Tratar as variáveis categóricas como fatores
+
+    1.  Utilizar a partir do R 4.0 `stringAsFactors = T`
+
+4.  Atribuir index para `row.name`
+
+```{r}
+dados <- read.csv("insetos.csv", dec = ".", sep = ",", stringsAsFactors = T, row.names = 1)
+dados
+```
+
+5.  Conferir leitura de arquivos `summary()`
+
+    ```{r}
+    summary(dados)
+    ```
+
+## 3. Métricas e Lógica do Rmarkdown
+
+###### Heading **Negrito** *Itálico*
+
+```{r}
+data (iris)
+
+boxplot (iris$Petal.Length ~ iris$Species, las=1, xlab="Espécie", ylab="Comprimento da pétala")
+```
+
+```{r}
+summary (iris)
+```
+
+### Explorando dados
+
+```{r}
+# Carregar o pacote (não esquecer de ter instalar antes)
+library (vegan)
+
+# Carregar os dados
+data (dune)
+
+# Descrever pacotes e suas funções = ? nomedopacote
+? dune
+
+# Quantificar dados por espécie (somar dist nas colunas | importante tratar dados)
+specnumber (dune)
+```
+
+### Estatística
+
+```{r}
+# Criar dataframe | exemplo riqueza de espécies
+riqueza <- specnumber (dune)
+
+# Como fazer a média | exemplo riqueza espécies por parcela?
+mean (riqueza)  # A riqueza média por parcela
+sd (riqueza)    # O desvio padrão desta média
+
+max (riqueza)  # Maior valor de riqueza
+min (riqueza)  # Menor valor de riqueza
+
+# Quais parcelas tem mais de 10 espécies?
+riqueza [which (riqueza>10) ] 
+
+# Quais parcelas tem menos de 8 espécies?
+riqueza [which (riqueza < 8) ]
+```
+
+### Calcular e plotar número de indivíduos por espécie
+
+```{r}
+# Calcular total de indivíduos para cada espécie: *colSums*
+total.individuos <- colSums (dune)
+total.individuos
+
+# Ordenar decrescente: **SORT**
+total.individuos.ordem <- sort (total.individuos, decreasing = T)
+total.individuos.ordem
+
+# Plotar como diagrama de rank-abundância: **PLOT**
+plot (total.individuos.ordem, xlab="Espécies ordem decrescente", ylab="Total de indivíduos", las=1, type="l", lty=2)
+points (total.individuos.ordem, pch=1)
+```
+
+### Cálculos de biodiversidade
+
+```{r}
+# Calcular diversidade de Shannon para cada parcela:
+diversidade <- diversity (dune, index="shannon")
+diversidade
+
+# Valor médio e desvio padrão:
+mean (diversidade)
+sd (diversidade)
+
+# Valor total de diversidade, como seria?
+diversity (total.individuos, index="shannon")
+
+#############################
+
+# Calcular curva de acúmulo pelo método de rarefação e  estimadores de riqueza
+
+# Criando a curva de acúmulo:
+acumulo <- specaccum (dune)
+
+# Gráfico rápido: 
+plot (acumulo)
+
+# Sempre confira os valores:
+acumulo
+
+# Alguns estimadores "clássicos" de riqueza de espécies:
+specpool (dune)
+```
+
+## 4. Script automatizado
+
+Automatização com conjunto de dados para gerar relatório.
+
+```{r}
+
+```
+g

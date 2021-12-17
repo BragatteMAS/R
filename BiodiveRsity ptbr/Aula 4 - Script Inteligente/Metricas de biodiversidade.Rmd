@@ -1,0 +1,236 @@
+# Métricas essenciais de Biodiversidade
+
+**Um script criado pelo Prof Marcos Vital, para a [Academia do R](https://www.instagram.com/academia_do_r/)**
+
+*Este script foi escrito usando [R Markdown](https://rmarkdown.rstudio.com/) no [RStudio](https://www.rstudio.com/) versão 1.4.1106, e testado em R versão 4.1.0.*
+
+\ 
+
+***
+
+
+### O que é este script?
+
+Este script foi criado para que qualquer pessoa possa realizar uma avaliação automática de diversas métricas básicas (mas essenciais) tipicamente usadas em análises de Biodiversidade.
+
+A maneira mais fácil de usar, especialmente se você for iniciante no R, é salvar os seus dados em um arquivo com o nome `dadosbio.csv` e salvá-lo na pasta de trabalho que estiver sendo usada no R.
+
+Você também irá precisar do arquivo `curvacum.R`, que carrega uma função personalizada para criação do gráfico de curva de acúmulo de espécies.
+
+As instruções detalhadas de como usá-lo foram exibidas na última aula da **Maratona de Análise de Biodiversidade no R**, que foi promovida pela [Academia do R](https://www.instagram.com/academia_do_r/)
+
+Na sua primeira tentativa de utilizar este script, recomendo fortemente que use o arquivo de dados de exemplo que foi fornecido junto com ele durante a aula. Depois de conseguir fazer tudo com o exemplo, tente com os seus próprios dados! ;)
+
+Para que o script funcione, você deve ter o pacote `vegan` instalado, além do pacote `RMarkdown` e todas as suas dependências.
+
+```{r echo=F, message=FALSE}
+library (vegan)
+```
+
+\ 
+
+***
+
+
+### Lendo os dados
+
+Os seus dados devem estar em formato csv, separado por vírgulas. Caso esteja com separação em ponto e vírgula, veja a explicação após o comando para alterar.
+
+O nome do arquivo deve ser `dadosbio.csv`, a não ser que você prefira alterar o comando a seguir, ok? E não se esqueça de conferir se ele está salvo na pasta de trabalho que estiver sendo usada pelo R no momento.
+
+A estrutura dos dados neste arquivo deve, obrigatoriamente, seguir o padrão "unidades amostrais nas linhas, espécies nas colunas". Na dúvida, veja o arquivo de exemplo.
+
+
+```{r, echo=F}
+# Lendo os dados:
+dados <- read.csv ("dadosbio.csv", sep=",", dec=".")
+```
+
+* Se o seu arquivo usar ponto e vírgula como separador de colunas, mude sep para ";"
+* Se os seus dados usarem separador decimal, use ponto como separador, ou altered dec para "," caso use vírgulas.
+
+**Conferindo rapidemente o tamanho do arquivo: ele tem `r dim (dados)[1]` linhas e `r dim (dados)[2]` colunas.**
+
+Se a descrição acima não estiver correta, confira o arquivo, seu formato, o local que está salvo, e comece de novo, ok?
+
+\ 
+
+***
+
+
+### Riqueza de espécies por unidade amostral
+
+Vamos começar calculando métricas básicas sobre o número de espécies encontradas na nossa amostra.
+
+* No total, temos `r specnumber (colSums(dados))` espécies coletadas.
+* O número total de espécies por unidade amostral variou de `r min (specnumber(dados))` até `r max (specnumber(dados))`.
+* Em média, são `r mean (specnumber(dados))` espécies por unidade amostral, com um desvio padrão de `r sd (specnumber(dados))`, de um total de `r dim (dados)[1]` unidades amostrais coletadas
+
+**Vamos ver um histograma do número de espécies por unidade amostral:**
+
+```{r, echo=F}
+hist (specnumber (dados), las=1, main="", ylab="Frequência", xlab="Número de espécies por UA")
+box()
+```
+
+
+**Agora veja em detalges o total de espécies em cada unidade amostral:**
+
+```{r, echo=F}
+sp.ua <- data.frame(row.names(dados) , specnumber (dados))
+colnames (sp.ua) <- c ("Unidade Amostral", "Número de espécies")
+sp.ua
+```
+
+**Também podemos colocar isto tudo em um gráfico de barras simples:**
+
+```{r, fig.width=12, echo=F}
+grafico <- barplot (specnumber(dados), beside=T, las=1, ylim=c(0,  max(specnumber(dados)) + max(specnumber(dados))/10), xlab="Unidade Amostral", ylab="Número de espécies")
+axis(side=1, at=grafico, labels=row.names(dados))
+text (x=grafico, y=specnumber(dados) + max(specnumber(dados))/20, labels=specnumber(dados))
+box()
+```
+
+\ 
+
+***
+
+### Total de indivíduos por unidade amostral
+
+Agora vamos avaliar a quantidade de organismos coletados em cada unidade amostral (dependendo do contexto, esta quantidade pode representar abundância, densidade, cobertura, biomassa, etc.). O texto a seguir considera que estamos trabalhando com abundância, mas é fácil adaptar para outras medidas.
+
+* No total, foram `r sum (dados)` indivíduos coletados nas `r dim (dados)[1]` unidades amostrais.
+* O total de indivíduos de cada unidade amostral variou de `r min (rowSums(dados))` até `r max (rowSums(dados))`.
+* Em média, foram `r mean (rowSums(dados))` indivíduos por unidade amostral, com um desvio padrão de `r sd (rowSums(dados))` indivíduos
+
+**Veja o histograma do total de indivíduos por unidade amostral:**
+
+```{r, echo=F}
+hist (rowSums (dados), las=1, main="", ylab="Frequência", xlab="Número de indivíduos por UA")
+box()
+```
+
+
+**Veja em detalhe o total de indivíduos por unidade amostral:**
+
+```{r, echo=F}
+ind.ua <- data.frame (row.names(dados), rowSums(dados))
+colnames (ind.ua) <- c ("Unidade Amostral", "Total de indivíduos")
+ind.ua
+```
+
+**E os mesmos totais, representados em um gráfico de barras:**
+
+
+```{r, fig.width=12, echo=F}
+grafico <- barplot (rowSums(dados), beside=T, las=1, ylim=c(0,  max(rowSums(dados))+max(rowSums(dados))/10), xlab="Unidade Amostral", ylab="Número de indivíduos")
+axis(side=1, at=grafico, labels=row.names(dados))
+text (x=grafico, y=rowSums(dados)+max(rowSums(dados))/20, labels=rowSums(dados))
+box()
+```
+\ 
+
+***
+
+### Quantidade por espécie e diagrama de rank-abundância
+
+Agora vamos avaliar o quanto de representação temos para cada espécie. Mais uma vez, trabalhando com abundância como base.
+
+* Já sabemos que são `r sum (dados)` indivíduos coletados de um total de `r specnumber (colSums(dados))` espécies.
+* O total de indivíduos por espécie variou entre `r min (colSums(dados))` e `r max (colSums(dados))`.
+* Em média, foram `r mean (colSums(dados))` indivíduos por espécie, com um desvio padrão de `r sd (colSums(dados))` indivíduos.
+
+**Vamos ao histograma do total de invidíduos por espécie:**
+
+```{r, echo=F}
+hist (colSums(dados), las=1, main="", ylab="Frequência", xlab="Total de indivíduos por espécie")
+box()
+```
+
+
+**Veja em detalhe o total de indivíduos para cada espécie:**
+
+```{r, echo=FALSE}
+ind.sp <- data.frame ( colSums(dados))
+colnames (ind.sp) <- c ("Total de indivíduos")
+ind.sp
+```
+
+Agora vamos ao diagrama de rank-abundância, que mostra o total de indivíduos por espécie em ordem decrescente. Este gráfico é tradicionalmente feito em dois formatos, então vamos gerar os dois, e você pode escolher qual deles usar em uma apresentação ou relatório.
+
+
+```{r, echo=F}
+# Antes de partir para os gráficos, vamos organizar os dados em ordem decrescente:
+ind.sp.ordem <- ind.sp[order(-ind.sp$`Total de indivíduos`), ,drop=FALSE]
+```
+
+
+**Diagrama de rank-abundância em gráfico de barras:**
+
+```{r, fig.width=12, echo=F}
+grafico <- barplot (ind.sp.ordem$`Total de indivíduos`, beside=T, las=1, ylim = c(0, max(ind.sp.ordem) + max(ind.sp.ordem)/10), xlab="Espécies", ylab="Total de indivíduos")
+axis(side=1, at=grafico, labels=1:length(ind.sp.ordem$`Total de indivíduos`))
+text (x=grafico, y=ind.sp.ordem$`Total de indivíduos`+max(ind.sp.ordem)/20, labels=ind.sp.ordem$`Total de indivíduos`)
+box()
+```
+
+\ 
+
+***
+
+### Calculando alguns índices de diversidade
+
+Vamos trabalhar com dois índices amplamente usados: o índice de Shannon e o índice de Simpson. Para ambos, vamos calcular o valor total para toda a amostra, e o valor médio (com seu desvio padrão) para cada unidade amostral.
+
+Os valores de Simpson serão apresentados na forma original, variando de 0 a 1, na qual valores mais baixos indicam maior diversidade (este formato é eventualmente chamado de índice de dominância de Simpson).
+
+**Índice de Shannon**
+
+* O índice de diversidade de Shannon da amostra completa é de `r diversity (colSums(dados), index="shannon")`.
+* O valor médio para cada unidade amostral é de `r mean (diversity (dados, index="shannon"))`, com desvio padrão de `r sd (diversity (dados, index="shannon"))`
+
+**Índice de Simpson**
+
+* O índice de diversidade de Shannon da amostra completa é de `r 1 - diversity (colSums(dados), index="simpson")`.
+* O valor médio para cada unidade amostral é de `r mean (1 - diversity (dados, index="simpson"))`, com desvio padrão de `r sd (1 - diversity (dados, index="simpson"))`
+
+\ 
+
+***
+
+### Estimando a riqueza de espécies e pensando em suficiência amostral
+
+Vamos começar calculando os estimadores de riqueza de espécies mais usados em estudos de Biodiversidade:
+
+```{r, echo=F, warning=F}
+specpool(dados)
+```
+**Vamos agora calcular uma curva de acúmulo usando o método de rarefação:**
+
+```{r, echo=F, warning=F}
+acumulo <- specaccum (dados)
+source ("curvacum.R")
+curvacum (acumulo, "Unidades amostrais", "Espécies acumuladas")
+```
+
+**É fundamental que os valores por trás da curva sejam avaliados com cuidado, então vamos conferí-los:**
+
+```{r, echo=F}
+acumulo
+```
+
+\ 
+
+***
+
+### E agora?
+
+Este script foi construído pelo Prof Marcos Vital como parte do material da Maratona de Análise de Biodiversidade no R, promovido pela [Academia do R](https://www.instagram.com/academia_do_r/).
+
+Você pode alterar, remixar, reconstruir ou modificar este script como quiser. Pense nele como um modelo a ser trabalhado, e não a ser seguido rigorosamente.
+
+Abraços, e que todos tenham um excelente aprendizado com o R!
+
+Prof Marcos
+
+\ 

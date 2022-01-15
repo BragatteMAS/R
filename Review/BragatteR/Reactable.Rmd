@@ -1,0 +1,116 @@
+---
+title: "Reactable"
+author: "Bragatte"
+date: "13/01/2022"
+output: html_document
+---
+
+# Reactable
+
+```{r}
+install.packages("reactablefmtr","tidyverse")
+library("reactable", "tibble")
+```
+
+## Iris example
+
+```{r}
+data <- iris[10:29, ]
+orange_pal <- function(x) rgb(colorRamp(c("#ffe4cc", "#ff9500"))(x), maxColorValue = 255)
+
+reactable(
+  data,
+  columns = list(
+    Petal.Length = colDef(style = function(value) {
+      normalized <- (value - min(data$Petal.Length)) / (max(data$Petal.Length) - min(data$Petal.Length))
+      color <- orange_pal(normalized)
+      list(background = color)
+    })
+  )
+)
+```
+
+```{r}
+dimnames <- list(start(nottem)[1]:end(nottem)[1], month.abb)
+temps <- matrix(nottem, ncol = 12, byrow = TRUE, dimnames = dimnames)
+
+# ColorBrewer-inspired 3-color scale
+BuYlRd <- function(x) rgb(colorRamp(c("#7fb7d7", "#ffffbf", "#fc8d59"))(x), maxColorValue = 255)
+
+reactable(
+  temps,
+  defaultColDef = colDef(
+    style = function(value) {
+      if (!is.numeric(value)) return()
+      normalized <- (value - min(nottem)) / (max(nottem) - min(nottem))
+      color <- BuYlRd(normalized)
+      list(background = color)
+    },
+    format = colFormat(digits = 1),
+    minWidth = 50
+  ),
+  columns = list(
+    .rownames = colDef(name = "Year", sortable = TRUE, align = "left")
+  ),
+  bordered = TRUE
+)
+```
+
+```{r}
+reactable(
+  iris[1:5, ],
+  showSortIcon = FALSE,
+  bordered = TRUE,
+  defaultSorted = "Petal.Length",
+  defaultColDef = colDef(headerClass = "bar-sort-header")
+)
+.bar-sort-header[aria-sort="ascending"] {
+  box-shadow: inset 0 3px 0 0 rgba(0, 0, 0, 0.6) !important;
+}
+
+.bar-sort-header[aria-sort="descending"] {
+  box-shadow: inset 0 -3px 0 0 rgba(0, 0, 0, 0.6) !important;
+}
+
+.bar-sort-header {
+  transition: box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+```
+
+## Top code
+
+```{r}
+population_data <- gapminder %>% 
+  filter(continent == "Americas") %>%
+  mutate(country = as.character(country),
+         year = paste0("'", str_sub(year, 3, 4))) %>% 
+  select(country, year, lifeExp) %>%
+  pivot_wider(names_from = year, values_from = lifeExp) 
+
+reactable(
+  population_data,
+  compact = TRUE,
+  pagination = FALSE,
+  showSortIcon = FALSE,
+  defaultSorted = "'52",
+  defaultSortOrder = "desc",
+  defaultColDef = colDef(
+    maxWidth = 50,
+    align = "center",
+    cell = tooltip(number_fmt = scales::comma),
+    style = color_scales(population_data, show_text = FALSE, span = TRUE)
+  ),
+  columns = list(
+    country = colDef(
+      maxWidth = 160,
+      align = "left"
+    )
+  )
+) %>% 
+  add_title("Average Life Expectancy") %>% 
+  add_source("Data sourced from the {gapminder} package") 
+```
+
+## REFs
+
+[Getting Started with Color Scales • reactablefmtr](https://kcuilla.github.io/reactablefmtr/articles/color_scales.html) [Demo Cookbook • reactable](https://glin.github.io/reactable/articles/cookbook/cookbook.html#conditional-formatting-1)

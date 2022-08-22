@@ -1,0 +1,154 @@
+---
+title: "lubridate"
+author: "Bragatte"
+date: "22 de agosto de 2022"
+output: html_document
+---
+# 14 simple tips to get started working with dates using some of the lubridate's functions
+```{r}
+#install.packages("lubridate")
+library(lubridate)
+```
+
+## 1. How to get today’s date
+We can use today() function to get today's date.
+
+```{r}
+today() 
+```
+
+## 2. How to create a date variable from string in year-month-day format
+Using ymd() function in lubridate we can create date object using string year-month-day format.
+
+# create date object from string
+```{r}
+date_from_ymd <- ymd("2022-08-22")
+date_from_ymd 
+```
+
+## 3. How to create date variable from string in month-day-year format
+We can also create a date object using a string in month-day-year format using mdy() function.
+
+# create date object from string
+```{r}
+date_from_mdy <- mdy("August 22nd 2022")
+date_from_mdy
+```
+
+## 4. creating date variable from string in day-month-year format
+Similarly we use dmy() function to create a date variable using a string in day-month-year format.
+
+# create date object from string
+```{r}
+date_from_dmy <- dmy("21-Aug-2022")
+date_from_dmy
+```
+
+## 5. Create date from year, month, and day separately
+Sometimes you might have all the necessary date information separately, like year, month and day stored as variables in a dataframe. We can create date object from the date components using make_day() function.
+
+First, let us create dataframe with the information needed for creating date variable.
+```{r}
+library(tibble)
+```
+
+Create date from year, month, and day separately
+```{r}
+df <- tibble(year=c(2022,2021),
+month=c(8,12),
+day=c(21, 1))
+```
+Our dataframe has year, month, and day as numerical variables.
+```{r}
+df
+```
+With make_date() function we can combine the year, month, and day variables into a single date variable.
+```{r}
+#library(tidyverse)
+library(tidyverse)
+```
+
+```{r}
+df %>%
+  mutate(date=make_date(year,month,day))
+
+```
+
+## 6. Get year from date
+Sometimes we need exactly the opposite of the previous example, that we might need to get the components of date variables. like, year, month and day.
+Using year() function we can get the year from a data variable
+```{r}
+# data variable
+date1
+
+# get the year from date
+year(date1)
+```
+
+## 7. Get month from date variable
+We can get month from a date variable using month() function on the date variable.
+```{r}
+# get month from date variable
+month(date1)
+```
+
+## 8. Get abbreviated month name from date variable
+Note by default month() returns the month from a date variable as number. To get the name of the month in abbreviated form, we use labe=TRUE argument to month() function.
+```{r}
+# get month name (abbrveiated)
+month(date1, label=TRUE)
+```
+
+## 9. Get full month name from date variable
+To get the full name of the month in the date variable, we use both the arguments label=TRUE and abbr=FALSE.
+```{r}
+# get full month name
+month(date1, label=TRUE, abbr=FALSE)
+```
+
+## 10. Get day of the month from date variable
+With mday() function, we can get the day of the month from a date object.
+```{r}
+# day of the month
+mday(date1)
+```
+
+## 11. Day of the week
+Similarly we can get day of the week using wday() function.
+```{r}
+# day of the week
+wday(date1)
+```
+
+
+## 12. Day Name of the week
+To get the name of the day abbreviated, we use label=TRUE as argument to wday() function.
+```{r}
+wday(date1, label=TRUE)
+```
+
+## 13. Full name of the Day of the week
+Similarly to get the full name of the day we use label=TRUE and abbr=FALSE as arguments to wday() function.
+```{r}
+date1 <- ymd("2022-08-21")
+# day the week
+day(date1, label=TRUE, abbr=FALSE)
+```
+## 14. Get day of the year
+If you are interested in the day of the year, use yday() function on the date variable.
+```{r}
+yday(date1)
+```
+
+## 15. How old is Hadley Wickham
+A bonus tip is to find how old is Hadley Wickham (Thanks to R for Data Science Book as. an example to work with durations using lubridate pacakage).
+```{r}
+# How old is Hadley?
+vanderson_age <- today() - ymd(19800419)
+
+vanderson_age
+```
+
+```{r}
+as.duration(vanderson_age)
+```

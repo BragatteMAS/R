@@ -77,4 +77,3 @@ acumulo
 
 # Alguns estimadores "clássicos" de riqueza de espécies:
 specpool (dune)
-

@@ -1,0 +1,180 @@
+---
+title: "How2_mean_sd_hist"
+author: "Bragatte"
+format: html
+editor: visual
+---
+
+Pacotes
+
+```{r}
+install.packages("sciplot")
+library(sciplot)
+```
+
+# Exercitando medidas de tendência central, dispersão e histogramas
+
+## Média e desvio no R
+
+-   **Média** (*mean*)
+-   **Variância** (*var*)
+    -   Eleva ao quadrado - módulos para transformar em números positivos
+-   **Desvio padrão** (*sd*)
+-   Amplitudes
+    -   amplitudes (*max -min*)
+
+Dados (não se esqueça de verificar arquivos e pasta de trabalho):
+
+```{r}
+fragmentos <- read.csv ("abelhas em fragmentos.csv",
+                        sep =";",
+                        dec = ".",
+                        stringsAsFactors = T,
+                        encoding = "-8" )
+```
+
+Conferindo:
+
+```{r}
+summary(fragmentos)
+```
+
+Calcular a média, variância e desvio padrão:
+
+```{r}
+mean (fragmentos$Riqueza) #média
+var (fragmentos$Riqueza) #variância
+sd (fragmentos$Riqueza) #desvio padrão
+```
+
+Máximo, mínimo e a amplitude:
+
+```{r}
+max (fragmentos$Riqueza) #máximo
+min (fragmentos$Riqueza) #mínimo
+max (fragmentos$Riqueza) - min (fragmentos$Riqueza) #amplitude
+```
+
+Coeficiente de variação:
+
+-   Desvio padrão transformado para proporção *(sd / mean)\*100*
+
+```{r}
+(sd (fragmentos$Riqueza) / mean (fragmentos$Riqueza)) * 100
+```
+
+Pergunta científica: Comparar elementos número de espécies entre ambientes: (interação entre variáveis)
+
+```{r}
+tapply (fragmentos$Riqueza, fragmentos$Ambiente, mean)
+tapply (fragmentos$Riqueza, fragmentos$Ambiente, sd)
+```
+
+Colocando em um gráfico:
+
+```{r}
+lineplot.CI (fragmentos$Ambiente, fragmentos$Riqueza, type = "p", las=1, xlab = "Tipo de Ambiente", ylab="Número de espécies", ci.fun= function(x) c(mean(x)-sd(x), mean(x)+sd(x)),) #?lineplotci copiado ci.fun
+```
+
+## Iris dataset com desvio padrão
+
+```{r}
+data (iris)
+```
+
+Criando o gráfico
+
+```{r}
+summary (iris)
+```
+
+```{r}
+lineplot.CI (iris$Species, iris$Petal.Length, type = "p", las=1, xlab = "Espécie", ylab="Comprimento da pétala", ci.fun= function(x) c(mean(x)-sd(x), mean(x)+sd(x)))
+```
+
+## Exemplo de desvio com Histograma
+
+Dados:
+
+```{r}
+data ("airquality")
+```
+
+Conferindo:
+
+```{r}
+summary (airquality)
+```
+
+Escrever NA quando a célula estiver vazia, boa prática preencher quando for valor ausente.
+
+Calculando médias e desvios para concentração de ozônio e radiação solar:
+
+```{r}
+mean (airquality$Ozone,  na.rm = T)
+mean (airquality$Solar.R,  na.rm = T)
+
+sd (airquality$Ozone,  na.rm = T)
+sd (airquality$Solar.R,  na.rm = T)
+```
+
+**na.rm = T -\> retirar valor ausentes dos dados antes de fazer os cálculos**
+
+Observar o padrão de valores de temperatura
+
+```{r}
+mean (airquality$Temp)
+sd (airquality$Temp)
+```
+
+### Histograma
+
+Evidenciar variáveis quantitativas (numéricas)
+
+```{r}
+hist (airquality$Temp)
+```
+
+### Melhorando o gráfico
+
+#### Versão simples
+
+```{r}
+hist (airquality$Ozone, las=1, xlab = "Concentração de Ozônio", ylab = "Frequência", main = "")
+```
+
+#### Ajustando eixos
+
+```{r}
+hist (airquality$Ozone, las=1, xlab = "Concentração de Ozônio", ylab = "Frequência", main = "", ylim =c(0,40) , xlim =c(0,200))
+```
+
+Salvando os dados de um histograma em um objeto, permite avaliar os dados
+
+**xlim** define o valores dos intervalos dos eixos
+
+```{r}
+histograma.oz <- hist (airquality$Ozone, las=1, xlab = "Concentração de Ozônio", ylab = "Frequência", main = "", ylim =c(0,40) , xlim =c(0,200))
+```
+
+```{r}
+histograma.oz
+```
+
+#### Ajustando as marcações dos eixos
+
+**xaxp** define o número de intervalos de marcação do eixo
+
+```{r}
+histograma.oz <- hist  (airquality$Ozone, las=1, xlab = "Concentração de Ozônio", ylab = "Frequência", main = "", ylim =c(0,40) , xlim =c(0,200), xaxp=c(0,200, 10))
+```
+
+Ajustando as classes - break verificado no objeto do histograma
+
+```{r}
+hist(airquality$Ozone, breaks = c(0, 60, 120, 180))
+```
+
+```{r}
+histograma.oz <- hist  (airquality$Ozone, las=1, xlab = "Concentração de Ozônio", ylab = "Frequência", main = "", ylim =c(0,100) , xlim =c(0,200), xaxp=c(0,200, 4), breaks = c(0, 60, 120, 180))
+```

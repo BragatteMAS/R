@@ -1,0 +1,79 @@
+---
+title: "How2_"
+format: html
+editor: visual
+---
+
+## Boxplots
+
+-   Atenção com desvios maiores que a média
+
+    -   necessariamente os gráficos estão variando muito
+
+    -    valores extremos alterando o conjunto de dados
+
+    -   fazer histograma e boxplot (1 quartil(25%), 2 quartil(mediana 50%) e 3 quartil(75%))
+
+```{r}
+data("airquality")
+```
+
+```{r}
+summary(airquality)
+```
+
+Entender as simetrias entre quartis é importante para entender as diferenças.
+
+```{r}
+histograma.oz <- hist  (airquality$Ozone, las=1, xlab = "Concentração de Ozônio", ylab = "Frequência", main = "", ylim =c(0,40) , xlim =c(0,200), xaxp=c(0,200, 10))
+```
+
+```{r}
+boxplot(airquality$Ozone) #range valores para outliers 50% 1.5
+```
+
+## Calculando mediana  e quartis
+
+```{r}
+quantile (airquality$Ozone, na.rm = T)
+```
+
+### Comparações
+
+```{r}
+boxplot(airquality$Solar.R)
+hist(airquality$Solar.R)
+quantile(airquality$Solar.R, na.rm = T)
+```
+
+Quantile pode ser usado para nos mostrar valores de outros percentis
+
+```{r}
+quantile (airquality$Ozone, na.rm = T, probs = c(0, 0.1, 0.25, 0.5, 0.75, 0.9 ,1))
+```
+
+```{r}
+boxplot(airquality$Ozone ~ airquality$Month)
+```
+
+## Uma variável
+
+Explorar os dados
+
+```{r}
+boxplot(airquality$Ozone, las=1, ylab = "Concentração de Ozônio", col="gray", )
+```
+
+Versão ajustada sem outliers
+
+*`range= 0`* faz com que máximo e mínimo sejam usados no gráfico
+
+```{r}
+boxplot(airquality$Ozone, las=1, ylab = "Concentração de Ozônio", col="gray", range = 0) 
+```
+
+## Múltiplas variáveis
+
+```{r}
+boxplot(airquality$Ozone ~ airquality$Month, las=1,xlab = "Mês", ylab = "Concentração de Ozônio", col="gray", )
+```

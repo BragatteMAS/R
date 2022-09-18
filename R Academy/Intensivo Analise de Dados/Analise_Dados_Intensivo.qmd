@@ -1,0 +1,119 @@
+---
+title: "Analise_dados_intensivo"
+author: "@BragatteMAS"
+format: html
+editor: visual
+---
+
+## 1 | ggplot 
+
+Visualização com ggplot <>.
+
+```{r}
+library(ggplot2)
+
+cars
+
+ggplot(cars,aes(x = speed, y = dist)) +
+  geom_point(col='red', size=3) +
+  theme_bw() +
+  labs(title = 'Meu gráfico do R', caption = '@BragatteMAS')
+
+```
+
+#########################################
+
+## 2 | Algoritmo para Analise de Dados
+1. Instalar pacotes
+2. Carregar pacotes
+3. Definir ambiente de trabalho
+4. Ler os dados
+5. Fazer um gráfico de dispersão
+6. Adicionar reta de regressão
+7. Ajustar o título do gráfico
+8. Definir o tema do gráfico
+Salvar o gráfico
+
+### instalar pacotes
+```{r}
+install.packages("readxl")
+install.packages("ggpubr")
+install.packages("ggcorrplot")
+```
+### carregar pacotes
+```{r}
+library("readxl")
+library("ggpubr")
+library("ggcorrplot")
+```
+### Instalar e carregar função
+```{r}
+packs = c("readxl","ggpubr","ggcorrplot")
+lapply(packs, install.packages, character.only = TRUE)
+lapply(packs, require, character.only = TRUE)
+```
+
+### Definir ambiente » setwd
+```{r}
+setwd("/Users/sabrinaguedes/Documents/Bragatte/GitHub/R/R Academy/Intensivo Analise de Dados/")
+```
+
+### Ler dados *Automatização*
+```{r}
+#alunos <- read_excel('evento_aula2/dados/alunos.xlsx')
+alunos <- read_excel('evento_aula2/dados/ind_socio_econ.xlsx')
+```
+
+### Plot com regressão *Automatização*
+```{r}
+#ggplot(alunos,aes(x = horas, y = notas)) +
+ggplot(alunos,aes(x =t_env, y = esp_vida)) +
+   #gráfico de dispersão
+  geom_point(shape=21, size=2.1, fill='lightblue', col='blue') +
+  #Adicionar regressão | se = incerteza
+  geom_smooth(method = 'lm', col="tomato", se=FALSE, formula = 'y~x')+
+  #Personalizar equação y depende x
+  stat_regline_equation(aes(label=paste(..eq.label..,..rr.label..,sep="~~")))+
+  #definir legendas
+  #labs(x='Horas',y='Notas', title = 'Gráfico de dispersão')+
+  labs(x='Taxa de env',y='Esperança de vida', title = 'Gráfico de dispersão')+
+  #definir tema
+  theme_light()
+```
+### Salvar gráfico
+```{r}
+ggsave(filename = "evento_aula2/figuras/grafico_regressao.png")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

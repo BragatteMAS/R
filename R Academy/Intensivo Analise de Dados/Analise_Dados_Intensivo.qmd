@@ -5,9 +5,9 @@ format: html
 editor: visual
 ---
 
-## 1 | ggplot 
+## 1 \| ggplot
 
-Visualização com ggplot <>.
+Visualização com ggplot \<\>.
 
 ```{r}
 library(ggplot2)
@@ -21,32 +21,37 @@ ggplot(cars,aes(x = speed, y = dist)) +
 
 ```
 
-#########################################
+######################################### 
 
-## 2 | Algoritmo para Analise de Dados
-1. Instalar pacotes
-2. Carregar pacotes
-3. Definir ambiente de trabalho
-4. Ler os dados
-5. Fazer um gráfico de dispersão
-6. Adicionar reta de regressão
-7. Ajustar o título do gráfico
-8. Definir o tema do gráfico
-Salvar o gráfico
+## 2 \| Algoritmo para Analise de Dados
+
+1.  Instalar pacotes
+2.  Carregar pacotes
+3.  Definir ambiente de trabalho
+4.  Ler os dados
+5.  Fazer um gráfico de dispersão
+6.  Adicionar reta de regressão
+7.  Ajustar o título do gráfico
+8.  Definir o tema do gráfico Salvar o gráfico
 
 ### instalar pacotes
+
 ```{r}
 install.packages("readxl")
 install.packages("ggpubr")
 install.packages("ggcorrplot")
 ```
+
 ### carregar pacotes
+
 ```{r}
 library("readxl")
 library("ggpubr")
 library("ggcorrplot")
 ```
+
 ### Instalar e carregar função
+
 ```{r}
 packs = c("readxl","ggpubr","ggcorrplot")
 lapply(packs, install.packages, character.only = TRUE)
@@ -54,17 +59,20 @@ lapply(packs, require, character.only = TRUE)
 ```
 
 ### Definir ambiente » setwd
+
 ```{r}
-setwd("/Users/sabrinaguedes/Documents/Bragatte/GitHub/R/R Academy/Intensivo Analise de Dados/")
+setwd("/Users/sabrinaguedes/Documents/Bragatte/GitHub/R/R Academy/Intensivo Analise de Dados/2/")
 ```
 
 ### Ler dados *Automatização*
+
 ```{r}
 #alunos <- read_excel('evento_aula2/dados/alunos.xlsx')
 alunos <- read_excel('evento_aula2/dados/ind_socio_econ.xlsx')
 ```
 
 ### Plot com regressão *Automatização*
+
 ```{r}
 #ggplot(alunos,aes(x = horas, y = notas)) +
 ggplot(alunos,aes(x =t_env, y = esp_vida)) +
@@ -80,40 +88,46 @@ ggplot(alunos,aes(x =t_env, y = esp_vida)) +
   #definir tema
   theme_light()
 ```
+
 ### Salvar gráfico
+
 ```{r}
 ggsave(filename = "evento_aula2/figuras/grafico_regressao.png")
 ```
 
+######################################### 
+## 3 | Mapas
 
+### cript mapas
+```{r}
+install.packages("sf")
+library('sf')
+```
 
+```{r}
+### Definir ambiente » setwd
+setwd("/Users/sabrinaguedes/Documents/Bragatte/GitHub/R/R Academy/Intensivo Analise de Dados/3/")
+```
 
+```{r}
+source("3/scripts/mapa_relevo.R")
+```
 
+Exemplo de estado
 
+```{r}
+meu_mapa('SP')
+```
 
+### Função para chamar estados
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```{r}
+# i variávvel combine são vetores
+for (i in c('ES','SP','RS')) {
+  # comandos para automatizar
+  ## exemplo com print
+  ### print(i)
+  meu_mapa(i)
+  ggsave(filename = paste0('figuras/',i,'.png'))
+}
+```

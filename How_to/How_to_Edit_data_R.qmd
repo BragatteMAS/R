@@ -1,0 +1,23 @@
+---
+title: "Edit data R"
+author: "@Bragatte"
+format: html
+editor: visual
+---
+
+## Edit tables in R
+
+```{r}
+#libraries
+packs <- ("editData","DataEditR")
+
+# edit at RStudio
+data_edit (mtcars, code = TRUE)
+
+# generate code of edition
+data_edit (mtcars, code = "mtcars_edit.R")
+```
+
+## Ref
+
+[An Interactive Editor for Viewing, Entering, Filtering & Editing Data • DataEditR](https://dillonhammill.github.io/DataEditR/) [package editData : An RStudio Addin for Editing A 'data.frame'](https://cran.r-project.org/web/packages/editData/vignettes/editData.html)

@@ -5,17 +5,41 @@ format: html
 editor: visual
 ---
 
-## Edit tables in R
+# Edit tables in R
+
+Chunk options
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+## Libraries
 
 ```{r}
 #libraries
-packs <- ("editData","DataEditR")
+packs <- c("editData","DataEditR")
+#lapply(packs, install.packages,character.only = TRUE)
+lapply(packs, require,character.only = TRUE)
+```
 
+### Data Edit R
+
+```{r}
 # edit at RStudio
 data_edit (mtcars, code = TRUE)
 
 # generate code of edition
 data_edit (mtcars, code = "mtcars_edit.R")
+```
+
+### Edit Data
+
+```{r}
+editData(iris)
 ```
 
 ## Ref

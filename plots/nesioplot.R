@@ -1,6 +1,8 @@
 require(ggplot2)
 
-data_pib <- data.frame(read.csv2('PIB_SAUDE_ES.csv'))
+path = "/Users/a033270622/Documents/GitHub/R/plots/PIB_SAUDE_ES.csv"
+
+data_pib <- data.frame(read.csv2(path))
 
 pib <- ggplot(
   data_pib,
@@ -13,7 +15,6 @@ pib <- ggplot(
     fill = PIB_ASPS_T
   )
 ) +
-  
   geom_col() +
   geom_label(col = 'black') +
   labs(
@@ -29,8 +30,9 @@ pib <- ggplot(
 
 pib
 
-pib + annotate("text",
-           x = c("2011","2019","2021"),
-           y = c("3,14%","4,10%","4,80%"),
-           label = c("R$1,7bi","R$2,8bi","3,7bi")
-         )
+pib + annotate(
+  "text",
+  x = c("2011", "2019", "2021"),
+  y = c("3,14%", "4,10%", "4,80%"),
+  label = c("R$1,7bi", "R$2,8bi", "3,7bi")
+)

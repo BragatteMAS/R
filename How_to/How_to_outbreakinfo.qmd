@@ -40,8 +40,8 @@ Provides access to the prevalence of a lineage, mutation(s), or lineage with add
 library(outbreakinfo)
 #  Provide GISAID credentials using authenticateUser()
 # Get the prevalence of mutation P681R in the Spike protein in Kansas over time.
-P681R = getPrevalence(mutations = c("S:P681R"), location = "Kansas", logInfo = FALSE)
-plotPrevalenceOverTime(P681R, title = "Prevalence of S:P681R in Kansas")
+P681R = getPrevalence(mutations = c("S:P681R"), location = "BRA", logInfo = FALSE)
+plotPrevalenceOverTime(P681R, title = "Prevalence of S:P681R in BRA")
 ```
 
 ### Location Tracker
@@ -52,10 +52,10 @@ Provides access to the prevalence of all lineages and variants in a country, sta
 library(outbreakinfo)
 #  Provide GISAID credentials using authenticateUser()
 # Get the prevalence of all circulating lineages in California over the past 90 days
-ca_lineages = getAllLineagesByLocation(location = "California", ndays = 90)
+ca_lineages = getAllLineagesByLocation(location = "BRA", ndays = 90)
 
 # Plot the prevalence of the dominant lineages in California
-plotAllLineagesByLocation(location =£££¡¡, ndays = 90)
+plotAllLineagesByLocation(location ="BRA", ndays = 90)
 ```
 
 ## Tutorials

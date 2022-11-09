@@ -17,11 +17,20 @@ outbreak.info is a platform to discover and explore COVID-19 data and variants. 
 
 When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
 
-### Install
+### Install packages
 
 ```{r}
 # Install development version from GitHub
-devtools::install_github("outbreak-info/R-outbreak-info")
+#devtools::install_github("outbreak-info/R-outbreak-info")
+packs = c("vroom","lubridate","dplyr","purrr","ggplot2","knitr","outbreakinfo" )
+#lapply(packs, install.packages, character.only = TRUE)
+
+```
+
+### Libraries
+
+```{r}
+lapply(packs, require, character.only = TRUE)
 ```
 
 ### Auth
@@ -39,7 +48,7 @@ Provides access to the prevalence of a lineage, mutation(s), or lineage with add
 ```{r}
 library(outbreakinfo)
 #  Provide GISAID credentials using authenticateUser()
-# Get the prevalence of mutation P681R in the Spike protein in Kansas over time.
+# Get the prevalence of mutation P681R in the Spike protein in Brazil over time.
 P681R = getPrevalence(mutations = c("S:P681R"), location = "BRA", logInfo = FALSE)
 plotPrevalenceOverTime(P681R, title = "Prevalence of S:P681R in BRA")
 ```
@@ -56,6 +65,13 @@ ca_lineages = getAllLineagesByLocation(location = "BRA", ndays = 90)
 
 # Plot the prevalence of the dominant lineages in California
 plotAllLineagesByLocation(location ="BRA", ndays = 90)
+```
+
+## Mutations
+
+```{r}
+p1 = getMutationsByLineage(pangolin_lineage="P.1")
+plotMutationHeatmap(p1, title="Characteristic mutations of P.1 occurring in at least 75% of sequences")
 ```
 
 ## Tutorials

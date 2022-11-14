@@ -59,3 +59,34 @@ hist(
 )
 box()
 abline(v=mean(iris$Petal.Lengt[iris$Species=="virginica"]), lty=2, col="red")
+
+## Adicionando legenda manual
+hist(
+  iris$Petal.Length,
+  main = "",
+  las = 1,
+  ylim = c(0, 40),
+  xlab = "Comprimento da pétala",
+  ylab = "Frequência"
+)
+abline(v=mean(iris$Petal.Length), lty=2, col="red")
+text(x = 4.25, y = 30, labels=mean(iris$Petal.Length), col="red")
+box()
+
+
+
+segments(x0=6, x1=7, y0=40, y1=40, lty=2, col="red")
+text(x = 6.75, y=39, labels="média")
+
+
+dev.off()
+
+
+
+
+
+
+
+
+
+

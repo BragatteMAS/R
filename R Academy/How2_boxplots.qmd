@@ -10,7 +10,7 @@ editor: visual
 
     -   necessariamente os gráficos estão variando muito
 
-    -    valores extremos alterando o conjunto de dados
+    -   valores extremos alterando o conjunto de dados
 
     -   fazer histograma e boxplot (1 quartil(25%), 2 quartil(mediana 50%) e 3 quartil(75%))
 
@@ -32,7 +32,7 @@ histograma.oz <- hist  (airquality$Ozone, las=1, xlab = "Concentração de Ozôn
 boxplot(airquality$Ozone) #range valores para outliers 50% 1.5
 ```
 
-## Calculando mediana  e quartis
+## Calculando mediana e quartis
 
 ```{r}
 quantile (airquality$Ozone, na.rm = T)

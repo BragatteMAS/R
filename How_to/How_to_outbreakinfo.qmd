@@ -1,0 +1,79 @@
+---
+title: "outbreak.info"
+author: "@#BragatteMAS"
+format: html
+editor: visual
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, error = FALSE, warning = FALSE, message = FALSE)
+```
+
+# Outbreak.info
+
+outbreak.info is a platform to discover and explore COVID-19 data and variants. Our Variant Reports allow researchers to track any emerging or known variant using customizable visualizations, enabling near real-time genomic surveillance. Our Epidemiology tools allow users to explore how COVID-19 cases and deaths are changing across locations. <https://outbreak-info.github.io/R-outbreak-info/>
+
+## COVID Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+### Install packages
+
+```{r}
+# Install development version from GitHub
+#devtools::install_github("outbreak-info/R-outbreak-info")
+packs = c("vroom","lubridate","dplyr","purrr","ggplot2","knitr","outbreakinfo" )
+#lapply(packs, install.packages, character.only = TRUE)
+
+```
+
+### Libraries
+
+```{r}
+lapply(packs, require, character.only = TRUE)
+```
+
+### Auth
+
+```{r}
+outbreakinfo::authenticateUser()
+```
+
+## Genomic data
+
+### Lineage \| Mutation Tracker
+
+Provides access to the prevalence of a lineage, mutation(s), or lineage with additional mutations, to access the data underlying the outbreak.info Variant Tracker - in this example, mutation \[S:P681R\] (https://outbreak.info/situation-reports?muts=S%3AP681R). View the Variant Tracker Vignette to explore more options.
+
+```{r}
+library(outbreakinfo)
+#  Provide GISAID credentials using authenticateUser()
+# Get the prevalence of mutation P681R in the Spike protein in Brazil over time.
+P681R = getPrevalence(mutations = c("S:P681R"), location = "BRA", logInfo = FALSE)
+plotPrevalenceOverTime(P681R, title = "Prevalence of S:P681R in BRA")
+```
+
+### Location Tracker
+
+Provides access to the prevalence of all lineages and variants in a country, state/province, or U.S. county, to access the data underlying the outbreak.info Location Tracker. View the Location Tracker Vignette to explore more options.
+
+```{r}
+library(outbreakinfo)
+#  Provide GISAID credentials using authenticateUser()
+# Get the prevalence of all circulating lineages in California over the past 90 days
+ca_lineages = getAllLineagesByLocation(location = "BRA", ndays = 90)
+
+# Plot the prevalence of the dominant lineages in California
+plotAllLineagesByLocation(location ="BRA", ndays = 90)
+```
+
+## Mutations
+
+```{r}
+p1 = getMutationsByLineage(pangolin_lineage="P.1")
+plotMutationHeatmap(p1, title="Characteristic mutations of P.1 occurring in at least 75% of sequences")
+```
+
+## Tutorials
+
+[Articles • outbreakinfo](https://outbreak-info.github.io/R-outbreak-info/articles/index.html)

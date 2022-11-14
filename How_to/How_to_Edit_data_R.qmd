@@ -1,0 +1,47 @@
+---
+title: "Edit data R"
+author: "@Bragatte"
+format: html
+editor: visual
+---
+
+# Edit tables in R
+
+Chunk options
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+## Libraries
+
+```{r}
+#libraries
+packs <- c("editData","DataEditR")
+#lapply(packs, install.packages,character.only = TRUE)
+lapply(packs, require,character.only = TRUE)
+```
+
+### Data Edit R
+
+```{r}
+# edit at RStudio
+data_edit (mtcars, code = TRUE)
+
+# generate code of edition
+data_edit (mtcars, code = "mtcars_edit.R")
+```
+
+### Edit Data
+
+```{r}
+editData(iris)
+```
+
+## Ref
+
+[An Interactive Editor for Viewing, Entering, Filtering & Editing Data • DataEditR](https://dillonhammill.github.io/DataEditR/) [package editData : An RStudio Addin for Editing A 'data.frame'](https://cran.r-project.org/web/packages/editData/vignettes/editData.html)

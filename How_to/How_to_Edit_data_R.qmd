@@ -26,6 +26,13 @@ packs <- c("editData","DataEditR")
 lapply(packs, require,character.only = TRUE)
 ```
 
+### Base format
+
+```{r}
+print(mtcars)
+edit(mtcars)
+```
+
 ### Data Edit R
 
 ```{r}

@@ -6,7 +6,7 @@
 library(sciplot)
 
 #Dados (não se esqueça de verificar arquivos e pasta de trabalho):
-fragmentos <- read.csv ("abelhas em fragmentos.csv", sep=",", dec=".", stringsAsFactors=T)
+fragmentos <- read.csv ("C:/Users/bragatte/Documents/github/R/R Academy/abelhas em fragmentos.csv", sep=";", dec=".", stringsAsFactors=T)
 
 #Conferindo:
 summary (fragmentos)

@@ -1,0 +1,46 @@
+---
+title: "How_2_CleanHEaders"
+author: "@BragatteMAS"
+format: html
+editor: visual
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, error = FALSE, warning = FALSE, message = FALSE)
+```
+
+## Libraries and DF example
+
+```{r}
+library(dplyr)
+library(stringr)
+df <- tibble(SEQ = 1:3, 
+First.....lAST = c("Aleksander, Fraser","Eden, Connor","Joao, Snider"), 
+`last    first` =c("Fraser, Aleksander", "Connor, Eden", "Snider, Joao"))
+```
+
+## function to correct messy headers
+
+Using regex (regular expression) to replace those white space(s), the dot(s) with an underscore and make them upper case.
+
+```{r}
+clean_header <- function(header){
+  str_to_upper(str_replace_all(header, "\\s+|\\.+", "_"))}
+```
+
+### Get all columns names
+
+```{r}
+names(df)
+```
+
+Wrap the names(df) inside the clean_header() function and then assign to names(df)
+
+```{r}
+names(df)<- clean_header(names(df))
+df
+```
+
+## Ref
+
+[Clean Imported Data Headers in R. Have you ever been tired of renaming... \| by Michael T Vu \| Nov, 2022 \| Medium](https://medium.com/@michaeltvu/clean-imported-data-headers-in-r-fdcdad6ad078)

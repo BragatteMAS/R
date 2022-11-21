@@ -3,8 +3,8 @@
 # Refactor @BragatteMAS
 
 #Libraries
-packs = c("httpgd","devtools", "ggplot2")
-lapply(packs, install.packages, character.only = TRUE)
+packs = c("httpgd", "ggplot2")
+#lapply(packs, install.packages, character.only = TRUE)
 lapply(packs, require, character.only = TRUE)
 
 # HTTPGD viz

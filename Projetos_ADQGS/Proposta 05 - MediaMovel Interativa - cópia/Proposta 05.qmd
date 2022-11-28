@@ -77,7 +77,6 @@ pacotes <-
     )
 ## se necessário instalar algum pacote retirar a # abaixo
 #lapply(pacotes, install.packages, character.only = TRUE) 
-
 lapply(pacotes, require, character.only = TRUE)
 ```
 
@@ -243,7 +242,7 @@ casos_es
 ```
 
 ## Transformando em gráficos interativo
-
+### Plotly
 ```{r}
 ## pacote plotly
 ggplotly(casos_br)

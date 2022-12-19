@@ -13,7 +13,7 @@ library(ggmap)
 ```
 
 ```{r}
-ggmap::register_google(key = "AIzaSyDLQLKMMheNIvp-XK2d4kjeE-hogYHCdr8", write = TRUE)
+ggmap::register_google(key = "xxx", write = TRUE)
 
 ```
 

@@ -1,0 +1,26 @@
+---
+title: "How2ggmap"
+author: "@BragatteMAS"
+format:
+  html:
+    code-fold: True
+---
+
+## ggmap
+```{r}
+#install.packages("ggmap")
+library(ggmap)
+```
+
+```{r}
+ggmap::register_google(key = "AIzaSyDLQLKMMheNIvp-XK2d4kjeE-hogYHCdr8", write = TRUE)
+
+```
+
+
+```{r}
+get_googlemap(center = "New York") %>% ggmap()
+```
+
+## Ref
+(Medium tutorial)[https://medium.com/appsilon-data-science/r-ggmap-how-to-visualize-spatial-data-in-r-c46dcf970095]

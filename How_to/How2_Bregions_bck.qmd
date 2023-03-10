@@ -1,0 +1,114 @@
+----
+title: "BR regions"
+author: "@BragatteMAS"
+format: html
+editor: source
+---
+
+# Brazil Regions
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  collapse = TRUE,
+  error = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  #cache = TRUE,
+  fig.align = "center",
+  results = 'asis'
+)
+```
+
+### libs
+```{r}
+## delete memory data
+rm(list = ls())
+```
+
+```{r}
+#| collapse = FALSE
+## add libraries of interest
+packs <-
+  c(
+    "geobr",      ## maps & shape files
+    "sf",         ## plot maps
+    "tidytable",  ## manipular dados
+    "ggplot2",    ## gráficos
+    )
+## install packages if not installed and load libs
+if (!require(packs))
+  lapply(packs, install.packages, character.only = FALSE)
+lapply(packs, require, character.only = TRUE
+)
+```
+
+### data
+```{r}
+br.states <- geobr::read_state(code_state ="all",year=2020 )
+br.region <- geobr::read_region(2020)
+```
+#### Manipulate dataset for translation region names
+```{r}
+# Define a lookup table that maps Portuguese names to English equivalents
+translation_table <-
+  data.frame(
+    from = c("Norte", "Nordeste", "Centro Oeste", "Sudeste", "Sul"),
+    to = c("North", "Northeast", "Midwest", "Southeast", "South")
+  )
+
+# Replace the region names with their English equivalents
+br.region$name_region <-
+  translation_table$to[match(br.region$name_region, translation_table$from)]
+
+br.states$name_region <-
+  translation_table$to[match(br.states$name_region, translation_table$from)]
+```
+
+### plot
+```{r}
+bra <-
+  ggplot(br.states) +
+  geom_sf(aes(fill = name_region)) +
+  geom_sf_label(aes(label = abbrev_state),
+                label.padding = unit(0.5, "mm"),
+                size = 2) +
+  xlab("Longitude") +
+  ylab("Latitude") +
+  labs(fill = "Region",
+       title = "Brazilian regions and states")
+bra
+```
+
+```{r}
+tibble::as.tibble(br.states)
+```
+
+
+```{r}
+br_supp_t <- br.states |> 
+    select(-c(code_state, abbrev_state, code_region, 'geom')) |> 
+    pivot_wider(
+    names_from = 'name_region',
+    values_from = 'name_state',
+    values_fn = list('name_state' = unique)
+  )
+```
+
+### Creating a new table for supplementary material
+```{r}
+br_supp_a <- br.states |> 
+  pivot_wider(names_from = 'name_region', values_from = 'name_state', 
+              values_fn = list(name_state = unique)) |> 
+  select(-c(code_state, abbrev_state, code_region, geom))
+```
+
+
+```{r}
+library(tidyverse)
+library(gt)
+
+br.states %>%
+  select(name_state, name_region) %>%
+  pivot_longer(cols = -name_region, names_to = "state_type") %>%
+  gt()
+```

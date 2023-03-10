@@ -1,0 +1,35 @@
+---
+title: "How2_install_libraries"
+author: "@BragatteMAS"
+format: html
+editor: visual
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = TRUE,
+    collapse = TRUE,
+    error = FALSE,
+    warning = FALSE,
+    message = FALSE,
+    cache = TRUE,
+    fig.align = "center",
+    results = 'asis'
+)
+```
+
+## Optimize form to install and load libraries
+
+```{r}
+## delete memory data
+rm(list = ls())
+## add libraries of interest
+packs <-
+    c(
+        "package_name", ## description
+        "package_name", ## description
+    )
+## install packages if not installed and load libs
+if(!require(packs))lapply(packs, install.packages, character.only = TRUE)
+lapply(packs, require, character.only = TRUE)
+```

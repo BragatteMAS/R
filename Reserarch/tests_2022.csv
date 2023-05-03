@@ -1,0 +1,28 @@
+abbrev_state,state,region,n_tests
+AC,Acre,Norte,32
+AL,Alagoas,Nordeste,725
+AP,Amapá,Norte,235
+AM,Amazonas,Norte,9920
+BA,Bahia,Nordeste,27286
+CE,Ceará,Nordeste,2637
+DF,Distrito Federal,Centro-Oeste,330221
+ES,Espírito Santo,Sudeste,6104
+GO,Goiás,Centro-Oeste,64167
+MA,Maranhão,Nordeste,4587
+MT,Mato Grosso,Centro-Oeste,36917
+MS,Mato Grosso do Sul,Centro-Oeste,4695
+MG,Minas Gerais,Sudeste,36217
+PA,Pará,Norte,5685
+PB,Paraíba,Nordeste,10804
+PR,Paraná,Sul,35222
+PE,Pernambuco,Nordeste,19744
+PI,Piauí,Nordeste,622
+RJ,Rio de Janeiro,Sudeste,152239
+RN,Rio Grande do Norte,Nordeste,928
+RS,Rio Grande do Sul,Sul,2429
+RO,Rondônia,Norte,928
+RR,Roraima,Norte,219
+SC,Santa Catarina,Sul,13649
+SP,São Paulo,Sudeste,385646
+SE,Sergipe,Nordeste,754
+TO,Tocantins,Norte,5554

@@ -26,6 +26,12 @@ rm(list = ls())
 ```
 
 ```{r}
+library(pacman)
+pacman::p_load(geobr, sf, tidytable, ggplot2, janitor, dplyr)
+```
+
+
+```{r}
 #| collapse = FALSE
 ## add libraries of interest
 packs <-
@@ -34,6 +40,8 @@ packs <-
     "sf",         ## plot maps
     "tidytable",  ## manipular dados
     "ggplot2",    ## gráficos
+    "dplyr",      ## merge
+    "janitor"     ## clean data
     )
 ## install packages if not installed and load libs
 if (!require(packs))
@@ -47,6 +55,18 @@ lapply(packs, require, character.only = TRUE
 br.states <- geobr::read_state(code_state ="all",year=2020 )
 br.region <- geobr::read_region(2020)
 ```
+#### Create DF of tests
+```{r}
+dados_testes <- as_tidytable(read.csv("~/Downloads/20/resp20/data/tests_2022.csv"))
+```
+
+#### Add number of test in 2022 Br
+```{r}
+dados_mapa <- left_join(br.states, dados_testes, by = c("abbrev_state" = "abbrev_state")) %>% 
+  clean_names()
+```
+
+
 #### Manipulate dataset for translation region names
 ```{r}
 # Define a lookup table that maps Portuguese names to English equivalents
@@ -64,7 +84,7 @@ br.states$name_region <-
   translation_table$to[match(br.states$name_region, translation_table$from)]
 ```
 
-### plot
+### plot only states
 ```{r}
 bra <-
   ggplot(br.states) +
@@ -78,10 +98,72 @@ bra <-
        title = "Brazilian regions and states")
 bra
 ```
+#### Plot states and tests
+```{r}
+# Definir paleta de cores
+pal <- colorRampPalette(c("white", "red"))
+
+# Criar gradiente de cor
+dados_mapa$grad <- cut(dados_mapa$numero_de_testes_por_estado, breaks = 10)
+daods_mapa$fill <- pal(length(levels(dados_mapa$grad)))[as.integer(dados_mapa$grad)]
+```
 
 ```{r}
-tibble::as.tibble(br.states)
+
+# Criar mapa
+braT <- ggplot() +
+  geom_sf(data = dados_mapa, aes(fill = fill), color = "gray70") +
+  geom_sf_label(data = dados_mapa, aes(label = paste(abbrev_state, numero_de_testes_por_estado)), 
+                label.padding = unit(0.5, "mm"), size = 2) +
+  scale_fill_identity() +
+  xlab("Longitude") +
+  ylab("Latitude") +
+  labs(fill = "Number of tests",
+       title = "Brazilian states by number of tests") +
+  theme_void() +
+  theme(panel.background = element_rect(fill = "white", color = NA))
+
+# Exibir mapa
+braT
 ```
+
+
+```{r}
+# agrupar dados por região e somar o número de testes
+dados_bar <- dados_mapa %>% 
+  group_by(regiao) %>%
+  summarise(num_testes = sum(numero_de_testes_por_estado))
+```
+
+```{r}
+# plotar gráfico de barras horizontais com o número de testes por região
+ggplot(dados_bar, aes(x = reorder(regiao, num_testes), y = num_testes, fill = factor(regiao))) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  xlab("Número de Testes") +
+  ylab("Região") +
+  labs(title = "Número de testes por região") +
+  theme_minimal() +
+  theme(axis.line.y = element_blank(),
+        axis.text.y = element_text(size = 10, hjust = 1),
+        axis.ticks.y = element_blank(),
+        plot.title = element_text(hjust = 0.5),
+        panel.grid.major.x = element_line(color = "gray90"),
+        panel.grid.minor.x = element_line(color = "gray90"),
+        panel.grid.major.y = element_blank()) +
+#  geom_text(aes(x = num_testes, y = reorder(regiao, num_testes), label = num_testes),
+#            hjust = -0.1, size = 3) +
+  scale_y_continuous(labels = scales::comma)
+```
+
+
+```{r}
+#tibble::as.tibble(br.states)
+tibble::as.tibble(dados_mapa)
+```
+```{r}
+glimpse(dados_mapa)
+```
+
 
 
 ```{r}

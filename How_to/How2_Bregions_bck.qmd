@@ -27,9 +27,8 @@ rm(list = ls())
 
 ```{r}
 library(pacman)
-pacman::p_load(geobr, sf, tidytable, ggplot2, janitor, dplyr)
+pacman::p_load(geobr, sf, tidytable, ggplot2, janitor, dplyr, tidyverse, gt)
 ```
-
 
 ```{r}
 #| collapse = FALSE
@@ -57,15 +56,16 @@ br.region <- geobr::read_region(2020)
 ```
 #### Create DF of tests
 ```{r}
-dados_testes <- as_tidytable(read.csv("~/Downloads/20/resp20/data/tests_2022.csv"))
+br22_tests <- as_tidytable(read.csv("~/Documentos/GitHub/R/Reserarch/tests_2022.csv"))
 ```
 
 #### Add number of test in 2022 Br
 ```{r}
-dados_mapa <- left_join(br.states, dados_testes, by = c("abbrev_state" = "abbrev_state")) %>% 
+data_map <- br22_tests %>% 
+  inner_join(br.states, by = "abbrev_state") %>% 
+  select(-state, -region) %>% 
   clean_names()
 ```
-
 
 #### Manipulate dataset for translation region names
 ```{r}
@@ -100,49 +100,52 @@ bra
 ```
 #### Plot states and tests
 ```{r}
-# Definir paleta de cores
+# Define colors range
 pal <- colorRampPalette(c("white", "red"))
 
-# Criar gradiente de cor
-dados_mapa$grad <- cut(dados_mapa$numero_de_testes_por_estado, breaks = 10)
-daods_mapa$fill <- pal(length(levels(dados_mapa$grad)))[as.integer(dados_mapa$grad)]
+# Create color gradient
+data_map$grad <- cut(data_map$n_tests, breaks = 10)
+data_map$fill <- pal(length(levels(data_map$grad)))[as.integer(data_map$grad)]
 ```
 
 ```{r}
-
-# Criar mapa
-braT <- ggplot() +
-  geom_sf(data = dados_mapa, aes(fill = fill), color = "gray70") +
-  geom_sf_label(data = dados_mapa, aes(label = paste(abbrev_state, numero_de_testes_por_estado)), 
-                label.padding = unit(0.5, "mm"), size = 2) +
+# Create heatmap
+heatmap <- ggplot() +
+  geom_sf(data = data_map, aes(fill = fill), color = "gray70") +
+  geom_sf_label(
+    data = data_map,
+    aes(label = paste(abbrev_state, n_tests)),
+    label.padding = unit(0.5, "mm"),
+    size = 2
+  ) +
   scale_fill_identity() +
   xlab("Longitude") +
   ylab("Latitude") +
-  labs(fill = "Number of tests",
-       title = "Brazilian states by number of tests") +
+  labs(fill = "Número de testes em 2022 disponibilizados por laboratórios parceiros",
+       title = "Estados brasileiros por número de testes") +
   theme_void() +
   theme(panel.background = element_rect(fill = "white", color = NA))
 
-# Exibir mapa
-braT
+# View map
+heatmap
 ```
 
 
 ```{r}
-# agrupar dados por região e somar o número de testes
-dados_bar <- dados_mapa %>% 
-  group_by(regiao) %>%
-  summarise(num_testes = sum(numero_de_testes_por_estado))
+# group data by region and sum number of tests
+data_bar <- data_map %>%
+  group_by(name_region) %>%
+  summarise(num_tests = sum(n_tests))
 ```
 
 ```{r}
-# plotar gráfico de barras horizontais com o número de testes por região
-ggplot(dados_bar, aes(x = reorder(regiao, num_testes), y = num_testes, fill = factor(regiao))) +
+# horizontal bar plot with number of tests by region
+ggplot(data_bar, aes(x = reorder(name_region, num_tests), y = num_tests, fill = factor(name_region))) +
   geom_bar(stat = "identity", show.legend = FALSE) +
   xlab("Número de Testes") +
   ylab("Região") +
   labs(title = "Número de testes por região") +
-  theme_minimal() +
+  theme_light() +
   theme(axis.line.y = element_blank(),
         axis.text.y = element_text(size = 10, hjust = 1),
         axis.ticks.y = element_blank(),
@@ -158,14 +161,13 @@ ggplot(dados_bar, aes(x = reorder(regiao, num_testes), y = num_testes, fill = fa
 
 ```{r}
 #tibble::as.tibble(br.states)
-tibble::as.tibble(dados_mapa)
+tibble::as.tibble(data_map)
 ```
 ```{r}
-glimpse(dados_mapa)
+glimpse(data_map)
 ```
 
-
-
+#### Df for new table
 ```{r}
 br_supp_t <- br.states |> 
     select(-c(code_state, abbrev_state, code_region, 'geom')) |> 
@@ -184,11 +186,8 @@ br_supp_a <- br.states |>
   select(-c(code_state, abbrev_state, code_region, geom))
 ```
 
-
+### Gt table
 ```{r}
-library(tidyverse)
-library(gt)
-
 br.states %>%
   select(name_state, name_region) %>%
   pivot_longer(cols = -name_region, names_to = "state_type") %>%

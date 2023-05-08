@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="nome aqui">
+
+<title>script_projeto</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="scRipt_pRojeto_files/libs/clipboard/clipboard.min.js"></script>
+<script src="scRipt_pRojeto_files/libs/quarto-html/quarto.js"></script>
+<script src="scRipt_pRojeto_files/libs/quarto-html/popper.min.js"></script>
+<script src="scRipt_pRojeto_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="scRipt_pRojeto_files/libs/quarto-html/anchor.min.js"></script>
+<link href="scRipt_pRojeto_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="scRipt_pRojeto_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="scRipt_pRojeto_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="scRipt_pRojeto_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="scRipt_pRojeto_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">script_projeto</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>nome aqui </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="meu-script-meu-projeto" class="level1">
+<h1>meu script, meu projeto</h1>
+<section id="porque-desta-atividade" class="level2">
+<h2 class="anchored" data-anchor-id="porque-desta-atividade"><strong>Porque</strong> desta atividade?</h2>
+<p>Praticar as habilidades ensinadas no curso em projeto com dados reais de pesquisa na área de saúde, neste exemplo sobre Câncer de Pâncreas.</p>
+<p>Nesta pesquisa queremos averiguar as associações entre o desfecho Câncer de Pâncreas e os hábitos que foram levantados (idade, sexo, bebe café, fuma) na coorte de indivíduos.</p>
+<p>Dicas aulas -</p>
+</section>
+<section id="o-que-fazer-com-um-banco-de-dados-de-pesquisa" class="level2">
+<h2 class="anchored" data-anchor-id="o-que-fazer-com-um-banco-de-dados-de-pesquisa"><strong>O que</strong> fazer com um banco de dados de pesquisa?</h2>
+<p>Realizar transformações versáteis que facilitam análises de dados para diferentes estudos:</p>
+<ul>
+<li><p>Manipulação</p></li>
+<li><p>Análise descritiva</p></li>
+<li><p>Avaliar e testar modelos estatísticos</p></li>
+</ul>
+</section>
+</section>
+<section id="como" class="level1">
+<h1>Como</h1>
+<p>Seguir as instruções abaixo:</p>
+<ul>
+<li><p>Cada discente terá seu arquivo individualizado, você precisa <strong>baixar o arquivo com seu nome da página do curso ;</strong></p></li>
+<li><p><strong>Criar um projeto no Rstudio</strong>, contendo o arquivo de dados do exercício com seu nome <em>e</em></p></li>
+<li><p><strong>Fazer um script/quarto</strong> realizando as tarefas abaixo</p>
+<ul>
+<li>Vamos seguir o fluxo de ideias com perguntas…</li>
+</ul></li>
+</ul>
+<section id="manipulando-os-dados" class="level3">
+<h3 class="anchored" data-anchor-id="manipulando-os-dados">Manipulando os dados</h3>
+<p>Seus dados estão adequados? Tem “sujeira”?</p>
+<p>Umas das funções mais frequentes em projetos é transformar os dados:</p>
+<ol type="1">
+<li><p>Seus dados já estão limpos, campos categóricos foram transformados em numéricos para análises estatísticas?</p>
+<ol type="1">
+<li>Você tivessem que fazer esse processo, como fariam?<br>
+Dicas aulas - 10, 33.
+<ul>
+<li><p>Como esta?</p>
+<ul>
+<li><img src="images/dados_tratar.png" class="img-fluid"></li>
+</ul></li>
+<li><p>Como deve ficar?</p>
+<ul>
+<li><img src="images/limpo.png" class="img-fluid"></li>
+</ul></li>
+</ul></li>
+</ol></li>
+<li><p>Desafio: criar coluna com faixas etárias e agroupar</p>
+<ol type="1">
+<li><p>Adicionar colunas novas?<br>
+Dicas aulas - 24</p>
+<ul>
+<li><img src="images/faixas.png" class="img-fluid"></li>
+</ul></li>
+</ol></li>
+</ol>
+</section>
+<section id="analises-descritivas" class="level2">
+<h2 class="anchored" data-anchor-id="analises-descritivas">Analises descritivas</h2>
+<p>Já abordamos diversas bibliotecas para análises exploratórias no módulo 1 e após limpar os dados este é um bom momento para fazer este tipo de abordagem.</p>
+<p>Nosso objetivo neste trabalho é seguir além, para esta segunda etapa <strong>comecem a verificar a interação entre as variáveis</strong>:</p>
+<p><em>(sexo e cancer | café e cancer | faixas etárias e cancer)</em></p>
+<p>Dicas Aulas - 14, 15, 19-1 e 19-2</p>
+<ul>
+<li><p>Seus dados podem ficar diferentes, apenas um exemplo de referência:</p>
+<ul>
+<li><p><img src="images/idades.png" class="img-fluid"></p></li>
+<li><p><strong>Será que a sua população amostral é uniforme?<br>
+responda qual o tipo de população quanto a idade e sexo<br>
+</strong>Dicas aulas - 17, 18</p></li>
+<li><p><img src="images/pop.png" class="img-fluid"></p></li>
+</ul></li>
+</ul>
+</section>
+<section id="risco-relativo-rr" class="level2">
+<h2 class="anchored" data-anchor-id="risco-relativo-rr">Risco Relativo (RR)</h2>
+<p>Dicas aulas - 25, 26, 27, 28, 29</p>
+<ol type="1">
+<li><p><strong>Criar tabelas de contigências</strong> com as variáveis de interesse</p>
+<p>Dica extra - nestas horas podemos mesclar ou voltar a usar as tabelas originais para facilitar a criação das tabelas novas de contigência entre os dados inteiros e categóricos.</p></li>
+</ol>
+</section>
+<section id="avaliar-modelos-logísticos-para-câncer-no-pâncreas" class="level2">
+<h2 class="anchored" data-anchor-id="avaliar-modelos-logísticos-para-câncer-no-pâncreas"><strong>Avaliar modelos logísticos para câncer no pâncreas</strong></h2>
+<p>Dicas aulas -30, 35, 37, 38, 41,</p>
+<ol type="1">
+<li><p><strong>Qual das variáveis tem maior correlação com o câncer de pâncreas?</strong></p>
+<pre><code>podem usar as aulas de regressão ´lm()´</code></pre></li>
+</ol>
+<p>Dicas aulas - 48, 49 e 50</p>
+<ol start="2" type="1">
+<li><p><strong>Apresentar cálculo de regressão logística</strong></p>
+<pre><code>podem usar exemplo da aula de regressão ´glm()´</code></pre></li>
+</ol>
+<p><strong>Colocar um parágrafo de conclusão no seu relatório</strong>, usando seus dados, com as correlações, ou regressões ou valor-p.<br>
+Não estamos esperando um modelo de resposta ideal, o objetivo é vocês praticarem o método científico e aplicar os aprendizados no R, gerando um relatório ao final (no RStudio clicar no botão Render).</p>
+<p>Devem usar este arquivo como referência.<br>
+<br>
+Entregar o arquivo com seu script “script_projeto_Maria”, chamando os dados com seu Maria.csv, por exemplo. Aproveitem as ‘dicas das aulas’ que dão as referências para os exercícios.<br>
+<br>
+Bom trabalho e semana.<br>
+</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -1,0 +1,131 @@
+---
+title: "Projeto_Cancer"
+author: "Bragatte"
+format: html
+editor: visual
+---
+
+### Bibliotecas
+
+```{r}
+## Bibliotecas
+pacman::p_load(vroom, tidyverse, sciplot, rcompanion, ggpubr, epitools)
+
+```
+
+### Carregando meus dados
+
+```{r}
+## Ler os dados
+dados <-
+    vroom("MARCELO ALVES DE SOUZA BRAGATTE.csv")
+```
+
+## Limpeza dos dados
+
+```{r}
+## Substituindo os valores nas colunas|Transformar "sexo", "cafe", "cigarro" e "cancerpancreas" em fatores
+dados_cancer <- dados |>
+    mutate(
+        idade = as.integer(idade),
+        idademdecenios = as.integer(idademdecenios),
+        sexo = ifelse(sexo == "Masculino", 0, 1),
+        cafe = ifelse(cafe ==  "Não",0, 1),
+        cigarro = ifelse(cigarro == "Não", 0, 1),
+        cancerpancreas = ifelse(cancerpancreas == "Não", 0, 1)
+    )
+
+## verificar dados
+glimpse(dados_cancer)
+```
+
+### Adicionando colunas
+
+Grupos etários
+
+```{r}
+dados_cancer <- dados_cancer |>
+    mutate(faixa_etaria = cut(
+        idade,
+        breaks = c(seq(0, 100, by = 10), 120),
+        labels = c(
+            "0-9",
+            "10-19",
+            "20-29",
+            "30-39",
+            "40-49",
+            "50-59",
+            "60-69",
+            "70-79",
+            "80-89",
+            "90-99",
+            "100-120"
+        )
+    ))
+```
+
+## Analises Descritivas
+
+(sexo e câncer \| café e câncer \| fuma e câncer \| faixas etárias e câncer)
+
+```{r}
+lineplot.CI(x.factor = dados_cancer$sexo, dados_cancer$cancerpancreas)
+```
+
+```{r}
+lineplot.CI(x.factor = dados_cancer$cafe, dados_cancer$cancerpancreas)
+```
+
+```{r}
+lineplot.CI(x.factor = dados_cancer$faixa_etaria, dados_cancer$cancerpancreas)
+```
+
+```{r}
+
+rcompanion::plotDensityHistogram(dados_cancer$idade)
+```
+
+```{r}
+ggqqplot(dados_cancer$idade)
+```
+
+```{r}
+glimpse(dados_cancer)
+```
+
+## \*\* Risco Relativo (RR)\*\*
+
+Dicas aulas - 25, 26
+
+Tabelas de contingência
+
+```{r}
+sexo_cancer <- table(dados$sexo, dados$cancerpancreas)
+cafe_cancer <- table(dados$cafe, dados$cancerpancreas)
+fuma_cancer <- table(dados$cigarro, dados$cancerpancreas)
+idades_cancer <-table(dados_cancer$faixa_etaria, dados$cancerpancreas)
+view(idades_cancer)
+```
+
+## **Avaliar modelos logísticos para câncer no pâncreas**
+
+```{r}
+## coeficiente de correlação linear
+cor(dados_cancer$idade , dados_cancer$cancerpancreas)
+```
+
+```{r}
+lm(dados_cancer$idade ~ dados_cancer$cancerpancreas)
+```
+
+```{r}
+reg <- glm(cancerpancreas ~ faixa_etaria + cigarro, family = binomial(link = "logit"), data = dados_cancer)
+reg
+```
+
+## Salvar output
+
+```{r}
+# Salvar arquivo CSV
+write.csv(dados_cancer_bragatte, "tabela_Bragatte.csv", row.names = FALSE)
+```

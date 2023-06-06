@@ -1,11 +1,15 @@
 ---
-title: "Arvores"
+title: "Arvore_saude"
 format: html
 editor: visual
 autor: Bragatte
 ---
 
-## Arvores
+## Árvores na tomada de decisão em saúde
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, error = FALSE, warning = FALSE, message = FALSE, results = 'asis')
+```
 
 ```{r}
 ## Instalar e carregar a biblioteca
@@ -14,11 +18,12 @@ pacman::p_load(party)
 ## verificar dados
 head(iris)
 
+## visualizar arvore de decisão
+modelo <- ctree(Species~.,data=iris)
+
 ## aplicar modelo preditivo
 table(predict(modelo), iris$Species)
 
-## visualizar arvore de decisão
-modelo <- ctree(Species~.,data=iris)
 plot(modelo)
 
 ```
@@ -43,6 +48,8 @@ text(arvore, use.n = TRUE, all = TRUE, cex = .8)
 ```
 
 ```{r}
+## Instalar e carregar a biblioteca
+pacman::p_load(rpart.plot)
 ## Plotar a árvore de decisão usando rpart.plot
 rpart.plot(arvore, type=4, extra=101)
 ```
@@ -56,9 +63,21 @@ Este código criará uma visualização agradável e compreensível da árvore d
 Para este exemplo, vamos usar o conjunto de dados "PimaIndiansDiabetes" disponível na biblioteca "mlbench". Este conjunto de dados inclui informações de mulheres com pelo menos 21 anos de descendência Pima Indian. Inclui medidas como número de gravidezes, glicose, pressão arterial, entre outros.
 
 ```{r}
+
 ## Carregar o conjunto de dados PimaIndiansDiabetes
+pacman::p_load(mlbench, janitor,dplyr)
+
 ### Este conjunto de dados inclui informações sobre saúde de mulheres de ascendência Pima Indian
-data(PimaIndiansDiabetes)
+### Qual a diferença?
+data(PimaIndiansDiabetes) #0
+data(PimaIndiansDiabetes2) #NA
+
+## Lembrando como limpar o dataset, substituir NAs por 0 em todas as colunas
+## deixar o PimaIndiansDiabetes2 igual ao PimaIndiansDiabetes
+##dplyr
+PimaIndiansDiabetes2_clean <- mutate_all(PimaIndiansDiabetes, ~ ifelse(is.na(.), 0, .))
+## janitor
+# PimaIndiansDiabetes2_clean <- replace_na(PimaIndiansDiabetes2, replace = list(all = 0))
 
 ## Criar a árvore de decisão
 ### Estamos tentando prever a variável "diabetes" com base nas outras variáveis
@@ -99,3 +118,27 @@ rpart.plot(arvore_saude, type=3, box.palette="auto", shadow.col="gray", nn=TRUE)
 -   nn=TRUE: Esta opção adiciona o número de observações em cada nó no plot.
 
 Estas são apenas algumas das muitas opções disponíveis na função rpart.plot. Para mais detalhes e para explorar outras opções, você pode verificar a documentação da função rpart.plot no R.
+
+### Avaliando as árvores
+
+A árvore de decisão é uma representação gráfica de um modelo de previsão que utiliza perguntas sobre os dados para tomar decisões e classificar as observações em categorias.
+
+Ao analisar o output da árvore de decisão, podemos observar o seguinte:
+
+1.  Cada retângulo representa um "nó" na árvore, que corresponde a uma condição ou uma decisão.
+
+2.  A primeira linha em cada nó indica a variável que está sendo testada naquele ponto.
+
+3.  A segunda linha mostra o valor de corte usado para dividir os dados em dois ramos.
+
+4.  A terceira linha representa a contagem de observações em cada ramo, onde "yes" indica o número de observações classificadas como positivas (diabetes = 1) e "no" indica o número de observações classificadas como negativas (diabetes = 0).
+
+5.  A quarta linha indica a porcentagem das observações em cada ramo, relacionando o número de observações em cada ramo com o total.
+
+6.  Nos nós terminais (folhas), encontramos a classificação final. Nesse caso, temos uma das três possibilidades: "0" para diabetes negativo, "1" para diabetes positivo ou "?" quando não há observações suficientes para tomar uma decisão.
+
+7.  A linha "N" indica o número total de observações em cada nó.
+
+8.  Os ramos da árvore mostram o caminho a ser seguido com base nas respostas às perguntas de divisão. Por exemplo, se uma observação atende à condição no nó raiz, ela seguirá para a esquerda, caso contrário, seguirá para a direita.
+
+A árvore de decisão pode ser usada para prever a presença ou ausência de diabetes com base nas características das mulheres de ascendência Pima Indian. Seguindo o caminho da árvore de cima para baixo, podemos ver as condições que levam a cada classificação. A interpretação e análise detalhada dependem das características específicas do conjunto de dados e do objetivo do estudo.

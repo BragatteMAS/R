@@ -20,23 +20,31 @@ When you click the **Render** button a document will be generated that includes 
 ### Install packages
 
 ```{r}
-# Install development version from GitHub
-#devtools::install_github("outbreak-info/R-outbreak-info")
-packs = c("vroom","lubridate","dplyr","purrr","ggplot2","knitr","outbreakinfo" )
-#lapply(packs, install.packages, character.only = TRUE)
-
+## Prerequesite
+# Install.packages("devtools")
+## Install development version from GitHub
+devtools::install_github("outbreak-info/R-outbreak-info")
 ```
 
 ### Libraries
 
 ```{r}
-lapply(packs, require, character.only = TRUE)
+# packs = c("vroom","lubridate","dplyr","purrr","ggplot2","knitr","outbreakinfo" )
+##lapply(packs, install.packages, character.only = TRUE)
+# lapply(packs, require, character.only = TRUE)
+```
+
+#### Alternative
+
+```{r}
+pacman::p_load(vroom, lubridate, tidyverse, outbreakinfo)
 ```
 
 ### Auth
 
 ```{r}
-outbreakinfo::authenticateUser(bragatte)
+## Authenticate direct on url
+outbreakinfo::authenticateUser()
 ```
 
 ## Genomic data
@@ -47,10 +55,12 @@ Provides access to the prevalence of a lineage, mutation(s), or lineage with add
 
 ```{r}
 library(outbreakinfo)
-#  Provide GISAID credentials using authenticateUser()
-# Get the prevalence of mutation P681R in the Spike protein in Brazil over time.
-P681R = getPrevalence(mutations = c("S:P681R"), location = "BRA", logInfo = FALSE)
-plotPrevalenceOverTime(P681R, title = "Prevalence of S:P681R in BRA")
+##  Provide GISAID credentials using authenticateUser()
+## Get the prevalence of mutation P681R in the Spike protein in Brazil over time.
+# P681R = getPrevalence(mutations = c("S:P681R"), location = "BRA", logInfo = FALSE)
+# plotPrevalenceOverTime(P681R, title = "Prevalence of S:P681R in BRA")
+# P681R = getPrevalence(mutations = c("S:P681R"), location = "BRA", logInfo = FALSE)
+# plotPrevalenceOverTime(P681R, title = "Prevalence of S:P681R in BRA")
 ```
 
 ### Location Tracker
@@ -60,11 +70,23 @@ Provides access to the prevalence of all lineages and variants in a country, sta
 ```{r}
 library(outbreakinfo)
 #  Provide GISAID credentials using authenticateUser()
-# Get the prevalence of all circulating lineages in California over the past 90 days
-ca_lineages = getAllLineagesByLocation(location = "BRA", ndays = 90)
+# Get the prevalence of all circulating lineages in Brazil over the past 90 days
+ca_lineages = getAllLineagesByLocation(location = "Brazil")
 
 # Plot the prevalence of the dominant lineages in California
-plotAllLineagesByLocation(location ="BRA", ndays = 90)
+plotAllLineagesByLocation(location ="Brazil", )
+```
+
+# Lineage Comparison Tool
+
+```{r}
+lineages_of_interest <- c("BA.2", "BA.2.12.1", "BA.4", "BA.5", "XBB")
+
+# Get all mutations in the lineages of interest with at least 75% prevalent in one of the lineages.
+mutations = getMutationsByLineage(pangolin_lineage=lineages_of_interest, frequency=0.75, logInfo = FALSE)
+
+# Plot the mutations as a heatmap
+plotMutationHeatmap(mutations, title = "S-gene mutations in lineages")
 ```
 
 ## Mutations

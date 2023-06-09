@@ -36,7 +36,7 @@ lapply(packs, require, character.only = TRUE)
 ### Auth
 
 ```{r}
-outbreakinfo::authenticateUser()
+outbreakinfo::authenticateUser(bragatte)
 ```
 
 ## Genomic data

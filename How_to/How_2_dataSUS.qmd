@@ -1,0 +1,67 @@
+---
+title: "DataSUS"
+format: html
+editor: visual
+---
+
+```{r}
+{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, error = FALSE, warning = FALSE, message = FALSE)
+```
+
+## MicrodadosSUS
+
+```{r}
+install.packages("devtools")
+devtools::install_github("rfsaldanha/microdatasus")
+
+library(microdatasus)
+dados <- datasus_fetch(year_start = 2013, year_end = 2014, uf = "SP", information_system = "SIM-DO")
+dados <- process_sim(dados)
+```
+
+### HackDATASUS
+
+```{r}
+hack_datasus <- function(sistema, modalidade, tipo_arquivo, ano, UF, mes){
+  
+  #Função gera dataframe a partir de ftp feita na página do datasus
+  
+  #sistema ex:'SIHSUS' Verificar os sistemas disponíveis em http://www2.datasus.gov.br/DATASUS/index.php?area=0901&item=1
+  #modalidade  'dados'
+  #tipo_arquivo ex: 'RD'#Varia conforme o sistema
+  #ano ex: 17 Dois últimos dígitos do ano 
+  #UF ex:'AL' Sigla de UF Brasileira
+  #mes ex:'12' strings entre 01 e 12
+  
+  
+  dest_file<- paste0(tipo_arquivo,UF,ano,mes,".dbc")
+  str_download <- paste0("ftp://ftp.datasus.gov.br/dissemin/publicos/",sistema,"/","200801","_/",modalidade,"/",tipo_arquivo,UF,ano,mes,".dbc")
+  download.file(str_download,destfile = dest_file, mode='wb')
+  library(read.dbc)
+  datasus<- read.dbc(dest_file)
+  
+  
+}
+
+sistema <- 'SIASUS' #Verificar os sistemas disponíveis em http://www2.datasus.gov.br/DATASUS/index.php?area=0901&item=1
+modalidade <- 'dados'
+tipo_arquivo<- 'ACF'#Varia conforme o sistema
+ano <- 18 #Dois últimos dígitos do ano 
+UF <- 'SP' #Siglas das UFs Brasileiras
+mes<- '01' #strings entre 01 e 12
+
+
+#Carrega em df_datasus os dados relativos à base de dados montada a partir dos parãmetros
+df_datasus<- hack_datasus(sistema, modalidade, tipo_arquivo, ano, UF, mes)
+```
+
+```{python}
+from pysus.online_data.sinasc import download
+df = download('SE', 2015)
+df.head()
+```
+
+## Ref
+
+[🩺 Como obter e tratar Dados do Datasus - 🔍 Onde encontrar - dadosabertos.social](https://dadosabertos.social/t/como-obter-e-tratar-dados-do-datasus/66/31)

@@ -1,0 +1,168 @@
+---
+title: "Aula68_Pratica_XGBoost_detalhada"
+author: "@BragatteMAS"
+format: html
+editor: visual
+R: 4.2.1
+---
+
+## Aprimorando com outras bibliotecas
+
+```{r}
+## Carrega bibliotecas necessárias
+pacman::p_load(xgboost, caret, mlbench)
+## xgboost = treinamento do modelo XGBoost
+## caret = preparação de dados e avaliação do modelo
+## mlbench = carregar o conjunto de dados PimaIndiansDiabetes
+
+```
+
+## **Pré-processamento dos dados**:
+
+Certifique-se de que seus dados estão em um formato que o XGBoost pode usar. O XGBoost aceita **dados numéricos**, então certifique-se de **converter variáveis categóricas em variáveis dummy** ou codificá-las de alguma forma.
+
+```{r}
+## Carrega conjunto de dados PimaIndiansDiabetes
+data("PimaIndiansDiabetes")
+
+## Cria uma nova coluna 'diabetes_bin' com base na coluna 'diabetes'
+PimaIndiansDiabetes$diabetes_bin <- ifelse(PimaIndiansDiabetes$diabetes == "pos", 1, 0)
+
+## Remove a coluna 'diabetes'
+PimaIndiansDiabetes$diabetes <- NULL
+
+## Garante que todos os dados são numéricos
+PimaIndiansDiabetes[] <- lapply(PimaIndiansDiabetes, as.numeric)
+```
+
+O pré-processamento dos dados é feito assegurando que todos os dados sejam numéricos antes de serem passados para o XGBoost. Isso é feito com o código **`PimaIndiansDiabetes[] <- lapply(PimaIndiansDiabetes, as.numeric)`**.
+
+## **Configuração de parâmetros:**
+
+### Treinamento \`*Train*\` & Teste \`*Test*\`
+
+A verificação de overfitting é implícita, uma vez que um conjunto de dados de teste é separado do conjunto de dados de treinamento. As previsões são então feitas no conjunto de dados de teste e a acurácia é calculada.
+
+```{r}
+## Dividindo o conjunto de dados em treinamento e teste
+set.seed(123) ## Para resultados reproduzíveis
+trainIndex <- createDataPartition(PimaIndiansDiabetes$diabetes_bin, p=0.8, list=FALSE)
+trainData <- PimaIndiansDiabetes[trainIndex,]
+testData <- PimaIndiansDiabetes[-trainIndex,]
+
+```
+
+A configuração de parâmetros é feita na lista de parâmetros que é passada para a função **`xgb.train()`**.
+
+```{r}
+## Converte os dados de treinamento e teste para matrizes, que é o formato de entrada exigido pelo XGBoost
+trainMatrix <- xgb.DMatrix(data = as.matrix(trainData[,-9]), label = trainData$diabetes_bin)
+testMatrix <- xgb.DMatrix(data = as.matrix(testData[,-9]), label = testData$diabetes_bin)
+
+```
+
+-   XGBoost tem muitos parâmetros que podem ser ajustados para melhorar o desempenho do modelo. Fazer experiências com diferentes combinações de parâmetros pode levar a resultados significativamente melhores.
+
+```{r}
+## Parâmetros para o modelo XGBoost
+params <- list(
+  objective = "binary:logistic",
+  eval_metric = "auc",
+  max_depth = 5,
+  eta = 0.3,
+  colsample_bytree = 0.7,
+  min_child_weight = 1,
+  subsample = 0.8
+)
+```
+
+### Treinando o modelo
+
+O XGBoost lida automaticamente com valores faltantes, portanto, não há necessidade de qualquer código extra para lidar com isso neste exemplo.
+
+```{r}
+## Treinando o modelo XGBoost
+model <- xgb.train(params = params, data = trainMatrix, nrounds = 100)
+
+```
+
+```{r}
+## Fazendo previsões no conjunto de teste
+predictions <- predict(model, testMatrix)
+
+## Convertendo as probabilidades preditas em classes binárias
+predictedClasses <- ifelse(predictions > 0.5, 1, 0)
+
+## Avaliando a acurácia do modelo
+accuracy <- sum(predictedClasses == testData$diabetes_bin) / nrow(testData)
+print(paste("Acurácia: ", round(accuracy, 2)))
+
+```
+
+Finalmente, a visualização do modelo é feita através do gráfico de importância das variáveis, que é gerado com a função **`xgb.plot.importance()`**.
+
+```{r}
+## Criando o gráfico de importância da variável
+importance_matrix <- xgb.importance(model = model)
+xgb.plot.importance(importance_matrix)
+
+```
+
+A função **`xgb.plot.importance()`** identifica qual a importância de uma variável medida pela quantidade de vezes que essa variável é usada para dividir os dados em todas as árvores. Em outras palavras, é uma medida de quão informativa é uma variável para prever o resultado.
+
+Aqui estão as principais características do gráfico de importância de variáveis:
+
+1.  Eixo Y: Este eixo lista todas as variáveis do modelo.
+
+2.  Eixo X: Este eixo representa a importância relativa de cada variável. Uma variável com maior importância relativa é usada mais frequentemente para dividir os dados. Portanto, essa variável tem uma maior contribuição para a formação da previsão.
+
+3.  Barra: Cada variável é representada por uma barra e o comprimento da barra indica a importância relativa da variável correspondente.
+
+## Curva ROC
+
+```{r}
+## Carregar a biblioteca pROC
+library(pROC)
+
+## Calcular as probabilidades preditas pelo modelo
+predictedProb <- predict(model, testMatrix)
+
+## Criar um objeto roc com as probabilidades e os valores reais
+roc_obj <- roc(testData$diabetes_bin, predictedProb)
+
+## Plotar a curva ROC
+plot(roc_obj, main = "Curva ROC", xlab = "Taxa de Falso Positivo", ylab = "Taxa de Verdadeiro Positivo")
+
+## Calcular a área sob a curva (AUC)
+auc <- auc(roc_obj)
+print(paste("Área sob a curva (AUC):", round(auc, 2)))
+
+```
+
+No gráfico da curva ROC, o eixo x representa a taxa de falso positivo (1 - especificidade) e o eixo y representa a taxa de verdadeiro positivo (sensibilidade). Quanto mais próximo o gráfico estiver do canto superior esquerdo, melhor será o desempenho do modelo.
+
+A área sob a curva (AUC) é uma métrica de desempenho do modelo. Quanto maior o valor da AUC, melhor será a capacidade do modelo em distinguir entre as classes positiva e negativa. Uma AUC de 1 indica um modelo perfeito, enquanto um valor de 0,5 indica um modelo aleatório.
+
+```{r}
+## Carregar as bibliotecas necessárias
+library(pROC)
+
+## Calcular as probabilidades preditas pelo modelo
+predictedProb <- predict(model, testMatrix)
+
+## Criar um objeto roc com as probabilidades e os valores reais
+roc_obj <- roc(testData$diabetes_bin, predictedProb)
+
+## Calcular a acurácia do modelo
+accuracy <- sum(predictedClasses == testData$diabetes_bin) / nrow(testData)
+
+## Plotar a curva ROC usando pROC
+roc_plot <- plot(roc_obj, main = "Curva ROC", col = "blue", print.auc = TRUE, auc.polygon = TRUE, grid = TRUE)
+
+## Adicionar legenda com acurácia
+legend("bottomright", legend = paste("Acurácia:", round(accuracy, 2)), col = "black", lty = 1, cex = 0.8)
+
+
+```
+
+**Curva ROC** mostra a **relação entre a sensibilidade e a especificidade** em diferentes pontos de corte, enquanto a **AUC** é um valor resumido que representa a **capacidade geral do modelo em discriminar corretamente entre as classes**. Ambas as métricas são úteis para avaliar e comparar modelos de classificação binária.

@@ -3,7 +3,7 @@ title: "Aula68_Pratica_XGBoost_detalhada"
 author: "@BragatteMAS"
 format: html
 editor: visual
-R: 4.2.1
+R: 4.3.0
 ---
 
 ## Aprimorando com outras bibliotecas
@@ -33,6 +33,7 @@ PimaIndiansDiabetes$diabetes <- NULL
 
 ## Garante que todos os dados são numéricos
 PimaIndiansDiabetes[] <- lapply(PimaIndiansDiabetes, as.numeric)
+
 ```
 
 O pré-processamento dos dados é feito assegurando que todos os dados sejam numéricos antes de serem passados para o XGBoost. Isso é feito com o código **`PimaIndiansDiabetes[] <- lapply(PimaIndiansDiabetes, as.numeric)`**.
@@ -45,7 +46,7 @@ A verificação de overfitting é implícita, uma vez que um conjunto de dados d
 
 ```{r}
 ## Dividindo o conjunto de dados em treinamento e teste
-set.seed(123) ## Para resultados reproduzíveis
+set.seed(42) ## Para resultados reproduzíveis
 trainIndex <- createDataPartition(PimaIndiansDiabetes$diabetes_bin, p=0.8, list=FALSE)
 trainData <- PimaIndiansDiabetes[trainIndex,]
 testData <- PimaIndiansDiabetes[-trainIndex,]
@@ -76,6 +77,21 @@ params <- list(
 )
 ```
 
+Olhando no detalhe:\
+**`objective`**: Define a **função de perda** a ser otimizada durante o treinamento do modelo. Neste caso, "binary:logistic" indica que estamos resolvendo um problema de classificação binária usando a função logística.
+
+-   **`eval_metric`**: Define a métrica de avaliação a ser usada durante o treinamento do modelo. Neste caso, "**auc**" indica que estamos usando a **área sob a curva ROC** como métrica de avaliação.
+
+-   **`max_depth`**: Define a **profundidade máxima das árvores de decisão** no modelo. Controla a complexidade do modelo, **evitando o overfitting**. Um valor maior indica árvores mais profundas.
+
+-   **`eta`**: Também conhecido como taxa de aprendizado, controla a taxa de **atualização dos pesos** do modelo a cada iteração. Um **valor menor requer mais iterações** para atingir a convergência, mas pode melhorar a generalização.
+
+-   **`colsample_bytree`**: Controla a **proporção de colunas (features) a serem amostradas** aleatoriamente para construir cada árvore. Um v**alor menor reduz a correlação** entre as árvores e pode **ajudar a evitar o overfitting**.
+
+-   **`min_child_weight`**: **Define o peso mínimo necessário para criar um novo nó** na árvore. Um valor maior impõe mais restrições às partições de nós e pode ajudar a evitar o overfitting.
+
+-   **`subsample`**: **Controla a proporção de amostras (linhas)** a serem amostradas aleatoriamente para construir cada árvore. Um **valor menor reduz a correlação entre as árvores e pode ajudar a evitar o overfitting**.
+
 ### Treinando o modelo
 
 O XGBoost lida automaticamente com valores faltantes, portanto, não há necessidade de qualquer código extra para lidar com isso neste exemplo.
@@ -95,7 +111,7 @@ predictedClasses <- ifelse(predictions > 0.5, 1, 0)
 
 ## Avaliando a acurácia do modelo
 accuracy <- sum(predictedClasses == testData$diabetes_bin) / nrow(testData)
-print(paste("Acurácia: ", round(accuracy, 2)))
+print(paste("Acurácia para XGBoost: ", round(accuracy, 2)))
 
 ```
 
@@ -116,13 +132,13 @@ Aqui estão as principais características do gráfico de importância de variá
 
 2.  Eixo X: Este eixo representa a importância relativa de cada variável. Uma variável com maior importância relativa é usada mais frequentemente para dividir os dados. Portanto, essa variável tem uma maior contribuição para a formação da previsão.
 
-3.  Barra: Cada variável é representada por uma barra e o comprimento da barra indica a importância relativa da variável correspondente.
+3.  Barra: Cada variável é representada por uma **barra e o comprimento da barra indica a importância relativa da variável** correspondente.
 
 ## Curva ROC
 
 ```{r}
 ## Carregar a biblioteca pROC
-library(pROC)
+pacman::p_load(pROC)
 
 ## Calcular as probabilidades preditas pelo modelo
 predictedProb <- predict(model, testMatrix)
@@ -145,7 +161,7 @@ A área sob a curva (AUC) é uma métrica de desempenho do modelo. Quanto maior 
 
 ```{r}
 ## Carregar as bibliotecas necessárias
-library(pROC)
+pacman::p_load(pROC)
 
 ## Calcular as probabilidades preditas pelo modelo
 predictedProb <- predict(model, testMatrix)
@@ -166,3 +182,138 @@ legend("bottomright", legend = paste("Acurácia:", round(accuracy, 2)), col = "b
 ```
 
 **Curva ROC** mostra a **relação entre a sensibilidade e a especificidade** em diferentes pontos de corte, enquanto a **AUC** é um valor resumido que representa a **capacidade geral do modelo em discriminar corretamente entre as classes**. Ambas as métricas são úteis para avaliar e comparar modelos de classificação binária.
+
+## Diversas opções para aprendizado de máquina
+
+Como de praxe o R oferece diversos pacotes para executar funções de diferentes formas. Pacotes que recomendo para aprendizado de máquina em R:
+
+-   Caret
+
+-   H2O
+
+-   ml3
+
+### **CARET** (**C**lassification **A**nd **RE**gression **T**raining)
+
+Com pacotes para aprendizado de máquina temos diversos algoritmos em uma mesma biblioteca, por exemplo, \`glm\`, \`arvores de decisão\`, \`florestas aleatórias\` (random forest) e o `xgboost`\`. Tudo dentro de uma mesma biblioteca, além de funções para dividir entre treino e teste, reamostrar e selecionar dados.\
+Aqui demonstramos o script explicado acima modificado para gerar um novo método de algoritmo e outros resultados.
+
+### Árvore de decisão
+
+```{r}
+## Carregar bibliotecas
+pacman::p_load(caret, rpart, rpart.plot)
+
+## Carregar o dataset
+data("PimaIndiansDiabetes")
+
+## Dividir o conjunto de dados em treinamento e teste
+set.seed(42)  ## Para resultados reproduzíveis
+trainIndex <- createDataPartition(PimaIndiansDiabetes$diabetes, p = 0.8, list = FALSE)
+trainData <- PimaIndiansDiabetes[trainIndex, ]
+testData <- PimaIndiansDiabetes[-trainIndex, ]
+
+## Treinar o modelo de árvore de decisão
+model <- train(diabetes ~ ., data = trainData, method = "rpart")
+
+## Fazer previsões
+predictions <- predict(model, newdata = testData)
+
+## Avaliar a precisão do modelo
+accuracy <- sum(predictions == testData$diabetes) / length(predictions)
+print(paste("Acurácia para árvore de decisão", accuracy))
+
+## Plotar a árvore de decisão
+rpart.plot(model$finalModel)
+```
+
+### Random Forest
+
+```{r}
+## Carregar bibliotecas
+pacman::p_load(caret, randomForest)
+
+## Carregar o dataset
+data("PimaIndiansDiabetes")
+
+## Dividir o conjunto de dados em treinamento e teste
+set.seed(42)  ## Para resultados reproduzíveis
+trainIndex <- createDataPartition(PimaIndiansDiabetes$diabetes, p = 0.8, list = FALSE)
+trainData <- PimaIndiansDiabetes[trainIndex, ]
+testData <- PimaIndiansDiabetes[-trainIndex, ]
+
+## Treinar o modelo Random Forest
+model <- train(diabetes ~ ., data = trainData, method = "rf")
+
+## Fazer previsões
+predictions <- predict(model, newdata = testData)
+
+## Avaliar a precisão do modelo
+accuracy <- sum(predictions == testData$diabetes) / length(predictions)
+print(paste("Acurácia para florestas aleatórias", accuracy))
+
+## Plotar a importância das variáveis
+varImpPlot(model$finalModel)
+```
+
+#### GLM
+
+```{r}
+## Carregar bibliotecas
+pacman::p_load(caret)
+
+## Carregar o dataset
+data("PimaIndiansDiabetes")
+
+## Dividir o conjunto de dados em treinamento e teste
+set.seed(42)  ## Para resultados reproduzíveis
+trainIndex <- createDataPartition(PimaIndiansDiabetes$diabetes, p = 0.8, list = FALSE)
+trainData <- PimaIndiansDiabetes[trainIndex, ]
+testData <- PimaIndiansDiabetes[-trainIndex, ]
+
+## Treinar o modelo GLM
+model <- train(diabetes ~ ., data = trainData, method = "glm")
+
+## Fazer previsões
+predictions <- predict(model, newdata = testData)
+
+## Avaliar a precisão do modelo
+accuracy <- sum(predictions == testData$diabetes) / length(predictions)
+print(paste("Acurácia para GLM:", accuracy))
+
+```
+
+## Comparando
+
+```{r}
+## Carregar bibliotecas
+pacman::p_load(ggplot2)
+
+## Criar o data frame com os resultados
+resultados <- data.frame(Modelo = c("XGBoost", "Árvore de Decisão", "Random Forest", "GLM"),
+                         Acuracia = c(0.76, 0.73, 0.74, 0.77))
+
+## Ordenar o data frame pela coluna Acuracia em ordem decrescente
+resultados <- resultados[order(-resultados$Acuracia), ]
+
+## Definir a paleta de cores Okabe
+cores <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442")
+
+## Gerar o gráfico de barras
+# dados
+ggplot(data = resultados, aes(x = reorder(Modelo, -Acuracia), y = Acuracia, fill = Modelo)) +
+  # geometri
+  geom_bar(stat = "identity", width = 0.5) +
+  # formatações
+  scale_fill_manual(values = cores) +
+  labs(title = "Comparação das Acurácias dos Modelos",
+       x = "Modelo", y = "Acurácia") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+
+```
+
+## Ref
+
+[Os 20 melhores pacotes de aprendizado de máquina R para conferir agora](https://ciksiti.com/pt/chapters/6214-top-20-best-r-machine-learning-packages-to-check-out-now)

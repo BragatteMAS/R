@@ -1,0 +1,47 @@
+---
+title: "Transito_Oto"
+author: "@BragatteMAS"
+format: html
+editor: visual
+---
+
+```{r}
+pacman::p_load(vroom, tidyverse)
+```
+
+```{r}
+setwd("/Users/bragatte/Documents/GitHub/R/Projetos_ADQGS")
+```
+
+```{r}
+vroom("datatran2022.csv")
+```
+
+```{r}
+library(readr)
+datatran2022 <- read_delim(
+  "datatran2022.csv",
+  delim = ";",
+  escape_double = FALSE,
+  locale = locale(date_names = "pt",
+                  encoding = "ISO-8859-1"),
+  trim_ws = TRUE
+)
+View(datatran2022)
+
+acidentes <-
+   datatran2022|>  select(
+    id,
+    data_inversa,
+    dia_semana,
+    causa_acidente,
+    tipo_acidente,
+    classificacao_acidente,
+    fase_dia,
+    condicao_metereologica,
+    tipo_pista,
+    tracado_via,
+    mortos
+  ) %>%
+  filter(between(mortos, 1, 7))
+```

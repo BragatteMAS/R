@@ -1,0 +1,109 @@
+---
+title: "Corrigindo datas"
+author: "Bragatte, Vital , Isaac"
+format: html
+editor: visual
+---
+
+## Carregando pacotes
+
+```{r}
+pacman::p_load(vroom, lubridate, dplyr)
+```
+
+## Criando dados fictícios
+
+```{r}
+## Criar um vetor de datas em diferentes formatos
+datas_horríveis <- c("2007-06-22", "02/27/2008", "March 14, 2009", "2010-05-31", "05/06/2011", "June 07, 2012", "2013-07-08", "08/09/2014", "September 10, 2015", "2016-10-11")
+
+## Converter as datas para o formato de data - lubridate em ação
+datas_padronizadas <- parse_date_time(datas_horríveis, orders = c("ymd", "mdy", "Bdy", "ymd", "dmy", "Bdy", "ymd", "dmy", "Bdy", "ymd"))
+
+## Criar um dataframe com as datas
+datas <- data.frame(
+  datas_originais = datas_horríveis,
+  datas_corrigidas = datas_padronizadas
+)
+
+## Visualizar o dataframe
+print(datas)
+```
+
+exemplo com os profes ao vivo
+
+Chamar arquivo pessoal se quiser usar no script
+
+```{r}
+## Colocar o nome do seu arquivo aqui - entre aspas | exemplo: hospital.csv
+#suas_datas <- vroom("") #descomentar esta linha(apagar o # no começo)
+```
+
+## Soluções
+
+### 1. R base
+
+Transformar em data com coluna nova no final da tabela
+
+```{r}
+## note que a coluna datas_originais não esta como data <dttm> e sim caracter <chr>
+print(datas)
+```
+
+```{r}
+## Duplicar a última coluna para test
+datas$novo_formato <- datas[, ncol(datas)] ##formato Datetime<dttm>
+print(datas)
+```
+
+```{r}
+## mudar para o padrão <date>
+datas$novo_formato <- as.Date(datas$novo_formato) #date <date>
+print(datas)
+```
+
+```{r}
+## Mudar a ordem entre dia, mês e ano além do divisor
+datas$novo_formato <- format(datas$novo_formato, format = "%d/%m/%Y")
+##cada vez que mudar a ordem no R base, precisa redefinir como <date>, pois a mudança só é feita convertendo o dado para caracter<chr>
+print(datas)
+```
+
+```{r}
+## round é para arredondar e deixar sem casas após a vírgula
+## Sys.date pega o formato de data do R no momento, difftime como o nome já indica calcula a diferença de tempo e permite ver qual é a semana com a chamada "weeks"
+datas$semanas <-  round(as.numeric(difftime(Sys.Date(),datas$datas_corrigidas, units = "weeks"))/52.25)
+print(datas)
+```
+
+### 2. Lubridate
+
+Necessário somente uma linha para editar campos que já são datas
+
+```{r}
+## Converter a coluna 'novo_formato' para uma data <date>
+datas$novo_formato <- dmy(datas$novo_formato) 
+print(datas)
+
+```
+
+### Extras com lubridate
+
+```{r}
+## Extrair o ano, mês e dia da coluna 'nascimento' em novas colunas
+datas <-  datas |> 
+  mutate(
+    ano_nascimento = year(novo_formato),
+    mes_nascimento = month(novo_formato),
+    dia_nascimento = day(novo_formato)
+  )
+print(datas)
+```
+
+### Calculando idade com a data de hoje
+
+```{r}
+idade_presidente <- (today() - ymd(19451027))/365.5
+
+idade_presidente 
+```

@@ -1,0 +1,111 @@
+---
+title: "Aula67_Pratica XGBoost"
+author: "@BragatteMAS"
+format: html
+editor: visual
+R: 4.3.0
+---
+
+## XGBoost prática
+
+XGBoost com exemplos de dados da área da saúde \`PimaIndiansDiabetes\`.
+
+```{r}
+## Importar a biblioteca necessária
+## Como se estivéssemos pegando a caixa de ferramentas certa para o nosso trabalho.
+library(xgboost)
+
+## Carregar os dados
+## É como obter os ingredientes para a nossa receita.
+data(PimaIndiansDiabetes, package="mlbench")
+
+## Processar os dados: binarizar a coluna diabetes
+## Estamos preparando os ingredientes, mudando "pos" para 1 e "neg" para 0.
+PimaIndiansDiabetes$diabetes_bin <- ifelse(PimaIndiansDiabetes$diabetes == "pos", 1, 0)
+
+## Remover a coluna original "diabetes"
+## Não precisamos mais dela, pois já temos a versão binária.
+PimaIndiansDiabetes$diabetes <- NULL
+
+## Dividir os dados em conjunto de treinamento e de teste
+## Isso nos permite testar o quão bom é o nosso modelo mais tarde.
+set.seed(42)
+indices <- sample(1:nrow(PimaIndiansDiabetes), size = 0.8*nrow(PimaIndiansDiabetes))
+trainData <- PimaIndiansDiabetes[indices, ]
+testData <- PimaIndiansDiabetes[-indices, ]
+
+## Converter os dados para o formato xgb.DMatrix
+## Este é o formato que o XGBoost gosta de usar. É como picar os legumes antes de cozinhá-los.
+dtrain <- xgb.DMatrix(data = as.matrix(trainData[, -9]), label = trainData$diabetes_bin)
+dtest <- xgb.DMatrix(data = as.matrix(testData[, -9]), label = testData$diabetes_bin)
+
+## Definir parâmetros
+## Essas são as instruções sobre como o XGBoost deve aprender a partir dos nossos dados.
+params <-
+  list(
+    booster = "gbtree",
+    objective = "binary:logistic",
+    eta = 0.3,
+    gamma = 0,
+    max_depth = 6,
+    min_child_weight = 1,
+    subsample = 1,
+    colsample_bytree = 1
+  )
+
+## Treinar o modelo
+## O XGBoost está agora aprendendo a partir dos nossos dados.
+xgb_model <- xgb.train(params = params, data = dtrain, nrounds = 50)
+
+## Prever no conjunto de teste
+## Vamos ver o quão bem o nosso modelo aprendeu.
+preds <- predict(xgb_model, dtest)
+
+## Converter previsões para classes
+## Isso nos dá uma previsão clara de "sim" ou "não" para cada exemplo no conjunto de teste.
+preds_class <- ifelse(preds > 0.5, 1, 0)
+
+## Calcular a acurácia
+## Isso nos diz quantas vezes o nosso modelo acertou.
+accuracy <- sum(preds_class == testData$diabetes_bin) / nrow(testData)
+print(paste("A acurácia do modelo é", accuracy))
+
+## Plotar a importância das variáveis
+## Isso nos mostra quais partes dos nossos dados o modelo achou mais útil para aprender.
+xgb.plot.importance(xgb.importance(model = xgb_model))
+
+```
+
+A coluna **`diabetes_bin`** não aparece na lista de importâncias das variáveis porque ela é a variável que estamos tentando prever, e não um recurso usado para fazer a previsão. Em outras palavras, ela é nossa variável alvo ou dependente.
+
+Se a variável **`glucose`** tiver a barra mais longa, isso significa que ela foi a mais útil para o modelo na previsão da variável alvo (**`diabetes_bin`**). Assim, podemos entender quais variáveis o modelo considera mais informativas para fazer previsões.
+
+```{r}
+## Criamos um dataframe para armazenar a acurácia correta e incorreta do nosso modelo
+accuracia <- data.frame(Predições = c("Corretas", "Incorretas"),
+                          Proporções = c(accuracy, 1 - accuracy))
+
+## Usamos ggplot para criar o gráfico de barras
+## ggplot é uma ferramenta que nos permite fazer gráficos bonitos de maneira fácil
+library(ggplot2)
+
+## Dado
+ggplot(accuracia, aes(x=Predições, y=Proporções, fill = Predições)) +
+
+  ## Geometria
+  geom_bar(stat="identity") +  ## Adicionamos as barras ao gráfico com a função geom_bar.
+                                ## 'stat = "identity"' diz ao ggplot para usar os valores exatos que lhe demos.
+
+  ## Formatações
+  geom_text(aes(label = scales::percent(Proporções)), vjust=-0.5) +  ## Adicionamos as porcentagens acima de cada barra com geom_text.
+                                                                    ## 'vjust = -0.5' ajusta a posição do texto um pouco acima das barras.
+
+  ylim(0, 1) +  ## Limitamos o eixo y entre 0 e 1, pois estamos lidando com proporções.
+
+  labs(y = "Proporções", x = "Predições", title = "Modelo de Acurácia") +  ## Adicionamos os rótulos aos eixos e ao título do gráfico.
+  
+  scale_fill_manual(values = c("Corretas" = "skyblue", "Incorretas" = "red")) +  ## Alteramos as cores das barras para azul (para previsões corretas) e vermelho (para previsões incorretas).
+
+  theme_minimal()  ## Usamos um tema minimalista para o gráfico.
+
+```

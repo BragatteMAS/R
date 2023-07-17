@@ -11,24 +11,34 @@ editor: visual
 
 Praticar as habilidades ensinadas no curso em projeto com dados reais de pesquisa na área de saúde, neste exemplo com dados do SUS - **SIM** (Sistema de Informações de Mortalidade).
 
-Nesta pesquisa queremos averiguar as associações dos dados de vigilância ... na coorte de indivíduos da população brasileira.
+Nesta pesquisa queremos averiguar as transformações dos dados da vigilância na coorte de indivíduos da população brasileira e sua capacidade de editar códigos.
 
 ## Como
 
 Seguir as instruções abaixo:
 
--   Cada discente deverá fazer de um mês diferente as análises, você precisa **seguir o tutorial e modificar o filtro para o mês que esta atribuído a você !!!!!!!!!!!!!!!!!!**
+-   Cada discente deverá fazer as mudanças nos locais indicados alterando o período das análises, para cobrir todo o ano de 2022 no exemplo (que não compreende todo o ano), você precisa **seguir o tutorial e modificar o filtro para o período correto que esta atribuído a você !!!!!!!!!!!!!!!!!!**
 
--   **Criar um projeto no Rstudio**, contendo o script e arquivo de dados do exercício com seu nome *e*
+-   **Criar um projeto no Rstudio**, contendo o script e os arquivos de dados do exercício com seu nome *e*
 
 -   **Fazer um script/quarto** realizando as tarefas abaixo
 
-    -   devem copiar e colar, editando partes de interesse pessoal
+    -   devem copiar e colar, editando partes de interesse
 
 ### Configurações do Projeto
 
+##### opcionais
+
+para ajusar renderização
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, error = FALSE, warning = FALSE, message = FALSE, results = 'asis')
+```
+
+também pode ser usado este comando para limpar a memória do R, o que as vezes causa erros
+
+```{r}
+rm()
 ```
 
 #### Definir local projeto
@@ -38,7 +48,7 @@ Salvar local onde terão os arquivos para meu projeto usar
 Onde estou?
 
 ```{r}
-getwd()
+getwd() # aqui será mostrado o seu local no computador
 ```
 
 ##### **Definir NOME DA PASTA DO SEU COMPUTADOR AQUI (pode copiar a de cima mostrado com \`getwd\` se o lugar estiver ok para você)**
@@ -46,7 +56,7 @@ getwd()
 Onde quero trabalhar com os arquivos no computador?
 
 ```{r}
-pasta_proj_mod2 <-"~/Documents/GitHub/R/Projetos_ADQGS/projeto-final-mod2/"
+pasta_proj_mod2 <-"~/Documents/GitHub/R/Projetos_ADQGS/projeto-final-mod2/" # colar o seui local do computador entre as "\usuário\documentos\projetoR" por exemplo se for no windows 
 ```
 
 Definir local para buscar os dados
@@ -63,7 +73,16 @@ Para garantir e facilitar o processo, vamos instalar no Rstudio o pacote `pacman
 
 ```{r}
 ## Bibliotecas
-pacman::p_load(devtools, microdatasus, vroom, tidyverse,tidytable, plotly, sciplot, rcompanion, ggpubr, epitools)
+pacman::p_load(devtools, microdatasus, vroom, janytor, tidyverse, tidytable, lubridate, plotly, zoo)
+## explicações dos pacotes
+### devtools = carregar bibliotecas fora do CRAN
+### microdatasus = carregar dados do SUS automaticamente
+### vroom  = ler arquivos rápido e prático
+### tidyverse e tidytable = manipular dados
+### lubridate = corrigir e manipular datas
+### plotly = gerar gráficos interativos
+### zoo = calcular média móvel fácil
+### gridExtra = múltiplos gráficos juntos - facet fácil
 ```
 
 ```{r}
@@ -104,79 +123,256 @@ Realizar transformações versáteis que facilitam análises de dados para difer
 
 ##### SIM
 
+-   Selecionar o ano de interesse - pode ser alterado para intervalos de tempo maiores
+-   Esta parte descomentar somente se para exploração, pois arquivos são grandes, usar arquivo enviado
+
 ```{r}
-ES_Sim <- fetch_datasus(year_start = 2020, year_end = 2023, uf = "ES", information_system = "SIM-DO")
-ESpecial_SIM <- process_sim(ES_Sim)
+## O que esta linha faz? Nome do nosso dado <- função do pacote(ano_início = 2021, ano_fim = 2023, mês_início = 01, mês_fim = 12, uf = ES, biblioteca do sus = SIM-DO)
+#ES_Sim <- fetch_datasus(year_start = 2021, year_end = 2023, uf = "ES", information_system = "SIM-DO") # descomentar essa linha. se quiser ver o dad
+## O que esta linha faz? Transforma dados numéricos em categóricos automaticamente conforme documentação do SUS
+#ESpecial_Sim <- process_sim(ES_Sim) # descomentar essa linha. se quiser ver o dad
 ```
 
 ##### SINAN-Dengue
 
+Carregamento opcional
+
 ```{r}
-ES_Sinan <- fetch_datasus(year_start = 2022, year_end = 2023, uf = "ES", information_system = "SINAN-DENGUE")
+## Apenas para quem quiser dar uma olhada nos dados de Dengue
+## O que esta linha faz? Chamando dados do SINAN-Dengue para ter outro exemplo
+# ES_Sinan <- fetch_datasus(year_start = 2022, year_end = 2023, uf = "ES", information_system = "SINAN-DENGUE") # descomentar essa linha. se quiser ver o dado
+## aqui demora mesmo para carregar, muitos dados
+# ESpecial_Sinan <- process_sinan_dengue(ES_Sinan)  # descomentar essa linha. se quiser ver o dad
 ```
 
-### Manipulando os dados
+
+### Manipulando os dados exemplo
+
+dar nome = -\> ("Alt" + "-")
+
+`` Estes símbolos chamado de pipe `%>% ou |>`, podem ser lidos como "então". `` então = \|\> ("Ctrl" + "Shift" + "M")
+
+```{r}
+ES_sim <- vroom("ES_Sim.csv")
+```
+
+# Exercício 1. colocar seu nome ao final do arquivo
+
+```{r}
+## Como salvar arquivos em CSV? Usar a funça0 `write.csv`
+write.csv(ES_sim, file = "ES_Sim_NOME.csv", row.names = FALSE) # ALTERAR NOME DO ARQUIVO SALVO AQUI ES_Sim_Bragatte.csv por exemplo
+# write.csv(ESpecial_Sim, file = "ESpecial_Sim.csv", row.names = FALSE)
+## Como salvar arquivos em EXCEL? Usar a funçao `write_excel_csv`
+# write_excel_csv(ESpecial_Sim, file = "ESpecial_Sim.xlsx") # descomentar essa linha. se quiser ver o dad
+# write_excel_csv(ESpecial_Sinan, file = "ESpecial_Sinan.xlsx")
+```
+
+```{r}
+## limpeza dos nomes das colunas, para copiar mais fácil
+ES_sim <- ES_sim |> 
+    janitor::clean_names()
+colnames(ES_sim) # no momento as colunas estão como fatores <fct>
+```
+
+```{r}
+## corrgir formato das datas
+ES_sim$dtobito <- dmy(ES_sim$dtobito) #linha1
+```
+
+```{r}
+## Exemplo de prepação de dataset
+## qual novo nome
+mortES <-
+    ## qual arquivo original
+    ES_sim |>
+    ## modificações de interesse
+    mutate.(
+        tipobito2 = case_when(tipobito == 1 ~ "Fetal",
+                              tipobito == 2 ~ "Não Fetal"),
+        tobito = ymd(dtobito),
+        dtnasc = ymd(dtnasc)
+    )  |>
+    ## quais colunas eu quero
+    select.(tipobito,
+            tipobito2,
+            dtobito,
+            dtnasc,
+            idade,
+            sexo,
+            racacor,
+            estciv,
+            esc,
+            causabas)
+```
+
+## Praticando fitlros novos com plots de projetos do Mod1
+
+## Mundo e países
+
+biblioteca vroom é similar a biblioteca reader
+
+```{r}
+covid_mundo <- vroom("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv")
+```
+
+```{r}
+## avaliando o dado
+#str(covid_mundo)
+#summary(covid_mundo)
+```
+
+## Estados e Municipíos do Brasil
+
+```{r}
+gov_br_estados <- vroom("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-states.csv")
+
+gov_br_municipios <- vroom("https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities.csv")
+```
+
+# Exercício 2 filtrar todo o ano de 2022 nos gráficos
+
+## Nível Brasil:
+
+Revisando média móvel
 
 ```{r}
 ## qual novo nome 
-mortES <-
+covid_br <-
     ## qual arquivo original
-    ES_Sim |>     
+    covid_mundo |>     
     ## quais colunas eu quero
-    select(TIPOBITO, DTOBITO, DTNASC, IDADE, SEXO, RACACOR, ESTCIV, ESC, CAUSABAS) |>
+    select(location, date, new_cases, new_cases_smoothed ,new_deaths, new_deaths_smoothed) |>
     ## quais filtros quero aplicar
-    filter(TIPOBITO == "2") |> 
-    filter(between(as.Date(DTOBITO, format = "%d%m%Y"), as.Date("2020-01-01"), as.Date("2021-12-31")))
-
-
+    filter(location == "Brazil",
+            between.(date, as.Date('2022-01-01'),
+                    as.Date('2022-11-19'))) |> # aqui mudar a data 2022-12-31
+    ## colunas de média móvel 7
+    mutate(m.movel.7_casos = round(rollmean(new_cases, k = 7, fill = NA, align = "right"))) |> 
+    mutate(m.movel.7_mortes = round(rollmean(new_deaths, k = 7, fill = NA, align = "right")))
 
 ## substituindo valores NA por 0
-mortES <- mutate_all(mortES, ~ ifelse(is.na(.), 0, .))
+covid_br[is.na(covid_br)] <- 0
+
+#covid_br
 ```
 
-### Clusterização de variáveis
+## Média do ano de 2022 até novembro - mudar para todo 2022
+
+Fazer isso para todo 2022
 
 ```{r}
-## Lembrando como limpar o dataset, substituir NAs por 0 em todas as colunas
-## existem várias formas de fazer isso, normalmente a forma drástica que deixa somente as colunas completas não serve para dados do SUS, por isso de fazermos uma seleção de colunas de interesse para aplicar esta abordagem
-arvore_sinam0 <- ES_Sinan[complete.cases(ES_Sinan), ]
+## calculando  média de casos de covid primeiro em 2022
+media_casos <- mean (covid_br$new_cases)
+
+## arredondamento
+round(media_casos)
+
+## calculando média de óbitos de covid primeiro em 2022
+media_obitos <- mean (covid_br$new_deaths)
+
+## arredondamento
+round(media_obitos)
+```
+
+## Estados / Municípios
+
+```{r}
+## qual novo nome 
+gov_br_est <- 
+    ## qual arquivo original
+    gov_br_estados |> 
+    ## quais colunas eu quero
+    select.(country, state, epi_week, date, newCases ,newDeaths) |> 
+    ## quais filtros quero aplicar
+    filter.(state == "ES",
+            between.(date, as.Date('2022-01-01'),
+                    as.Date('2022-11-19'))) |> # aqui mudar a data 2022-12-31
+    ## colunas de média móvel 7
+    mutate.(m.movel.7_casos = round(rollmean(newCases, k = 7, fill = NA, align = "right"))) |> 
+    mutate.(m.movel.7_mortes = round(rollmean(newDeaths, k = 7, fill = NA, align = "right")))
+
+## substituindo valores NA por 0
+gov_br_est[is.na(covid_br)] <- 0
+
+#gov_br_est
+```
+
+## Comunicar c/ gráficos
+
+## Casos BR
+
+```{r}
+## comentar quando for gerar relatório
+#esquisser(covid_br)
+```
+
+# Exercício 3 trocar as cores dos gráficos
+
+```{r}
+## dado
+casos_br <- ggplot(covid_br) +
+    ## mapa
+    aes(x = date, y = new_cases, fill = location) +
+    ## geometria
+    geom_area(color = "yellow") + #AQUI TROCA A COR
+    geom_line(aes(x = date, y = m.movel.7_casos , col = 'Casos Diários'), lwd = 0.4, color = "green") +  #AQUI TROCA A COR
+    ## formatações
+    scale_fill_manual(values = c(Brazil = "yellow")) +  #AQUI TROCA A COR
+    labs(x = "2022",
+         y = "Média móvel casos Br",
+         title = "Casos covid Br") +
+    theme_classic()
+
+casos_br 
+```
+
+## Casos ES
+
+```{r}
+## comentar quando for gerar relatório
+#esquisser(gov_br_est)
 ```
 
 ```{r}
-## Criar a árvore de decisão
-### Estamos tentando prever a variável "diabetes" com base nas outras variáveis
-arvorESinam <- rpart( ~ ., data = mortES)
+## dado
+casos_es <- ggplot(gov_br_est) +
+    ## mapa
+    aes(x = date, y = newCases, fill = state) +
+    ## geometria
+    geom_area(color = "pink") +  #AQUI TROCA A COR
+    geom_line(aes(x = date, y = m.movel.7_casos , col = 'Casos Diários'), lwd = 0.4, color = "blue") +  #AQUI TROCA A COR
+    ## formatações
+    scale_fill_hue(direction = 1) +
+    labs(x = "2022",
+         y = "Media Movel casos ES",
+         title = "Casos de covid no ES") +
+    theme_minimal()
 
-## Imprimir a árvore de decisão
-### Esta função mostra o resultado da árvore de decisão como texto
-printcp(arvorESinam)
-
-## Plotar a árvore de decisão com rpart.plot
-### Esta função cria uma visualização básica da árvore de decisão
-rpart.plot(
-  arvorESinam,
-  yesno = 2,
-  fallen.leaves = TRUE,
-  type = 4,
-  extra = 101
-)
+casos_es
 ```
+
+## Transformando em gráficos interativo
 
 ```{r}
-## Instalar e carregar a biblioteca
-pacman::p_load(rpart.plot)
-## Plotar a árvore de decisão usando rpart.plot
-rpart.plot(arvore, type=4, extra=101)
+## pacote plotly
+ggplotly(casos_br)
+ggplotly(casos_es)
 ```
 
-\###########
+## 
 
-**Colocar um parágrafo de conclusão no seu relatório**, usando seus dados, com as correlações, ou regressões ou valor-p.\
+# Exercício 4 responder a pergunta
+
+**Colocar um parágrafo de conclusão sobre o exercício e sobre perspectivas de aplicação da análise de vigilancia em sua rotina, uma frase:**
+
+R:
+
+\
 Não estamos esperando um modelo de resposta ideal, o objetivo é vocês praticarem o método científico e aplicar os aprendizados no R, gerando um relatório ao final (no RStudio clicar no botão Render).
 
 Devem usar este arquivo como referência.\
 \
-Entregar o arquivo com seu script "script_projeto_Maria", chamando os dados com seu Maria.csv, por exemplo. Aproveitem as 'dicas das aulas' que dão as referências para os exercícios.\
+Entregar o arquivo com seu script "Projeto_Mod2_NOME.qmd"\
 \
 Bom trabalho e semana.\
 
@@ -185,41 +381,3 @@ Bom trabalho e semana.\
 -   [Transferência de Arquivos -- DATASUS](https://datasus.saude.gov.br/transferencia-de-arquivos/#)
 
 -   [rfsaldanha/microdatasus: Download de dados do DataSUS e pré-processamento no R.](https://github.com/rfsaldanha/microdatasus)
-
-## Extras
-
-### HackDATASUS
-
-```{r}
-hack_datasus <- function(sistema, modalidade, tipo_arquivo, ano, UF, mes){
-  
-  #Função gera dataframe a partir de ftp feita na página do datasus
-  
-  #sistema ex:'SIHSUS' Verificar os sistemas disponíveis em http://www2.datasus.gov.br/DATASUS/index.php?area=0901&item=1
-  #modalidade  'dados'
-  #tipo_arquivo ex: 'RD'#Varia conforme o sistema
-  #ano ex: 17 Dois últimos dígitos do ano 
-  #UF ex:'AL' Sigla de UF Brasileira
-  #mes ex:'12' strings entre 01 e 12
-  
-  
-  dest_file<- paste0(tipo_arquivo,UF,ano,mes,".dbc")
-  str_download <- paste0("ftp://ftp.datasus.gov.br/dissemin/publicos/",sistema,"/","200801","_/",modalidade,"/",tipo_arquivo,UF,ano,mes,".dbc")
-  download.file(str_download,destfile = dest_file, mode='wb')
-  library(read.dbc)
-  datasus<- read.dbc(dest_file)
-  
-  
-}
-
-sistema <- 'SIASUS' #Verificar os sistemas disponíveis em http://www2.datasus.gov.br/DATASUS/index.php?area=0901&item=1
-modalidade <- 'dados'
-tipo_arquivo<- 'ACF'#Varia conforme o sistema
-ano <- 22 #Dois últimos dígitos do ano 
-UF <- 'ES' #Siglas das UFs Brasileiras
-mes<- '01' #strings entre 01 e 12
-
-
-#Carrega em df_datasus os dados relativos à base de dados montada a partir dos parãmetros
-df_datasus<- hack_datasus(sistema, modalidade, tipo_arquivo, ano, UF, mes)
-```

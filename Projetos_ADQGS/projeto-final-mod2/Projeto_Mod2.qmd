@@ -145,7 +145,6 @@ Carregamento opcional
 # ESpecial_Sinan <- process_sinan_dengue(ES_Sinan)  # descomentar essa linha. se quiser ver o dad
 ```
 
-
 ### Manipulando os dados exemplo
 
 dar nome = -\> ("Alt" + "-")

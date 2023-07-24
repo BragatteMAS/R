@@ -106,7 +106,7 @@ rpart.plot(
 
 ```{r}
 ## Plotar a árvore de decisão usando rpart.plot
-rpart.plot(arvore_saude, type=3, box.palette="auto", shadow.col="gray", nn=TRUE)
+rpart.plot(arvore_saude, type=3, box.palette="auto", shadow.col="gray", nn=TRUE )
 ```
 
 -   type=3: Este é um dos sete tipos principais de plots disponíveis na função rpart.plot. O type=3 é chamado de "fan", e é um plot de árvore clássico que exibe a árvore com um estilo de exibição em leque.

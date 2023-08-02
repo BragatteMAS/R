@@ -3,7 +3,7 @@
 pacman::p_load(tidyverse, vroom)
 
 ## chama dados Lab
-hilab <- vroom("~/Downloads/Exames da Semana 04-07-23.csv")
+hilab <- vroom("~/Documents/respat_new/data/20230630_combined.tsv")
 ## Filtrar o dataframe com base nas condições
 hilab_uniq <- unique(hilab$Exame[hilab$Exame == "Covid-19 Antígeno"], hilab$`Código Da Cápsula`)
 

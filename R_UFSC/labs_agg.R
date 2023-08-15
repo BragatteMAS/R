@@ -13,6 +13,11 @@ combined22_230802 <-
 combined22 <-
   vroom("~/Documents/20230809_relatorio22_resp/results/combined.tsv")
 
+## test_result by labs
+table(combined22$SC2_test_result, combined22$lab_id)
+
+## test_kit by labs
+table(combined22$test_kit, combined22$lab_id)
 
 ##. HILAB
 hilab <- vroom("~/Documents/respat_new/data/20230630_combined.tsv")

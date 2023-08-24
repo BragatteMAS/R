@@ -38,6 +38,10 @@ combined20 <-
 combined <- 
     vroom('~/Documents/20230816_relatorio22_resp_sanitycheck/output_sabin.tsv')
 
+## COMBINED JP
+combined_jp <- 
+  vroom('~/Documents/20230816_relatorio22_resp_sanitycheck/combined_jp.tsv')
+
 ## test_result by labs
 table(combined22$SC2_test_result, combined22$lab_id)
 

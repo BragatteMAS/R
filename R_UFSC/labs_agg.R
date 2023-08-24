@@ -18,8 +18,8 @@ combined22 <-
   vroom("~/Documents/20230816_relatorio22_resp/results/combined.tsv")
 
 ## 22_resp
-combined22 <-
-  vroom("~/Documents/22_respatGit/results/combined.tsv")
+combined22_san <-
+  vroom("~/Documents/20230816_relatorio22_resp_sanitycheck/results/combined.tsv")
 
 ## 22_resp
 combined22 <-

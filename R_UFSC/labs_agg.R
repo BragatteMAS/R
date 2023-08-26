@@ -2,37 +2,28 @@
 ## chama bibliotecas
 pacman::p_load(tidyverse, vroom)
 
-## chama dados Lab
-combined <-
-  vroom("~/Documents/respat_new/data/20230630_combined.tsv")
-combined21 <-
-  vroom("~/Documents/20230620_relatorio21_resp/results/combined.tsv")
-combined22_230802 <-
-  vroom("~/Documents/20230802_relatorio22_resp/results/combined.tsv")
-## _230809_
-combined22_230809 <-
-  vroom("~/Documents/20230809_relatorio22_resp/results/combined.tsv")
-
-## _230816_
-combined22 <-
-  vroom("~/Documents/20230816_relatorio22_resp/results/combined.tsv")
-
-## 22_resp
-combined22_san <-
-  vroom("~/Documents/20230816_relatorio22_resp_sanitycheck/results/combined.tsv")
-
-## 22_resp
-combined22 <-
-  vroom("~/Documents/20230816_relatorio22_resp_sanitycheck/results/combined.tsv")
+## resp20
+combined20 <- 
+  # vroom('~/Documents/backup_results/20230420_relatorio20_resp/results/combined.tsv')
+  vroom('~/Documents/20230816_relatorio22_resp_sanitycheck/combined20.tsv')
 
 ## resp21
 combined21 <- 
   vroom('~/Documents/backup_results/20230620_relatorio21_resp/results/combined.tsv')
 
-## resp20
-combined20 <- 
-  # vroom('~/Documents/backup_results/20230420_relatorio20_resp/results/combined.tsv')
-  vroom('~/Documents/20230816_relatorio22_resp_sanitycheck/combined20.tsv')
+## resp22_230823_
+combined22 <-
+  vroom("~/Documents/20230823_relatorio22_resp/results/combined.tsv")
+
+## resp22_sanity
+combined22_san <-
+  vroom("~/Documents/20230816_relatorio22_resp_sanitycheck/results/combined.tsv")
+
+## 22_resp
+combined22 <-
+  vroom("~/Documents/22_SE33/results/combined_db.tsv\)
+
+
 
 ## COMBINED MERGED
 combined <- 

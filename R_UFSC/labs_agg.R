@@ -2,36 +2,9 @@
 ## chama bibliotecas
 pacman::p_load(tidyverse, vroom)
 
-## resp20
-combined20 <- 
-  # vroom('~/Documents/backup_results/20230420_relatorio20_resp/results/combined.tsv')
-  vroom('~/Documents/20230816_relatorio22_resp_sanitycheck/combined20.tsv')
-
-## resp21
-combined21 <- 
-  vroom('~/Documents/backup_results/20230620_relatorio21_resp/results/combined.tsv')
-
-## resp22_230823_
-combined22 <-
-  vroom("~/Documents/20230823_relatorio22_resp/results/combined.tsv")
-
-## resp22_sanity
-combined22_san <-
-  vroom("~/Documents/20230816_relatorio22_resp_sanitycheck/results/combined.tsv")
-
 ## 22_resp
 combined22 <-
-  vroom("~/Documents/22_SE33/results/combined_db.tsv\)
-
-
-
-## COMBINED MERGED
-combined <- 
-    vroom('~/Documents/20230816_relatorio22_resp_sanitycheck/output_sabin.tsv')
-
-## COMBINED JP
-combined_jp <- 
-  vroom('~/Documents/20230816_relatorio22_resp_sanitycheck/combined_jp.tsv')
+  vroom("~/Documents/22_respat/results/combined.tsv")
 
 ## test_result by labs
 table(combined22$SC2_test_result, combined22$lab_id)
@@ -40,15 +13,17 @@ table(combined22$SC2_test_result, combined22$lab_id)
 table(combined22$test_kit, combined22$lab_id)
 
 ## Replace names
-combined$SC2_test_result[combined$SC2_test_result == "Negative"] <- "Neg"
-combined$SC2_test_result[combined$SC2_test_result == "Positive"] <- "Pos"
+combined22$SC2_test_result[combined22$SC2_test_result == "Negative"] <- "Neg"
+combined22$SC2_test_result[combined22$SC2_test_result == "Positive"] <- "Pos"
 
 ## save new combined
-write.table(combined, file = "output.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
+write.table(combined22, file = "output.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
 
+#########################################
 
-##. HILAB
-hilab <- vroom("~/Documents/respat_new/data/20230630_combined.tsv")
+##Extractiong lab_id == HILAB
+hilab <- vroom("~/Documents/22_respat/results/combined.tsv")
+
 ## Filtrar o dataframe com base nas condições
 hilab_uniq <-
   unique(hilab$Exame[hilab$Exame == "Covid-19 Antígeno"], hilab$`Código Da Cápsula`)

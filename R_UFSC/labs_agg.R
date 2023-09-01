@@ -2,22 +2,27 @@
 ## chama bibliotecas
 pacman::p_load(tidyverse, vroom)
 
-## 22_resp
-combined22 <-
-  vroom("~/Documents/22_respat/results/combined.tsv")
+## 23_resp
+combined23 <-
+  vroom("~/Documents/23_respat/results/combined.tsv")
 
 ## test_result by labs
-table(combined22$SC2_test_result, combined22$lab_id)
+table(combined23$SC2_test_result, combined23$lab_id)
 
 ## test_kit by labs
-table(combined22$test_kit, combined22$lab_id)
+table(combined23$test_kit, combined23$lab_id)
 
 ## Replace names
-combined22$SC2_test_result[combined22$SC2_test_result == "Negative"] <- "Neg"
-combined22$SC2_test_result[combined22$SC2_test_result == "Positive"] <- "Pos"
+combined23$state[combined23$state == "RIO DE JANEIRO"] <- "Rio de Janeiro"
+
+## Replace Positive for Pos
+# combined23$SC2_test_result[combined23$SC2_test_result == "Positive"] <- "Pos"
+
+## Test by state
+table(combined23$state, combined23$SC2_test_result)
 
 ## save new combined
-write.table(combined22, file = "output.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
+write.table(combined23, file = "combined_cache.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
 
 #########################################
 

@@ -4,19 +4,14 @@ pacman::p_load(tidyverse, vroom)
 
 ## 23_resp
 combined23 <-
-  vroom("~/Documents/23_respat/results/combined.tsv")
+  # vroom("~/Documents/23_respat/results/combined.tsv")
+  vroom("~/Documents/23_respat/data/combined_cache.tsv")
 
 ## test_result by labs
 table(combined23$SC2_test_result, combined23$lab_id)
 
 ## test_kit by labs
 table(combined23$test_kit, combined23$lab_id)
-
-## Replace names
-combined23$state[combined23$state == "RIO DE JANEIRO"] <- "Rio de Janeiro"
-
-## Replace Positive for Pos
-# combined23$SC2_test_result[combined23$SC2_test_result == "Positive"] <- "Pos"
 
 ## Test by state
 table(combined23$state, combined23$SC2_test_result)
@@ -63,3 +58,11 @@ val_uniq_flua <- unique(sel_fluA)
 val_uniq_fluB <- unique(sel_fluB)
 
 #########################################
+
+## Replace names
+# combined23$state[combined23$state == "RIO DE JANEIRO"] <- "Rio de Janeiro"
+
+## Replace Positive for Pos
+# combined23$SC2_test_result[combined23$SC2_test_result == "Positive"] <- "Pos"
+
+######################################### 

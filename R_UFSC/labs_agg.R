@@ -16,13 +16,16 @@ table(combined23$test_kit, combined23$lab_id)
 ## Test by state
 table(combined23$state, combined23$SC2_test_result)
 
+## Test by state
+test <- table(combined23$state, combined23$SC2_test_result, combined23$epiweek)
+
 ## save new combined
 write.table(combined23, file = "combined_cache.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
 
 #########################################
 
 ##Extractiong lab_id == HILAB
-hilab <- vroom("~/Documents/22_respat/results/combined.tsv")
+hilab <- vroom("~/Documents/23_respat/results/combined.tsv")
 
 ## Filtrar o dataframe com base nas condições
 hilab_uniq <-

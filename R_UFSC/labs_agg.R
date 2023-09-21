@@ -2,25 +2,29 @@
 ## chama bibliotecas
 pacman::p_load(tidyverse, vroom)
 
-## 23_resp
-combined23 <-
+## 24_resp
+combined <-
   # vroom("~/Documents/23_respat/results/combined.tsv")
-  vroom("~/Documents/23_respat/data/combined_cache.tsv")
+  vroom("~/Documents/20230920_relatorio24_resp/respat/results/combined.tsv")
 
 ## test_result by labs
-table(combined23$SC2_test_result, combined23$lab_id)
+table(combined$SC2_test_result, combined$lab_id)
 
 ## test_kit by labs
-table(combined23$test_kit, combined23$lab_id)
+table(combined$test_kit, combined$lab_id)
 
 ## Test by state
-table(combined23$state, combined23$SC2_test_result)
+table(combined$state, combined$SC2_test_result)
 
-## Test by state
-test <- table(combined23$state, combined23$SC2_test_result, combined23$epiweek)
+## test_lab by last week
+last_week <- combined[combined$epiweek == "2023-09-16", ]
+table(last_week$lab_id, last_week$epiweek)
+
+## state by last week
+table(last_week$state_code, last_week$epiweek)
 
 ## save new combined
-write.table(combined23, file = "combined_cache.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
+write.table(combined, file = "combined_cache.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
 
 #########################################
 
@@ -63,9 +67,9 @@ val_uniq_fluB <- unique(sel_fluB)
 #########################################
 
 ## Replace names
-# combined23$state[combined23$state == "RIO DE JANEIRO"] <- "Rio de Janeiro"
+# combined$state[combined$state == "RIO DE JANEIRO"] <- "Rio de Janeiro"
 
 ## Replace Positive for Pos
-# combined23$SC2_test_result[combined23$SC2_test_result == "Positive"] <- "Pos"
+# combined$SC2_test_result[combined$SC2_test_result == "Positive"] <- "Pos"
 
 ######################################### 

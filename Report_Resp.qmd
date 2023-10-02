@@ -1,3 +1,17 @@
+---
+title: "Report Resp"
+author: "Bragatte"
+format: html
+editor: visual
+---
+
+## Report Resp
+
+Info `echo: false` sobre última análise de dados de patógenos respiratórios.
+
+```{r}
+#| echo: false
+
 #########################################
 ## chama bibliotecas
 pacman::p_load(tidyverse, vroom)
@@ -76,3 +90,22 @@ val_uniq_fluB <- unique(sel_fluB)
 # combined$SC2_test_result[combined$SC2_test_result == "Positive"] <- "Pos"
 
 ######################################### 
+# Report
+
+# Leia o arquivo
+data <- vroom("~/Documents/20230927_relatorio24_resp/respat/results/country/combined_matrix_country_posneg_allpat_weeks.tsv")
+
+# Filtra os dados do último ano com base na última semana disponível
+last_week <- max(data$epi_week)
+data_last_year <- data %>% filter(epi_week >= (last_week - 52))
+
+# Soma os casos Pos e Neg
+total_cases <- sum(data_last_year$Pos, data_last_year$Neg)
+
+# Calcula a taxa de casos positivos
+positive_rate <- sum(data_last_year$Pos) / total_cases * 100
+
+# Exibe a taxa de casos positivos
+print(paste("Taxa de casos positivos no último ano:", round(positive_rate, 2), "%"))
+
+```

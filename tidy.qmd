@@ -1,0 +1,34 @@
+---
+title: "Tidyverse"
+author: "Bragatte"
+format: html
+editor: visual
+editor_options:
+    chunk_output_type: console
+---
+
+## Tidyverse
+
+[Ref](https://www.youtube.com/watch?v=KsBBRHAgAhM)actor by Bragatte
+
+## Running Code
+
+```{r}
+## ins + libs
+pacman::p_load(tidyverse, vroom, palmerpenguins, gt, pkgload)
+```
+
+You can
+
+```{r}
+mpg |> 
+    count(class)
+```
+
+```{r}
+tidyverse::tidyverse_conflicts()
+```
+
+```{r}
+
+```

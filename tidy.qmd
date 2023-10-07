@@ -32,3 +32,6 @@ tidyverse::tidyverse_conflicts()
 ```{r}
 
 ```
+
+## Ref
+[Teaching the tidyverse in 2023 | Mine Çetinkaya-Rundel - YouTube](https://www.youtube.com/watch?v=KsBBRHAgAhM)

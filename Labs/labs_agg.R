@@ -5,7 +5,7 @@ pacman::p_load(tidyverse, vroom)
 ## 25_resp
 combined <-
   # vroom("~/Documents/23_respat/results/combined.tsv")
-  vroom("~/Documents/SE39/respat/results/combined.tsv")
+  vroom("~/Documents/20231011_resp25/results/combined.tsv")
 
 ## test_result by labs
 table(combined$SC2_test_result, combined$lab_id)
@@ -17,7 +17,7 @@ table(combined$test_kit, combined$lab_id)
 table(combined$state, combined$SC2_test_result)
 
 ## test_lab by last week
-last_week <- combined[combined$epiweek == "2023-09-30", ]
+last_week <- combined[combined$epiweek == "2023-10-07", ]
 table(last_week$lab_id, last_week$epiweek)
 
 ## test_kit by last week 

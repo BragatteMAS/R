@@ -16,9 +16,12 @@ editor: visual
 ## chama bibliotecas
 pacman::p_load(tidyverse, vroom)
 
-## 24_resp
+## definindo caminho
+setwd("~/Documents/20231025_relatorio27_resp/")
+
+## 26_resp
 combined <-
-  vroom("~/Documents//respat/results/combined.tsv")
+  vroom("results/combined.tsv")
 
 ## test_result by labs
 table(combined$SC2_test_result, combined$lab_id)
@@ -30,7 +33,7 @@ table(combined$test_kit, combined$lab_id)
 table(combined$state, combined$SC2_test_result)
 
 ## test_lab by last week
-last_week <- combined[combined$epiweek == "2023-09-23", ]
+last_week <- combined[combined$epiweek == "2023-10-21", ] # EDITAR AQUI
 table(last_week$lab_id, last_week$epiweek)
 
 ## Pos Neg by last week
@@ -42,11 +45,11 @@ table(last_week$state_code, last_week$epiweek)
 #########################################
 
 # Leia o arquivo
-data <- vroom("~/Documents/20230927_relatorio24_resp/respat/results/country/combined_matrix_country_posneg_allpat_weeks.tsv")
+allpat <- vroom("~/Documents/20231025_relatorio27_resp/results/country/combined_matrix_country_posneg_allpat_weeks.tsv")
 
 # Filtra os dados do último ano com base na última semana disponível
-last_week <- max(data$epi_week)
-data_last_year <- data %>% filter(epi_week >= (last_week - 52))
+last_week <- max(allpat$epi_week)
+data_last_year <- allpat %>% filter(epi_week >= (last_week - 52))
 
 # Soma os casos Pos e Neg
 total_cases <- sum(data_last_year$Pos, data_last_year$Neg)
@@ -56,5 +59,4 @@ positive_rate <- sum(data_last_year$Pos) / total_cases * 100
 
 # Exibe a taxa de casos positivos
 print(paste("Taxa de casos positivos no último ano:", round(positive_rate, 2), "%"))
-
 ```

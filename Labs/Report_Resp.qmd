@@ -3,60 +3,53 @@ title: "Report Resp"
 author: "Bragatte"
 format: html
 editor: visual
+data: 2023-10-30
 ---
 
 ## Report Resp
 
-Última análise de dados de patógenos respiratórios.
+Última análise de dados de patógenos respiratórios.\
+Foco reformat DASA
 
 ```{r}
-#| echo: false
 
+```
+
+```{r}
 #########################################
 ## chama bibliotecas
 pacman::p_load(tidyverse, vroom)
 
 ## definindo caminho
-setwd("~/Documents/20231025_relatorio27_resp/")
+# setwd("~/Documents/20231025_relatorio27_resp/")
+# setwd("~/Downloads/")
 
 ## 26_resp
 combined <-
-  vroom("results/combined.tsv")
+  # vroom("results/combined.tsv")
+  vroom("combined_dasa_test_final.tsv")
 
-## test_result by labs
+## Quantidade de resultados positivos e negativos por lab:
+# test_result by labs
 table(combined$SC2_test_result, combined$lab_id)
 
-## test_kit by labs
+## Quantidade de tipos de testes por laboratório:
+# test_kit by labs
 table(combined$test_kit, combined$lab_id)
 
-## Test by state
+## Quantidade de testes Positivos e Negativos por estado: 
+# Test by state
 table(combined$state, combined$SC2_test_result)
 
-## test_lab by last week
+## Número de testes por laboratório na última semana:
+# test_lab by last week
 last_week <- combined[combined$epiweek == "2023-10-21", ] # EDITAR AQUI
 table(last_week$lab_id, last_week$epiweek)
 
-## Pos Neg by last week
+## Quantidade de testes Positivos e Negativos por laboratório na última semana
 table(last_week$lab_id, last_week$SC2_test_result)
 
-## state by last week
-table(last_week$state_code, last_week$epiweek)
-
-#########################################
-
-# Leia o arquivo
-allpat <- vroom("~/Documents/20231025_relatorio27_resp/results/country/combined_matrix_country_posneg_allpat_weeks.tsv")
-
-# Filtra os dados do último ano com base na última semana disponível
-last_week <- max(allpat$epi_week)
-data_last_year <- allpat %>% filter(epi_week >= (last_week - 52))
-
-# Soma os casos Pos e Neg
-total_cases <- sum(data_last_year$Pos, data_last_year$Neg)
-
-# Calcula a taxa de casos positivos
-positive_rate <- sum(data_last_year$Pos) / total_cases * 100
-
-# Exibe a taxa de casos positivos
-print(paste("Taxa de casos positivos no último ano:", round(positive_rate, 2), "%"))
+## Quantidade de testes por estado na última semana
+# state by last week
+table(last_week$state, last_week$epiweek)
 ```

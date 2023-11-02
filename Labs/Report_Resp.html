@@ -103,98 +103,180 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="report-resp" class="level2">
 <h2 class="anchored" data-anchor-id="report-resp">Report Resp</h2>
-<p>Última análise de dados de patógenos respiratórios.<br>
-Foco reformat DASA</p>
+<p>Última análise de dados de patógenos respiratórios.</p>
+<section id="semana-43" class="level3">
+<h3 class="anchored" data-anchor-id="semana-43">Semana 43</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">#########################################</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## chama bibliotecas</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, vroom)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## definindo caminho</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># setwd("~/Documents/20231025_relatorio27_resp/")</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># setwd("~/Downloads/")</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 26_resp</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>combined <span class="ot">&lt;-</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># vroom("results/combined.tsv")</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vroom</span>(<span class="st">"combined_dasa_test_final.tsv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## chama bibliotecas</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, vroom)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## dados</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>combined <span class="ot">&lt;-</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vroom</span>(<span class="st">"combined.tsv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Rows: 2412 Columns: 32
+<pre><code>Warning: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat &lt;- vroom(...)
+  problems(dat)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 3170283 Columns: 36
 ── Column specification ────────────────────────────────────────────────────────
 Delimiter: "\t"
-chr  (18): lab_id, test_kit, sample_id, state, location, sex, FLUA_test_resu...
-dbl   (2): test_id, age
-lgl  (10): patient_id, Ct_FluA, Ct_FluB, Ct_VSR, Ct_geneE, Ct_geneN, Ct_gene...
+chr  (25): lab_id, test_id, test_kit, patient_id, country, region, sample_id...
+dbl   (6): age, Ct_geneE, Ct_geneN, Ct_geneS, Ct_ORF1ab, Ct_RDRP
+lgl   (3): Ct_FluA, Ct_FluB, Ct_VSR
 date  (2): date_testing, epiweek
 
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Quantidade de resultados positivos e negativos por lab:</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># test_result by labs</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(combined<span class="sc">$</span>SC2_test_result, combined<span class="sc">$</span>lab_id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="quantidade-de-resultados-positivos-e-negativos-por-lab" class="level4">
+<h4 class="anchored" data-anchor-id="quantidade-de-resultados-positivos-e-negativos-por-lab">Quantidade de resultados positivos e negativos por lab:</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="do">## test_result by labs</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(combined<span class="sc">$</span>SC2_test_result, combined<span class="sc">$</span>lab_id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     
-      DASA
-  Neg 2041
-  Pos  371</code></pre>
+        DASA DB Mol EINSTEIN FLEURY  HILAB HLAGyn  SABIN
+  Neg 343715 170562   334772 659392 106194  50175 464145
+  NT       0     39    68949 128045   2566      0    213
+  Pos 101743  72390    73330 295051  32525  12975 253502</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Quantidade de tipos de testes por laboratório:</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># test_kit by labs</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(combined<span class="sc">$</span>test_kit, combined<span class="sc">$</span>lab_id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="quantidade-de-tipos-de-testes-por-laboratório" class="level4">
+<h4 class="anchored" data-anchor-id="quantidade-de-tipos-de-testes-por-laboratório">Quantidade de tipos de testes por laboratório:</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">## test_kit by labs</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(combined<span class="sc">$</span>test_kit, combined<span class="sc">$</span>lab_id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>         
-          DASA
-  test_14 1043
-  test_4  1369</code></pre>
+<pre><code>               
+                  DASA DB Mol EINSTEIN FLEURY  HILAB HLAGyn  SABIN
+  covid_antigen      0      0    90780 126792 138721      0 123913
+  covid_pcr          0 159092   271328 813804      0  57951 591768
+  flu_antigen        0      0        0 114774   2564      0      0
+  flu_pcr            0      0        0   4942      0      0      0
+  test_14         1100      0        0      0      0      0      0
+  test_2             0      0    66764      0      0      0      0
+  test_21            0      0        0  12841      0      0    197
+  test_24            0      0        0      0      0   3164    213
+  test_3             0      0     1706      0      0      0      0
+  test_4         37079  61565    46009   1009      0   2035   1769
+  thermo        407279  22334        0      0      0      0      0
+  vsr_antigen        0      0      464   8326      0      0      0</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Quantidade de testes Positivos e Negativos por estado: </span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Test by state</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(combined<span class="sc">$</span>state, combined<span class="sc">$</span>SC2_test_result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="quantidade-de-testes-positivos-e-negativos-por-estado" class="level4">
+<h4 class="anchored" data-anchor-id="quantidade-de-testes-positivos-e-negativos-por-estado">Quantidade de testes Positivos e Negativos por estado:</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Test by state</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(combined<span class="sc">$</span>state, combined<span class="sc">$</span>SC2_test_result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                   
-                     Neg  Pos
-  Bahia               28    2
-  Ceará                7    0
-  Distrito Federal   255   56
-  Goiás                4    3
-  Mato Grosso          2    0
-  Paraná             143   38
-  Pernambuco           1    0
-  Rio de Janeiro     477   99
-  Rio Grande do Sul    1    0
-  São Paulo         1054  169</code></pre>
+<pre><code>                     
+                          Neg      NT     Pos
+  Acre                    482      12     167
+  Alagoas                1030      22     444
+  Amapá                   351      17      60
+  Amazonas              25512     192   10718
+  Bahia                 23833     190   13769
+  Ceará                  3390      61    1577
+  Distrito Federal     352123   16670  191040
+  Espírito Santo         4453      17    1979
+  Goiás                 66224    1129   19257
+  Maranhão               5540     439    3073
+  Mato Grosso           27916     175   13156
+  Mato Grosso do Sul     6299     565    3312
+  Minas Gerais          67334     237   36489
+  Pará                   5196      73    2744
+  Paraíba                8443      26    4674
+  Paraná                93219    2441   35280
+  Pernambuco            28389     400    8927
+  Piauí                   871      26     611
+  Rio de Janeiro       203154    2862   72793
+  Rio Grande do Norte    3239     188    2369
+  Rio Grande do Sul     34597    2301   15204
+  Rondônia               1833      36     850
+  Roraima                2678      21     986
+  Santa Catarina        29709    3044    7455
+  São Paulo           1119245  168559  390463
+  Sergipe                 812      16     275
+  Tocantins              5167      42    2153</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Número de testes por laboratório na última semana:</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># test_lab by last week</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>last_week <span class="ot">&lt;-</span> combined[combined<span class="sc">$</span>epiweek <span class="sc">==</span> <span class="st">"2023-10-21"</span>, ] <span class="co"># EDITAR AQUI</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(last_week<span class="sc">$</span>lab_id, last_week<span class="sc">$</span>epiweek)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="número-de-testes-por-laboratório-na-última-semana" class="level4">
+<h4 class="anchored" data-anchor-id="número-de-testes-por-laboratório-na-última-semana">Número de testes por laboratório na última semana:</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do">## test_lab by last week</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="do">### EDITAR AQUI SEMANA DE INTERESSE</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>last_week <span class="ot">&lt;-</span> combined[combined<span class="sc">$</span>epiweek <span class="sc">==</span> <span class="st">"2023-10-28"</span>, ] </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(last_week<span class="sc">$</span>lab_id, last_week<span class="sc">$</span>epiweek)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>      
-       2023-10-21
-  DASA        392</code></pre>
+<pre><code>          
+           2023-10-28
+  DASA            412
+  EINSTEIN       2203
+  FLEURY         3562
+  HLAGyn          788
+  SABIN          2510</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Quantidade de testes Positivos e Negativos por laboratório na última semana</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(last_week<span class="sc">$</span>lab_id, last_week<span class="sc">$</span>SC2_test_result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="quantidade-de-testes-positivos-e-negativos-por-laboratório-na-última-semana" class="level4">
+<h4 class="anchored" data-anchor-id="quantidade-de-testes-positivos-e-negativos-por-laboratório-na-última-semana">Quantidade de testes Positivos e Negativos por laboratório na última semana</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">## test_lab by test_results in last week </span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(last_week<span class="sc">$</span>lab_id, last_week<span class="sc">$</span>SC2_test_result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>      
-       Neg Pos
-  DASA 327  65</code></pre>
+<pre><code>          
+            Neg   NT  Pos
+  DASA      342    0   70
+  EINSTEIN 1233  486  484
+  FLEURY   2004  556 1002
+  HLAGyn    646    0  142
+  SABIN    1637    0  873</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Quantidade de testes por estado na última semana</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># state by last week</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(last_week<span class="sc">$</span>state, last_week<span class="sc">$</span>epiweek)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="quantidade-de-testes-por-estado-na-última-semana" class="level4">
+<h4 class="anchored" data-anchor-id="quantidade-de-testes-por-estado-na-última-semana">Quantidade de testes por estado na última semana</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">## state by last week</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(last_week<span class="sc">$</span>state, last_week<span class="sc">$</span>epiweek)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                  
-                   2023-10-21
-  Bahia                     5
-  Ceará                     2
-  Distrito Federal         64
-  Paraná                   30
-  Rio de Janeiro           70
-  São Paulo               211</code></pre>
+<pre><code>                     
+                      2023-10-28
+  Acre                         2
+  Amazonas                     9
+  Bahia                       47
+  Ceará                        6
+  Distrito Federal          2043
+  Espírito Santo               1
+  Goiás                      824
+  Maranhão                     6
+  Mato Grosso                106
+  Mato Grosso do Sul          21
+  Minas Gerais               141
+  Pará                        12
+  Paraná                     343
+  Pernambuco                  54
+  Piauí                        1
+  Rio de Janeiro             235
+  Rio Grande do Norte          2
+  Rio Grande do Sul           84
+  Rondônia                     2
+  Roraima                      4
+  Santa Catarina             579
+  São Paulo                 4936
+  Sergipe                      3
+  Tocantins                    3</code></pre>
 </div>
 </div>
+</section>
+</section>
 </section>
 
 </main>

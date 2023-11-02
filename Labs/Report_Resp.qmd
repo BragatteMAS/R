@@ -3,53 +3,64 @@ title: "Report Resp"
 author: "Bragatte"
 format: html
 editor: visual
-data: 2023-10-30
+data: 2023-11-01
 ---
 
 ## Report Resp
 
-Última análise de dados de patógenos respiratórios.\
-Foco reformat DASA
+Última análise de dados de patógenos respiratórios.
+
+### Semana 43
 
 ```{r}
-
-```
-
-```{r}
-#########################################
 ## chama bibliotecas
 pacman::p_load(tidyverse, vroom)
 
-## definindo caminho
-# setwd("~/Documents/20231025_relatorio27_resp/")
-# setwd("~/Downloads/")
-
-## 26_resp
+## dados
 combined <-
-  # vroom("results/combined.tsv")
-  vroom("combined_dasa_test_final.tsv")
+  vroom("combined.tsv")
+```
 
-## Quantidade de resultados positivos e negativos por lab:
-# test_result by labs
+#### Quantidade de resultados positivos e negativos por lab:
+
+```{r}
+## test_result by labs
 table(combined$SC2_test_result, combined$lab_id)
+```
 
-## Quantidade de tipos de testes por laboratório:
-# test_kit by labs
+#### Quantidade de tipos de testes por laboratório:
+
+```{r}
+## test_kit by labs
 table(combined$test_kit, combined$lab_id)
+```
 
-## Quantidade de testes Positivos e Negativos por estado: 
-# Test by state
+#### Quantidade de testes Positivos e Negativos por estado:
+
+```{r}
+## Test by state
 table(combined$state, combined$SC2_test_result)
+```
 
-## Número de testes por laboratório na última semana:
-# test_lab by last week
-last_week <- combined[combined$epiweek == "2023-10-21", ] # EDITAR AQUI
+#### Número de testes por laboratório na última semana:
+
+```{r}
+## test_lab by last week
+### EDITAR AQUI SEMANA DE INTERESSE
+last_week <- combined[combined$epiweek == "2023-10-28", ] 
 table(last_week$lab_id, last_week$epiweek)
+```
 
-## Quantidade de testes Positivos e Negativos por laboratório na última semana
+#### Quantidade de testes Positivos e Negativos por laboratório na última semana
+
+```{r}
+## test_lab by test_results in last week 
 table(last_week$lab_id, last_week$SC2_test_result)
+```
 
-## Quantidade de testes por estado na última semana
-# state by last week
+#### Quantidade de testes por estado na última semana
+
+```{r}
+## state by last week
 table(last_week$state, last_week$epiweek)
 ```

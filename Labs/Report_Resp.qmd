@@ -21,10 +21,10 @@ combined <-
   vroom("combined.tsv")
 ```
 
-#### Quantidade de resultados positivos e negativos por lab:
+#### Quantidade de resultados positivos e negativos de Covid por lab:
 
 ```{r}
-## test_result by labs
+## test_result SARS-CoV-2 by labs
 table(combined$SC2_test_result, combined$lab_id)
 ```
 

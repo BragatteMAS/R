@@ -64,3 +64,14 @@ table(last_week$lab_id, last_week$SC2_test_result)
 ## state by last week
 table(last_week$state, last_week$epiweek)
 ```
+
+## Saved as .csv for endpoints
+
+```{r}
+## save as csv
+# write.csv(combined, file = "combined.csv")
+
+#Exportando o arquivo em .csv
+write_excel_csv2(x = combined,
+                 file = "combined.csv", delim = ",")
+```

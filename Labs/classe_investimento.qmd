@@ -13,6 +13,7 @@ Modelo de distribuição de investimentos em projetos, dentro de grupos de Inova
 
 ```{r}
 ## Instale e carregue o pacote gt se ainda não o fez
+if (!require(pacman)) install.packages("pacman")
 pacman::p_load(gt)
 ```
 
@@ -21,34 +22,34 @@ pacman::p_load(gt)
 ```{r}
 ## Criar um data frame de exemplo
 df <- data.frame(
-  Classe_Projeto = c("A1", "A2", "B1", "B2", "B3"),
-  Tipo = c("Inovador", "Inovador", "Estruturante", "Estruturante", "Estruturante"),
-  Anual = c("100.000 - 250.000", "N/A", "250.000 - 750.000", "N/A", "N/A"),
-  Plurianual = c("N/A", "250.000 - 500.000", "N/A", "750.000 - 1.500.000", "N/A"),
-  Macro_Projeto = c("N/A", "N/A", "N/A", "N/A", "1.500.000 - 5.000.000")
+  Classe = c("A1", "A2", "B1", "B2"),
+  Tipo = c("Estruturante", "Estruturante", "Exploratório", "Exploratório"),
+  Investimento = c("Plurianual (R$)", "Anual (R$)", "Plurianual (R$)", "Anual (R$)"),
+  Valor = c("500.000 - 1.000.000", "250.000 - 500.000", "250.000 - 500.000", "100.000 - 250.000"),
+  Descrição = c("Estruturantes de longo e médio prazo com duração entre 24 a 36 meses", 
+                "Estruturantes com foco em planejamento para 12 meses",
+                "Caráter inovador, atuando como prova de conceito e duração de até 24 meses",
+                "Inovadores de curto prazo (financiamento pontual), atuando como prova de conceito para 12 meses")
 )
+
 
 ```
 
 ## Tabelas
 
 ```{r}
-## Criar a tabela gt
+## Criar a tabela gt com a nova estrutura
 gt_tbl <- gt(df) %>%
   tab_header(
     title = "Classes de Investimentos em Projetos",
-    subtitle = "Atualizado em: 16/10/2023"
+    subtitle = "Atualizado em: 01/11/2023"
+  ) %>%
+  cols_label(
+    Investimento = "Tipo de Investimento"
   ) %>%
   tab_spanner(
-    label = "Faixas de Investimento (R$)",
-    columns = vars(Anual, Plurianual, Macro_Projeto)
-  ) %>%
-  tab_style(
-    style = cell_text(color = "red"),
-    locations = cells_body(
-      rows = Projeto == "Classe B3",
-      columns = vars(Anual, Plurianual, Macro_Projeto)
-    )
+    label = "Detalhes do Investimento",
+    columns = c("Investimento", "Valor")
   ) %>%
   tab_source_note(source_note = "Fonte: Instituto Todos pela Saúde")
 

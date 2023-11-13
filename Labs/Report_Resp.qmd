@@ -21,6 +21,12 @@ combined <-
   vroom("combined.tsv")
 ```
 
+#### Avaliando o dataset
+
+```{r}
+glimpse(combined)
+```
+
 #### Quantidade de resultados positivos e negativos de Covid por lab:
 
 ```{r}
@@ -47,7 +53,7 @@ table(combined$state, combined$SC2_test_result)
 ```{r}
 ## test_lab by last week
 ### EDITAR AQUI SEMANA DE INTERESSE
-last_week <- combined[combined$epiweek == "2023-10-28", ] 
+last_week <- combined[combined$epiweek == "2023-11-04", ] 
 table(last_week$lab_id, last_week$epiweek)
 ```
 

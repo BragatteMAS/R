@@ -41,6 +41,7 @@ bikes_monthly <-
 ## -----------------------------------------------------------------------------
 library(ggplot2)
 
+## install google font Asap Condensed Semibold
 theme_set(theme_minimal(base_family = "Asap SemiCondensed", base_size = 20))
 
 theme_update(

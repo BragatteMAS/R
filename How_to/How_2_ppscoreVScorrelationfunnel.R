@@ -69,10 +69,7 @@ customer_churn_binned_tbl %>%
 
 # 3.0 TOP FEATURES ----
 # - USE XGBoost
-
-library(tidymodels)
-library(xgboost)
-library(vip)
+pacman::p_load(tidymodels, xgboost,vip)
 
 recipe_spec <- recipe(Churn ~ ., data = customer_churn_tbl) %>%
   step_rm(customerID) %>%

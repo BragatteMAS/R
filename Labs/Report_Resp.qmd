@@ -3,12 +3,16 @@ title: "Report Resp"
 author: "Bragatte"
 format: html
 editor: visual
-data: 2023-11-01
+data: 2023-11-29
 ---
 
 ## Report Resp
 
 Última análise de dados de patógenos respiratórios.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, error = FALSE, warning = FALSE, message = FALSE, cache = TRUE, results = 'asis')
+```
 
 ### Semana 43
 
@@ -24,7 +28,7 @@ combined <-
 #### Avaliando o dataset
 
 ```{r}
-glimpse(combined)
+# glimpse(combined)
 ```
 
 #### Quantidade de resultados positivos e negativos de Covid por lab:
@@ -53,7 +57,7 @@ table(combined$state, combined$SC2_test_result)
 ```{r}
 ## test_lab by last week
 ### EDITAR AQUI SEMANA DE INTERESSE
-last_week <- combined[combined$epiweek == "2023-11-04", ] 
+last_week <- combined[combined$epiweek == "2023-11-25", ] 
 table(last_week$lab_id, last_week$epiweek)
 ```
 

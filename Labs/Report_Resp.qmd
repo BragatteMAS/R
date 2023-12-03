@@ -3,14 +3,14 @@ title: "Report Resp"
 author: "Bragatte"
 format: html
 editor: visual
-data: 2023-11-29
+data: 2023-12-01
 ---
 
 ## Report Resp
 
-Última análise de dados de patógenos respiratórios.
+Última análise de dados de patógenos respiratórios da semana \`47\`.
 
-```{r setup, include=FALSE}
+```{r setup}
 knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, error = FALSE, warning = FALSE, message = FALSE, cache = TRUE, results = 'asis')
 ```
 
@@ -52,6 +52,12 @@ table(combined$test_kit, combined$lab_id)
 table(combined$state, combined$SC2_test_result)
 ```
 
+### Labs por estado
+
+```{r}
+table(combined$state, combined$lab_id)
+```
+
 #### Número de testes por laboratório na última semana:
 
 ```{r}
@@ -68,6 +74,14 @@ table(last_week$lab_id, last_week$epiweek)
 table(last_week$lab_id, last_week$SC2_test_result)
 ```
 
+#### Quantidade de dados dos laboratórios por estado na semana 46
+
+```{r}
+last_week46 <- combined[combined$epiweek == "2023-11-18", ] 
+
+table(last_week46$state, last_week46$lab_id)
+```
+
 #### Quantidade de testes por estado na última semana
 
 ```{r}
@@ -82,6 +96,6 @@ table(last_week$state, last_week$epiweek)
 # write.csv(combined, file = "combined.csv")
 
 #Exportando o arquivo em .csv
-write_excel_csv2(x = combined,
-                 file = "combined.csv", delim = ",")
+#write_excel_csv2(x = combined,
+#                 file = "combined.csv", delim = ",")
 ```

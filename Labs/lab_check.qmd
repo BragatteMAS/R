@@ -1,0 +1,128 @@
+---
+title: "Check"
+format: html
+editor: visual
+author: BragatteMAS
+update: 20232301
+---
+
+## Lab data
+
+```{r}
+## libs
+pacman::p_load(tidyverse, #manipulation
+               vroom, #read files
+               readxl, #read excel files
+               janitor, #clean and tabulation
+               skimr, #summary details
+               assertr, #assertions
+               stringr, #string manipulation
+               )
+```
+
+```{r}
+## check files 
+files <- list.files(path ="data/",
+                    pattern = "*.xlsx",
+                    full.names = TRUE)
+
+file_path <- "data/"
+if (!file.exists(file_path)) {
+  stop("File not found: ", file_path)
+}
+
+## data lab of interest - change for the original file from lab of interest
+last_lab <-
+  readxl::read_xlsx("data/20231201_CT 06.11 a 12.11_SE46.xlsx")
+```
+
+```{r}
+summary(last_lab)
+```
+
+```{r}
+glimpse(last_lab)
+```
+
+## Quality check
+
+```{r}
+# Verify column types/class
+last_lab %>% 
+  purrr::map(class) %>% 
+  tibble::enframe(name = "column", value = "class")
+```
+
+```{r}
+## Verify column types/class
+last_lab %>% 
+  reframe(across(everything(), class))
+```
+
+```{r}
+# Check for mixed data types in numeric columns
+mixed_type_check <- function(column) {
+  if(is.numeric(column)) {
+    return(any(sapply(column, is.character)))
+  } else {
+    return(NA)
+  }
+}
+```
+```{r}
+last_lab %>% 
+  purrr::map_lgl(mixed_type_check) %>% 
+  tibble::enframe(name = "column", value = "has_mixed_types")
+```
+```{r}
+## Function to check inconsistencies in string columns
+check_string_inconsistencies <- function(column) {
+  if (is.character(column)) {
+    results <- list()
+
+    ## Checking variability in the length of the strings
+    ## It calculates the number of unique string lengths.
+    ## A high variability might indicate data inconsistency.
+    results$length_variability <- length(unique(nchar(column)))
+
+    ## Checking for empty strings or strings that are only whitespace
+    ## This is important to identify missing or placeholder data.
+    results$empty_or_whitespace <- any(column == "" | str_trim(column) == "")
+
+    ## Checking for specific format (example: ZIP codes)
+    ## Adjust the regex pattern according to the expected format
+    regex_pattern <- "^[0-9]{5}-[0-9]{3}$" # Example for Brazilian ZIP code format
+    results$format_mismatch <- any(!str_detect(column, regex_pattern) & column != "")
+
+    ## Checking for the presence of unallowed characters (example: special characters)
+    ## Modify the regex to define allowed characters
+    allowed_chars_regex <- "^[A-Za-z0-9]+$" 
+    results$unallowed_chars <- any(!str_detect(column, allowed_chars_regex) & column != "")
+
+    ## Checking for case consistency
+    ## This verifies if all strings in the column are either all lower case or all upper case.
+    ## Useful for categorical data where case inconsistencies can imply different categories.
+    results$case_inconsistency <- !(all(str_is_lower(column) | str_is_upper(column)))
+
+    return(results)
+  } else {
+    return(NA)
+  }
+}
+```
+```{r}
+## Applying the check to all columns and formatting the result
+last_lab %>%
+  purrr::map(check_string_inconsistencies) %>%
+  tibble::enframe(name = "column", value = "inconsistencies")
+```
+
+```{r}
+## Check for empty strings or blanck spaces
+
+```
+
+
+```{r}
+skim(last_lab)
+```

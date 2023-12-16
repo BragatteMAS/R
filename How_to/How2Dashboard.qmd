@@ -1,0 +1,23 @@
+---
+title: "Simple_Dashboard"
+author: "BragatteMAS"
+format: 
+    dashboard:
+        orientation: rows
+editor: visual
+---
+
+# Page 1
+
+```{r}
+plot(cars)
+```
+
+# Page 2
+
+```{r}
+plot(iris)
+```
+
+### REF
+[Quarto Dashboards | Charles Teague | Posit - YouTube](https://www.youtube.com/watch?v=_VGJIPRGTy4&list=PL9HYL-VRX0oTCvag75m8yDjFoJvE-gMxp&index=1)

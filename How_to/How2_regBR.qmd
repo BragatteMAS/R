@@ -1,0 +1,32 @@
+---
+title: "Regioes"
+author: "BragatteMAS"
+format: html
+editor: visual
+---
+
+## Brasil geobr
+
+```{r}
+pacman::p_load(geobr, ggplot2, sf, dplyr)
+```
+
+## Regiões
+
+```{r}
+# Baixar dados das regiões do Brasil
+regions <- read_region()
+
+# Criar um mapa das regiões
+ggplot(regions) +
+  geom_sf(aes(fill = name_region)) +
+  ggtitle("Regiões do Brasil") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+## Macro regiões
+```{r}
+# Baixar dados das macro regiões do Brasil
+
+```
+

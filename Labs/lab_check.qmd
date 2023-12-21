@@ -3,7 +3,7 @@ title: "Check"
 format: html
 editor: visual
 author: BragatteMAS
-update: 20232301
+update: 20231220
 ---
 
 ## Lab data
@@ -16,7 +16,7 @@ pacman::p_load(tidyverse, #manipulation
                janitor, #clean and tabulation
                skimr, #summary details
                assertr, #assertions
-               stringr, #string manipulation
+               stringr #string manipulation
                )
 ```
 
@@ -69,11 +69,13 @@ mixed_type_check <- function(column) {
   }
 }
 ```
+
 ```{r}
 last_lab %>% 
   purrr::map_lgl(mixed_type_check) %>% 
   tibble::enframe(name = "column", value = "has_mixed_types")
 ```
+
 ```{r}
 ## Function to check inconsistencies in string columns
 check_string_inconsistencies <- function(column) {
@@ -110,6 +112,7 @@ check_string_inconsistencies <- function(column) {
   }
 }
 ```
+
 ```{r}
 ## Applying the check to all columns and formatting the result
 last_lab %>%
@@ -121,7 +124,6 @@ last_lab %>%
 ## Check for empty strings or blanck spaces
 
 ```
-
 
 ```{r}
 skim(last_lab)

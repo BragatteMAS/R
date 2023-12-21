@@ -1,11 +1,12 @@
-----
-title: "BR regions"
-author: "@BragatteMAS"
-format: html
-editor: source
+---
+title: "BR regions"    |
+author: "@BragatteMAS" |
+format: html           |
+editor: source         |
 ---
 
 # Brazil Regions
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
@@ -20,6 +21,7 @@ knitr::opts_chunk$set(
 ```
 
 ### libs
+
 ```{r}
 ## delete memory data
 rm(list = ls())
@@ -50,16 +52,20 @@ lapply(packs, require, character.only = TRUE
 ```
 
 ### data
+
 ```{r}
 br.states <- geobr::read_state(code_state ="all",year=2020 )
 br.region <- geobr::read_region(2020)
 ```
+
 #### Create DF of tests
+
 ```{r}
 br22_tests <- as_tidytable(read.csv("~/Documentos/GitHub/R/Reserarch/tests_2022.csv"))
 ```
 
 #### Add number of test in 2022 Br
+
 ```{r}
 data_map <- br22_tests %>% 
   inner_join(br.states, by = "abbrev_state") %>% 
@@ -68,6 +74,7 @@ data_map <- br22_tests %>%
 ```
 
 #### Manipulate dataset for translation region names
+
 ```{r}
 # Define a lookup table that maps Portuguese names to English equivalents
 translation_table <-
@@ -85,6 +92,7 @@ br.states$name_region <-
 ```
 
 ### plot only states
+
 ```{r}
 bra <-
   ggplot(br.states) +
@@ -98,7 +106,9 @@ bra <-
        title = "Brazilian regions and states")
 bra
 ```
+
 #### Plot states and tests
+
 ```{r}
 # Define colors range
 pal <- colorRampPalette(c("white", "red"))
@@ -130,7 +140,6 @@ heatmap <- ggplot() +
 heatmap
 ```
 
-
 ```{r}
 # group data by region and sum number of tests
 data_bar <- data_map %>%
@@ -158,16 +167,17 @@ ggplot(data_bar, aes(x = reorder(name_region, num_tests), y = num_tests, fill = 
   scale_y_continuous(labels = scales::comma)
 ```
 
-
 ```{r}
 #tibble::as.tibble(br.states)
 tibble::as.tibble(data_map)
 ```
+
 ```{r}
 glimpse(data_map)
 ```
 
 #### Df for new table
+
 ```{r}
 br_supp_t <- br.states |> 
     select(-c(code_state, abbrev_state, code_region, 'geom')) |> 
@@ -179,6 +189,7 @@ br_supp_t <- br.states |>
 ```
 
 ### Creating a new table for supplementary material
+
 ```{r}
 br_supp_a <- br.states |> 
   pivot_wider(names_from = 'name_region', values_from = 'name_state', 
@@ -187,6 +198,7 @@ br_supp_a <- br.states |>
 ```
 
 ### Gt table
+
 ```{r}
 br.states %>%
   select(name_state, name_region) %>%

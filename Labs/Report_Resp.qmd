@@ -63,7 +63,7 @@ table(combined$state, combined$lab_id)
 ```{r}
 ## test_lab by last week
 ### EDITAR AQUI SEMANA DE INTERESSE
-last_week <- combined[combined$epiweek == "2023-11-25", ] 
+last_week <- combined[combined$epiweek == "2023-12-16", ] 
 table(last_week$lab_id, last_week$epiweek)
 ```
 
@@ -72,21 +72,6 @@ table(last_week$lab_id, last_week$epiweek)
 ```{r}
 ## test_lab by test_results in last week 
 table(last_week$lab_id, last_week$SC2_test_result)
-```
-
-#### Quantidade de dados dos laboratórios por estado na semana 46
-
-```{r}
-last_week46 <- combined[combined$epiweek == "2023-11-18", ] 
-
-table(last_week46$state, last_week46$lab_id)
-```
-
-#### Quantidade de testes por estado na última semana
-
-```{r}
-## state by last week
-table(last_week$state, last_week$epiweek)
 ```
 
 ## Saved as .csv for endpoints
@@ -98,4 +83,34 @@ table(last_week$state, last_week$epiweek)
 #Exportando o arquivo em .csv
 #write_excel_csv2(x = combined,
 #                 file = "combined.csv", delim = ",")
+```
+
+### Verificações específicas
+
+#### Especificar semana de interesse
+
+```{r}
+last_weekXX <- combined[combined$epiweek == "2023-12-16", ] # alterar a data conforme calendário SINAN
+```
+
+#### Quantidade de dados dos laboratórios por estado na semana XX
+
+```{r}
+## state by lab last week XX
+table(last_weekXX$state, last_weekXX$lab_id)
+```
+
+#### Quantidade de testes por estado na última semana
+
+```{r}
+## state by cases last week
+table(last_week$state, last_week$epiweek)
+```
+
+#### Quantidade de testes para o patógeno X na semana XX
+
+```{r}
+## what tribble does?
+## https://www.rdocumentation.org/packages/tibble/versions/3.1.2/topics/tribble
+tribble(last_weekXX$state, last_weekXX$lab_id)
 ```

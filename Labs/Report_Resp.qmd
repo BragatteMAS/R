@@ -3,18 +3,18 @@ title: "Report Resp"
 author: "Bragatte"
 format: html
 editor: visual
-data: 2023-12-20
+data: 2024-01-03
 ---
 
 ## Report Resp
 
-Última análise de dados de patógenos respiratórios da semana \`50\`.
+Análise de dados de patógenos respiratórios 
 
 ```{r setup}
-knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, error = FALSE, warning = FALSE, message = FALSE, cache = TRUE, results = 'asis')
+knitr::opts_chunk$set(echo = TRUE, collapse = FALSE, error = FALSE, warning = FALSE, message = FALSE, cache = FALSE)
 ```
 
-### Semana 50
+### Semana 52 - 2023
 
 ```{r}
 ## chama bibliotecas
@@ -105,12 +105,4 @@ table(last_weekXX$state, last_weekXX$lab_id)
 ```{r}
 ## state by cases last week
 table(last_week$state, last_week$epiweek)
-```
-
-#### Quantidade de testes para o patógeno X na semana XX
-
-```{r}
-## what tribble does?
-## https://www.rdocumentation.org/packages/tibble/versions/3.1.2/topics/tribble
-tribble(last_weekXX$state, last_weekXX$lab_id)
 ```

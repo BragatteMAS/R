@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.528">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Bragatte">
+
+<title>Report Resp</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Report_Resp_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Report_Resp_files/libs/quarto-html/quarto.js"></script>
+<script src="Report_Resp_files/libs/quarto-html/popper.min.js"></script>
+<script src="Report_Resp_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Report_Resp_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Report_Resp_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Report_Resp_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Report_Resp_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Report_Resp_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Report_Resp_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Report Resp</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Bragatte </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="report-resp" class="level2">
+<h2 class="anchored" data-anchor-id="report-resp">Report Resp</h2>
+<p>Última análise de dados de patógenos respiratórios da semana `50`.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>, <span class="at">collapse =</span> <span class="cn">FALSE</span>, <span class="at">error =</span> <span class="cn">FALSE</span>, <span class="at">warning =</span> <span class="cn">FALSE</span>, <span class="at">message =</span> <span class="cn">FALSE</span>, <span class="at">cache =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="semana-50" class="level3">
+<h3 class="anchored" data-anchor-id="semana-50">Semana 50</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## chama bibliotecas</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, vroom)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="do">## dados</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>combined <span class="ot">&lt;-</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vroom</span>(<span class="st">"combined.tsv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="avaliando-o-dataset" class="level4">
+<h4 class="anchored" data-anchor-id="avaliando-o-dataset">Avaliando o dataset</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># glimpse(combined)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="quantidade-de-resultados-positivos-e-negativos-de-covid-por-lab" class="level4">
+<h4 class="anchored" data-anchor-id="quantidade-de-resultados-positivos-e-negativos-de-covid-por-lab">Quantidade de resultados positivos e negativos de Covid por lab:</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="do">## test_result SARS-CoV-2 by labs</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(combined<span class="sc">$</span>SC2_test_result, combined<span class="sc">$</span>lab_id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     
+        DASA DB Mol EINSTEIN FLEURY  HILAB HLAGyn  SABIN
+  Neg 345114 173423   339676 670055 107998  53869 473712
+  NT       0     39    70695 130817   2575      0    230
+  Pos 101902  73556    74292 298567  32804  13320 256143</code></pre>
+</div>
+</div>
+</section>
+<section id="quantidade-de-tipos-de-testes-por-laboratório" class="level4">
+<h4 class="anchored" data-anchor-id="quantidade-de-tipos-de-testes-por-laboratório">Quantidade de tipos de testes por laboratório:</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">## test_kit by labs</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(combined<span class="sc">$</span>test_kit, combined<span class="sc">$</span>lab_id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               
+                  DASA DB Mol EINSTEIN FLEURY  HILAB HLAGyn  SABIN
+  covid_antigen      0      0    91020 132246 140804      0 127360
+  covid_pcr          0 162531   274841 821728      0  61669 600336
+  flu_antigen        0      0        0 117287   2573      0      0
+  flu_pcr            0      0        0   4955      0      0      0
+  test_14         1425      0        0      0      0      0      0
+  test_2             0      0    68371      0      0      0      0
+  test_21            0      0        0  13613      0      0    230
+  test_24            0      0        0      0      0   3255    230
+  test_3             0      0     1801      0      0      0      0
+  test_4         38312  62153    48142   1038      0   2265   1929
+  thermo        407279  22334        0      0      0      0      0
+  vsr_antigen        0      0      488   8572      0      0      0</code></pre>
+</div>
+</div>
+</section>
+<section id="quantidade-de-testes-positivos-e-negativos-por-estado" class="level4">
+<h4 class="anchored" data-anchor-id="quantidade-de-testes-positivos-e-negativos-por-estado">Quantidade de testes Positivos e Negativos por estado:</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Test by state</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(combined<span class="sc">$</span>state, combined<span class="sc">$</span>SC2_test_result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     
+                          Neg      NT     Pos
+  Acre                    483      12     167
+  Alagoas                1046      23     451
+  Amapá                   364      17      61
+  Amazonas              25660     195   10725
+  Bahia                 24494     190   14274
+  Ceará                  3463      63    1625
+  Distrito Federal     358909   16959  192674
+  Espírito Santo         4537      17    2010
+  Goiás                 70064    1133   19631
+  Maranhão               5662     445    3161
+  Mato Grosso           28473     179   13258
+  Mato Grosso do Sul     6364     566    3331
+  Minas Gerais          68641     248   36893
+  Pará                   5277      73    2764
+  Paraíba                8668      27    4775
+  Paraná                95564    2481   36207
+  Pernambuco            29367     420    9448
+  Piauí                   875      28     611
+  Rio de Janeiro       204149    2886   72981
+  Rio Grande do Norte    3262     189    2378
+  Rio Grande do Sul     34968    2339   15352
+  Rondônia               1860      39     852
+  Roraima                2696      21     990
+  Santa Catarina        31891    3413    8297
+  São Paulo           1133098  172283  393530
+  Sergipe                 842      17     284
+  Tocantins              5209      42    2161</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="labs-por-estado" class="level3">
+<h3 class="anchored" data-anchor-id="labs-por-estado">Labs por estado</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(combined<span class="sc">$</span>state, combined<span class="sc">$</span>lab_id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     
+                        DASA DB Mol EINSTEIN FLEURY  HILAB HLAGyn  SABIN
+  Acre                     6     43        0    256    357      0      0
+  Alagoas                 47    402        0    261    810      0      0
+  Amapá                    6    209        0    168     59      0      0
+  Amazonas                23    620        0    483  22484      0  12970
+  Bahia                 2642   4263        0   7471   1077     13  23492
+  Ceará                  851   1674        0    228   2398      0      0
+  Distrito Federal      9523   9488        0  60132    706      3 488690
+  Espírito Santo        4208   1862        0    343    151      0      0
+  Goiás                  703   8744       60   4252   1198  66487   9384
+  Maranhão               326    374        0   8157    411      0      0
+  Mato Grosso            795   8744        0    635   1751      0  29985
+  Mato Grosso do Sul    1542   2087        0    423   2341      0   3868
+  Minas Gerais          3732  21801        0   1956   7373      0  70920
+  Pará                    46   1592        0    567   1215      0   4694
+  Paraíba                455  12046        0    227    742      0      0
+  Paraná                5810  37516        0  52253  22835      0  15838
+  Pernambuco            2757  20817        0  14065   1596      0      0
+  Piauí                  279    366        0    130    739      0      0
+  Rio de Janeiro      138014  15821    35268  88752   2161      0      0
+  Rio Grande do Norte    522    521        0   4225    561      0      0
+  Rio Grande do Sul      171   2988        0  48427   1073      0      0
+  Rondônia                 8    773        0    199   1771      0      0
+  Roraima                  4      0        0    123    529      0   3051
+  Santa Catarina        1541  11974        0  16765   1983      0  11338
+  São Paulo           264186  81328   449335 788611  66377      0  49074
+  Sergipe                131    826        0    177      9      0      0
+  Tocantins                4    139        0    153    670      0   6446</code></pre>
+</div>
+</div>
+<section id="número-de-testes-por-laboratório-na-última-semana" class="level4">
+<h4 class="anchored" data-anchor-id="número-de-testes-por-laboratório-na-última-semana">Número de testes por laboratório na última semana:</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">## test_lab by last week</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="do">### EDITAR AQUI SEMANA DE INTERESSE</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>last_week <span class="ot">&lt;-</span> combined[combined<span class="sc">$</span>epiweek <span class="sc">==</span> <span class="st">"2023-12-16"</span>, ] </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(last_week<span class="sc">$</span>lab_id, last_week<span class="sc">$</span>epiweek)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        
+         2023-12-16
+  DB Mol         51
+  FLEURY       2483
+  HILAB         305
+  HLAGyn        510
+  SABIN        1755</code></pre>
+</div>
+</div>
+</section>
+<section id="quantidade-de-testes-positivos-e-negativos-por-laboratório-na-última-semana" class="level4">
+<h4 class="anchored" data-anchor-id="quantidade-de-testes-positivos-e-negativos-por-laboratório-na-última-semana">Quantidade de testes Positivos e Negativos por laboratório na última semana</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">## test_lab by test_results in last week </span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(last_week<span class="sc">$</span>lab_id, last_week<span class="sc">$</span>SC2_test_result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        
+          Neg   NT  Pos
+  DB Mol   33    0   18
+  FLEURY 1566  408  509
+  HILAB   276    0   29
+  HLAGyn  470    0   40
+  SABIN  1450    0  305</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="saved-as-.csv-for-endpoints" class="level2">
+<h2 class="anchored" data-anchor-id="saved-as-.csv-for-endpoints">Saved as .csv for endpoints</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="do">## save as csv</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># write.csv(combined, file = "combined.csv")</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#Exportando o arquivo em .csv</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">#write_excel_csv2(x = combined,</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co">#                 file = "combined.csv", delim = ",")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="verificações-específicas" class="level3">
+<h3 class="anchored" data-anchor-id="verificações-específicas">Verificações específicas</h3>
+<section id="especificar-semana-de-interesse" class="level4">
+<h4 class="anchored" data-anchor-id="especificar-semana-de-interesse">Especificar semana de interesse</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>last_weekXX <span class="ot">&lt;-</span> combined[combined<span class="sc">$</span>epiweek <span class="sc">==</span> <span class="st">"2023-12-16"</span>, ] <span class="co"># alterar a data conforme calendário SINAN</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="quantidade-de-dados-dos-laboratórios-por-estado-na-semana-xx" class="level4">
+<h4 class="anchored" data-anchor-id="quantidade-de-dados-dos-laboratórios-por-estado-na-semana-xx">Quantidade de dados dos laboratórios por estado na semana XX</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="do">## state by lab last week XX</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(last_weekXX<span class="sc">$</span>state, last_weekXX<span class="sc">$</span>lab_id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     
+                      DB Mol FLEURY HILAB HLAGyn SABIN
+  Alagoas                  0      3     3      0     0
+  Amapá                    0      2     0      0     0
+  Amazonas                 0      2     0      0    10
+  Bahia                    9     13     0      0    90
+  Ceará                    9      1     0      0     0
+  Distrito Federal         0     97     0      0  1094
+  Espírito Santo           3      1     0      0     0
+  Goiás                    0      4     0    510    17
+  Maranhão                 0     88     0      0     0
+  Mato Grosso              0      1     3      0    99
+  Mato Grosso do Sul       0      1     0      0    11
+  Minas Gerais             2      4     2      0   208
+  Pará                     0      1     0      0    23
+  Paraíba                 11      0     0      0     0
+  Paraná                   3     96    93      0    68
+  Pernambuco               3    560     3      0     0
+  Rio de Janeiro           2     64     0      0     0
+  Rio Grande do Norte      0      9     0      0     0
+  Rio Grande do Sul        0     27     1      0     0
+  Rondônia                 0      3     1      0     0
+  Roraima                  0      0     0      0     3
+  Santa Catarina           1    333     5      0    25
+  São Paulo                7   1173   193      0    96
+  Sergipe                  1      0     0      0     0
+  Tocantins                0      0     1      0     6</code></pre>
+</div>
+</div>
+</section>
+<section id="quantidade-de-testes-por-estado-na-última-semana" class="level4">
+<h4 class="anchored" data-anchor-id="quantidade-de-testes-por-estado-na-última-semana">Quantidade de testes por estado na última semana</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="do">## state by cases last week</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(last_week<span class="sc">$</span>state, last_week<span class="sc">$</span>epiweek)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     
+                      2023-12-16
+  Alagoas                      6
+  Amapá                        2
+  Amazonas                    12
+  Bahia                      112
+  Ceará                       10
+  Distrito Federal          1191
+  Espírito Santo               4
+  Goiás                      531
+  Maranhão                    88
+  Mato Grosso                103
+  Mato Grosso do Sul          12
+  Minas Gerais               216
+  Pará                        24
+  Paraíba                     11
+  Paraná                     260
+  Pernambuco                 566
+  Rio de Janeiro              66
+  Rio Grande do Norte          9
+  Rio Grande do Sul           28
+  Rondônia                     4
+  Roraima                      3
+  Santa Catarina             364
+  São Paulo                 1469
+  Sergipe                      1
+  Tocantins                    7</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      return note.innerHTML;
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

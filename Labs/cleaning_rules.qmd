@@ -52,7 +52,7 @@ Using factor for nominal variables:
 ```{r}
 data$nominal_variable <- as.factor(data$nominal_variable)
 Using model.matrix for one - hot encoding:encoded_data <-
-  model.matrix( ~ ., data = data)
+  model.matrix(~ ., data = data)
 Converting categorical variables to numeric labels:data$cat_variable <-
   as.numeric(factor(data$cat_variable))
 ```

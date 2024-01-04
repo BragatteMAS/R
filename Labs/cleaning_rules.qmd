@@ -1,0 +1,74 @@
+---
+title: "Untitled"
+author: "BragatteMAS"
+format: html
+editor: visual
+---
+
+21 Strategies for Data Cleaning and Preprocessing in R btd Data cleaning and preprocessing in R involve various tasks, such as handling missing values, removing duplicates, transforming variables, and scaling data. Here's a list of common R codes for data cleaning and preprocessing:
+
+1.  Handling Missing Values:
+
+Removing rows with missing values:
+
+```{r}
+data <- na.omit(data)
+Imputing missing values with mean:data$variable <-
+  ifelse(is.na(data$variable),
+         mean(data$variable, na.rm = TRUE),
+         data$variable)
+Imputing missing values with median:data$variable <-
+  ifelse(is.na(data$variable),
+         median(data$variable, na.rm = TRUE),
+         data$variable)
+```
+
+2.  Removing Duplicates:
+
+```{r}
+Removing duplicate rows from a data frame
+data <- unique(data)
+Removing duplicate rows based on specific columns:data <-
+  data[!duplicated(data[, c("col1", "col2")]),]
+Removing duplicate columns:data <-
+  data[, !duplicated(colnames(data))]
+```
+
+3.  Transforming Variables:
+
+Log transformation:
+
+```{r}
+data$log_variable <- log(data$variable)
+Square root transformation:data$sqrt_variable <- sqrt(data$variable)
+Standardizing variables (mean centering and scaling):data$standardized_variable <-
+  scale(data$variable)
+```
+
+4.  Encoding Categorical Variables:
+
+Using factor for nominal variables:
+
+```{r}
+data$nominal_variable <- as.factor(data$nominal_variable)
+Using model.matrix for one - hot encoding:encoded_data <-
+  model.matrix( ~ ., data = data)
+Converting categorical variables to numeric labels:data$cat_variable <-
+  as.numeric(factor(data$cat_variable))
+```
+
+5.  Dealing with Outliers:
+
+Identifying and removing outliers using z-scores:
+
+```{r}
+z_scores <- scale(data$variable)
+outliers <- abs(z_scores) > 3
+data <- data[!outliers,]
+```
+
+6.  Date and Time Manipulation: ...
+
+# Ref
+
+[medium_source](https://baotramduong.medium.com/data-cleaning-and-preprocessing-in-r-efb7ef6c7ce6)

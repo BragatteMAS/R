@@ -8,7 +8,7 @@ data: 2024-01-03
 
 ## Report Resp
 
-Análise de dados de patógenos respiratórios 
+Análise de dados de patógenos respiratórios
 
 ```{r setup}
 knitr::opts_chunk$set(echo = TRUE, collapse = FALSE, error = FALSE, warning = FALSE, message = FALSE, cache = FALSE)

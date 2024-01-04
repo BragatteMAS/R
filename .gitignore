@@ -13,3 +13,5 @@ Labs/combined.tsv
 Labs/Report_Resp.html
 Labs/reports/*
 Labs/Report_Resp_cache/html/unnamed-chunk-*
+Labs/figures/*
+Labs/flourish/*

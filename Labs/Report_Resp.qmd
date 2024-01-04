@@ -3,12 +3,12 @@ title: "Report Resp"
 author: "Bragatte"
 format: html
 editor: visual
-data: 2024-01-03
+data: 2024-01-04
 ---
 
 ## Report Resp
 
-Análise de dados de patógenos respiratórios
+Análise de dados de patógenos respiratórios com laboratórios parceiros do ITpS
 
 ```{r setup}
 knitr::opts_chunk$set(echo = TRUE, collapse = FALSE, error = FALSE, warning = FALSE, message = FALSE, cache = FALSE)

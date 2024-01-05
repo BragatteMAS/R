@@ -11,73 +11,305 @@ data: 2024-01-04
 Análise de dados de patógenos respiratórios com laboratórios parceiros do ITpS
 
 ```{r setup}
-knitr::opts_chunk$set(echo = TRUE, collapse = FALSE, error = FALSE, warning = FALSE, message = FALSE, cache = FALSE)
+#| echo: FALSE
+knitr::opts_chunk$set(echo = FALSE, collapse = FALSE, error = FALSE, warning = FALSE, message = FALSE, cache = FALSE)
 ```
 
 ### Semana 52 - 2023
 
 ```{r}
 ## chama bibliotecas
-pacman::p_load(tidyverse, vroom)
+pacman::p_load(tidyverse, vroom, lubridate, plotly, polars, duckdb, RColorBrewer)
+```
 
+```{r}
 ## dados
 combined <-
   vroom("combined.tsv")
 ```
 
+```{r}
+#| echo: FALSE
+## Define as cores
+cores <- tibble(
+  field = c('FLUA', 'FLUB', 'VSR', 'SC2', 'COVS', 'META', 'RINO', 'ENTERO', 'PARA', 'BOCA', 'ADENO', 'BAC', 'Pos', 'Neg', 'Detected', 'Not detected'),
+  hex_color = c('#1f3d7a', '#5ea6ed', '#DF4F4F', '#1B8B5B', '#40bf88', '#e699b0', '#671d8c', '#ad5cd6', '#d97726', '#f0b642', '#70c2c2', '#ABABAB', '#F26F61', '#577DBD', '#ABABAB', '#016C59')
+)
+
+## Use a função abaixo para pegar a cor correspondente ao valor
+get_color <- function(value) {
+  return(cores$hex_color[cores$field == value])
+}
+```
+
 #### Avaliando o dataset
 
 ```{r}
-# glimpse(combined)
+glimpse(combined)
 ```
 
-#### Quantidade de resultados positivos e negativos de Covid por lab:
+## Data for Report Resp text
+
+```{r}
+#| echo: FALSE
+# Garantir que 'combined' esteja no formato de data
+combined$epiweek <- as.Date(combined$epiweek)
+
+## EDITAR AQUI SEMANA DE INTERESSE (formato: "aaaa-mm-dd")
+data_ultima_semana <- "2023-12-30" # Alterar a data conforme interesse e calendario SINAN
+
+# Extrair dados da última semana
+last_week <- combined[combined$epiweek == as.Date(data_ultima_semana), ]
+```
+
+```{r}
+#| echo: FALSE
+# Agrupar e sumarizar os dados somente SARS-CoV-2
+# trend_data <- combined %>%
+#   group_by(epiweek) %>%
+#   summarize(
+#     Negative = sum(SC2_test_result == "Neg", na.rm = TRUE),
+#     Positive = sum(SC2_test_result == "Pos", na.rm = TRUE)
+#   ) %>%
+#   mutate(
+#     Total_Tests = Negative + Positive
+#   ) %>%
+#   arrange(epiweek) # Garantir que os dados estejam ordenados por data
+```
+
+```{r}
+#| echo: FALSE
+# Selecionar colunas de resultados de testes
+colunas_testes <-
+  grep("_test_result$", names(combined), value = TRUE)
+# Criar funções para calcular total de Positivos e Negativos
+calc_total_pos_neg <- function(data, colunas) {
+  data %>%
+    mutate(across(all_of(colunas), ~ ifelse(. == "Pos", 1, ifelse(. == "Neg", -1, 0)))) %>%
+    rowwise() %>%
+    mutate(
+      Total_Pos = sum(c_across(all_of(colunas)) == 1, na.rm = TRUE),
+      Total_Neg = sum(c_across(all_of(colunas)) == -1, na.rm = TRUE)
+    ) %>%
+    ungroup() %>%
+    select(epiweek, Total_Pos, Total_Neg)
+}
+
+# Aplicar função ao dataframe
+trend_data <- calc_total_pos_neg(combined, colunas_testes)
+
+# Agrupar e sumarizar os dados
+trend_data <- trend_data %>%
+  group_by(epiweek) %>%
+  summarize(
+    Total_Positive = sum(Total_Pos, na.rm = TRUE),
+    Total_Negative = sum(Total_Neg, na.rm = TRUE)
+  ) %>%
+  mutate(Total_Tests = Total_Positive + Total_Negative) %>%
+  arrange(epiweek) # Garantir que os dados estejam ordenados por data
+
+# Filtrar as últimas 52 semanas incluindo a semana da data_ultima_semana
+intervalo_ultimo_ano <-
+  filter(trend_data, epiweek <= data_ultima_semana) %>% tail(52)
+
+# Total cumulativo do último ano (últimas 52 semanas)
+total_cumulativo_ultimo_ano <-
+  sum(intervalo_ultimo_ano$Total_Tests, na.rm = TRUE)
+
+# Total de análises da última semana
+total_ultima_semana <-
+  sum(trend_data$Total_Tests[trend_data$epiweek == data_ultima_semana], na.rm = TRUE)
+
+# Total de análises até a data_ultima_semana
+total_analises <-
+  sum(trend_data$Total_Tests[trend_data$epiweek <= data_ultima_semana], na.rm = TRUE)
+
+# Mostrar resultados
+print(paste("Total de análises até a última semana:", total_analises))
+print(paste("Total de análises da última semana:", total_ultima_semana))
+print(paste("Total cumulativo do último ano:", total_cumulativo_ultimo_ano))
+```
+
+#### Quantidade de resultados positivos e negativos de covid-19 nas análises do ITpS:
+
+Objetivo: Mostrar a distribuição de resultados positivos e negativos para SARS-CoV-2.
 
 ```{r}
 ## test_result SARS-CoV-2 by labs
-table(combined$SC2_test_result, combined$lab_id)
+results_SARS_lab <- table(combined$SC2_test_result, combined$lab_id)
+results_SARS_lab
+```
+
+```{r}
+## Define as cores para Positivos e Negativos
+color_map <- c(Pos = '#F26F61', Neg = '#577DBD')
+
+## Calcula o total de Positivos e Negativos
+total_positivos <- sum(results_SARS_lab["Pos", ])
+total_negativos <- sum(results_SARS_lab["Neg", ])
+
+## Cria o gráfico
+plot_ly() %>%
+  add_bars(
+    x = c("Positivos", "Negativos"),
+    y = c(total_positivos, total_negativos),
+    marker = list(color = c(color_map["Pos"], color_map["Neg"]))
+  ) %>%
+  layout(yaxis = list(title = 'Total de Testes'), xaxis = list(title = 'Resultado'),
+         title = 'Quantidade de resultados positivos e negativos de Covid-19 nas análises do ITpS')
+```
+
+#### Quantidade de resultados positivos e negativos de Covid por laboratório parceiro:
+
+Objetivo: Mostrar a distribuição de resultados positivos e negativos para cada laboratório.
+
+```{r}
+## 
+plot_ly() %>%
+  add_bars(
+    x = ~colnames(results_SARS_lab),
+    y = ~results_SARS_lab["Pos", ],
+    name = 'Positivos',
+    marker = list(color = color_map["Pos"])
+  ) %>%
+  add_bars(
+    x = ~colnames(results_SARS_lab),
+    y = ~results_SARS_lab["Neg", ],
+    name = 'Negativos',
+    marker = list(color = color_map["Neg"])
+  ) %>%
+  layout(yaxis = list(title = 'Quantidade'), barmode = 'stack',
+  title = 'Quantidade de resultados positivos e negativos de Covid-19 por laboratório parceiro')
+```
+
+```{r}
+#| echo: FALSE
+# Preparando os dados
+# Preparando os dados
+results_SARS_lab_data <- combined %>%
+  count(lab_id, SC2_test_result) %>%
+  pivot_wider(names_from = SC2_test_result, values_from = n, values_fill = list(n = 0)) %>%
+  arrange(desc(Neg), desc(Pos), desc(NT)) # Ordena decrescente por Neg, depois Pos, depois NT
+
+# Cria um vetor de cores mais sóbrio com base nos laboratórios únicos
+labs <- unique(results_SARS_lab_data$lab_id)
+cores_lab <- colorRampPalette(brewer.pal(9, "Blues"))(length(labs))
+color_map <- setNames(cores_lab, labs)
+
+# Convertendo os dados para o formato longo para a plotagem
+results_long <- results_SARS_lab_data %>%
+  pivot_longer(cols = c("Neg", "Pos", "NT"), names_to = "TestResult", values_to = "Count")
+
+# Criando o gráfico
+fig <- plot_ly(data = results_long, x = ~TestResult, y = ~Count, type = 'bar',
+               color = ~lab_id, colors = color_map,
+               text = ~paste('Count:', Count), hoverinfo = 'text') %>%
+  layout(yaxis = list(title = 'Quantidade'),
+         barmode = 'group',
+         legend = list(title = list(text = 'Laboratório'), orientation = 'h'),
+         xaxis = list(title = 'Resultado do Teste'))
+
+# Renderizando o gráfico
+fig
+
 ```
 
 #### Quantidade de tipos de testes por laboratório:
 
+Objetivo: Exibir a diversidade de tipos de testes usados pelos laboratórios.
+
 ```{r}
 ## test_kit by labs
-table(combined$test_kit, combined$lab_id)
+test_kit_lab <- table(combined$test_kit, combined$lab_id)
+test_kit_lab
+
+plot_ly() %>%
+  add_bars(
+    x = ~rownames(test_kit_lab),
+    y = ~test_kit_lab[,1],
+    name = 'Tipo de Teste 1'
+    # Customize as cores conforme necessário
+  ) %>%
+  layout(yaxis = list(title = 'Quantidade'), barmode = 'group',
+         title = 'Quantidade de tipos de testes por laboratório')
 ```
 
 #### Quantidade de testes Positivos e Negativos por estado:
 
+Objetivo: Mostrar a distribuição de resultados positivos e negativos para cada estado.
+
 ```{r}
 ## Test by state
-table(combined$state, combined$SC2_test_result)
+results_state <- table(combined$state, combined$SC2_test_result)
+results_state
+
+plot_ly() %>%
+  add_bars(
+    x = ~rownames(results_state),
+    y = ~results_state[, "Pos"],
+    name = 'Positivos',
+    marker = list(color = color_map["Pos"])
+  ) %>%
+  add_bars(
+    x = ~rownames(results_state),
+    y = ~results_state[, "Neg"],
+    name = 'Negativos',
+    marker = list(color = color_map["Neg"])
+  ) %>%
+  layout(yaxis = list(title = 'Quantidade'), barmode = 'stack',
+         title = 'Quantidade de testes Positivos e Negativos por estado')
 ```
 
 ### Labs por estado
 
+Objetivo: Mostrar a quantidade de análises dos laboratórios por estado.
+
 ```{r}
-table(combined$state, combined$lab_id)
+labs_state <- table(combined$state, combined$lab_id)
+labs_state
+
+plot_ly() %>%
+  add_bars(
+    x = ~ rownames(labs_state),
+    y = ~ rowSums(labs_state),
+    name = 'Laboratórios'
+    
+  ) %>%
+  layout(yaxis = list(title = 'Quantidade de Laboratórios'),
+         title = 'Quantidade de laboratórios por estado')
 ```
 
 #### Número de testes por laboratório na última semana:
 
+Objetivo: Focar nas análises recente dos laboratórios, conforme fechamento da semana epidemiológica.
+
 ```{r}
 ## test_lab by last week
-### EDITAR AQUI SEMANA DE INTERESSE
-last_week <- combined[combined$epiweek == "2023-12-16", ] 
-table(last_week$lab_id, last_week$epiweek)
+tests_last_week_lab <- table(last_week$lab_id)
+tests_last_week_lab
+
+plot_ly() %>%
+  add_bars(
+    x = ~names(tests_last_week_lab),
+    y = ~tests_last_week_lab,
+    name = 'Testes na Última Semana'
+  ) %>%
+  layout(yaxis = list(title = 'Quantidade de Testes'),
+         title = 'Número de testes por laboratório na última semana')
 ```
 
 #### Quantidade de testes Positivos e Negativos por laboratório na última semana
+
+Objetivo: Comparar resultados de testes na última semana por laboratório.
 
 ```{r}
 ## test_lab by test_results in last week 
 table(last_week$lab_id, last_week$SC2_test_result)
 ```
 
-## Saved as .csv for endpoints
-
 ```{r}
-## save as csv
+#| echo: FALSE
+## Saved as .csv for endpoints
 # write.csv(combined, file = "combined.csv")
 
 #Exportando o arquivo em .csv
@@ -85,24 +317,23 @@ table(last_week$lab_id, last_week$SC2_test_result)
 #                 file = "combined.csv", delim = ",")
 ```
 
+```{r}
+#| echo: FALSE
 ### Verificações específicas
-
 #### Especificar semana de interesse
-
-```{r}
-last_weekXX <- combined[combined$epiweek == "2023-12-16", ] # alterar a data conforme calendário SINAN
+# last_weekXX <- combined[combined$epiweek == "2023-12-30", ] #
 ```
 
+```{r}
+#| echo: FALSE
 #### Quantidade de dados dos laboratórios por estado na semana XX
-
-```{r}
 ## state by lab last week XX
-table(last_weekXX$state, last_weekXX$lab_id)
+# table(last_weekXX$state, last_weekXX$lab_id)
 ```
 
-#### Quantidade de testes por estado na última semana
-
 ```{r}
+#| echo: FALSE
+#### Quantidade de testes por estado na última semana
 ## state by cases last week
-table(last_week$state, last_week$epiweek)
+# table(last_week$state, last_week$epiweek)
 ```

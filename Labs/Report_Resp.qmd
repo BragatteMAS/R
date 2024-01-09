@@ -65,16 +65,16 @@ last_week <- combined[combined$epiweek == as.Date(data_ultima_semana), ]
 ```{r}
 #| echo: FALSE
 # Agrupar e sumarizar os dados somente SARS-CoV-2
-# trend_data <- combined %>%
-#   group_by(epiweek) %>%
-#   summarize(
-#     Negative = sum(SC2_test_result == "Neg", na.rm = TRUE),
-#     Positive = sum(SC2_test_result == "Pos", na.rm = TRUE)
-#   ) %>%
-#   mutate(
-#     Total_Tests = Negative + Positive
-#   ) %>%
-#   arrange(epiweek) # Garantir que os dados estejam ordenados por data
+trend_data <- combined %>%
+  group_by(epiweek) %>%
+  summarize(
+    Negative = sum(SC2_test_result == "Neg", na.rm = TRUE),
+    Positive = sum(SC2_test_result == "Pos", na.rm = TRUE)
+  ) %>%
+  mutate(
+    Total_Tests = Negative + Positive
+  ) %>%
+  arrange(epiweek) # Garantir que os dados estejam ordenados por data
 ```
 
 ```{r}
@@ -82,32 +82,42 @@ last_week <- combined[combined$epiweek == as.Date(data_ultima_semana), ]
 # Selecionar colunas de resultados de testes
 colunas_testes <-
   grep("_test_result$", names(combined), value = TRUE)
+
+```
+
+```{r}
 # Criar funções para calcular total de Positivos e Negativos
-calc_total_pos_neg <- function(data, colunas) {
-  data %>%
-    mutate(across(all_of(colunas), ~ ifelse(. == "Pos", 1, ifelse(. == "Neg", -1, 0)))) %>%
-    rowwise() %>%
-    mutate(
-      Total_Pos = sum(c_across(all_of(colunas)) == 1, na.rm = TRUE),
-      Total_Neg = sum(c_across(all_of(colunas)) == -1, na.rm = TRUE)
-    ) %>%
-    ungroup() %>%
-    select(epiweek, Total_Pos, Total_Neg)
-}
+# calc_total_pos_neg <- function(data, colunas) {
+#   data %>%
+#     mutate(across(all_of(colunas), ~ ifelse(. == "Pos", 1, ifelse(. == "Neg", -1, 0)))) %>%
+#     rowwise() %>%
+#     mutate(
+#       Total_Pos = sum(c_across(all_of(colunas)) == 1, na.rm = TRUE),
+#       Total_Neg = sum(c_across(all_of(colunas)) == -1, na.rm = TRUE)
+#     ) %>%
+#     ungroup() %>%
+#     select(epiweek, Total_Pos, Total_Neg)
+# }
+```
 
+```{r}
 # Aplicar função ao dataframe
-trend_data <- calc_total_pos_neg(combined, colunas_testes)
+# trend_data <- calc_total_pos_neg(combined, colunas_testes)
+```
 
+```{r}
 # Agrupar e sumarizar os dados
-trend_data <- trend_data %>%
-  group_by(epiweek) %>%
-  summarize(
-    Total_Positive = sum(Total_Pos, na.rm = TRUE),
-    Total_Negative = sum(Total_Neg, na.rm = TRUE)
-  ) %>%
-  mutate(Total_Tests = Total_Positive + Total_Negative) %>%
-  arrange(epiweek) # Garantir que os dados estejam ordenados por data
+# trend_data <- trend_data %>%
+#   group_by(epiweek) %>%
+#   summarize(
+#     Total_Positive = sum(Total_Pos, na.rm = TRUE),
+#     Total_Negative = sum(Total_Neg, na.rm = TRUE)
+#   ) %>%
+#   mutate(Total_Tests = Total_Positive + Total_Negative) %>%
+#   arrange(epiweek) # Garantir que os dados estejam ordenados por data
+```
 
+```{r}
 # Filtrar as últimas 52 semanas incluindo a semana da data_ultima_semana
 intervalo_ultimo_ano <-
   filter(trend_data, epiweek <= data_ultima_semana) %>% tail(52)

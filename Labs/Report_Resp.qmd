@@ -28,6 +28,7 @@ combined <-
   vroom("combined.tsv")
 ```
 
+## ETL's
 ```{r}
 #| echo: FALSE
 ## Define as cores
@@ -40,6 +41,50 @@ cores <- tibble(
 get_color <- function(value) {
   return(cores$hex_color[cores$field == value])
 }
+```
+
+### Dados por mês
+
+```{r}
+## Garantir que a coluna epiweek seja uma data
+combined$epiweek <- as.Date(combined$epiweek)
+
+## Criar a coluna month a partir da coluna epiweek e colocá-la após epiweek
+combined <- combined %>%
+  mutate(month = format(epiweek, "%Y-%m")) %>%
+  relocate(month, .after = epiweek)
+```
+### Matrix agegroups
+
+```{r}
+## Lista de patógenos (baseado nas colunas *_test_result)
+pathogens <- c("SC2", "FLUA", "FLUB", "VSR", "COVS", "ADENO", "BOCA", "RINO", "PARA", "ENTERO", "META", "BAC")
+
+## Função para pivotar e somar os resultados por faixa etária e patógeno
+pivot_and_summarize <- function(data, pathogen, time_unit) {
+  data %>%
+    filter(get(paste0(pathogen, "_test_result")) %in% c("Pos", "Neg")) %>%
+    group_by_at(vars(time_unit, paste0(pathogen, "_test_result"), "age_group")) %>%
+    summarise(count = n(), .groups = "drop") %>%
+    pivot_wider(
+      names_from = age_group, 
+      values_from = count, 
+      values_fill = list(count = 0)
+    ) %>%
+    mutate(pathogen = pathogen, country = "Brasil", .before = 1)
+}
+
+## Aplicar a função para cada patógeno e juntar os resultados para epiweek
+result_epiweek <- lapply(pathogens, function(p) pivot_and_summarize(combined, p, "epiweek")) %>%
+  bind_rows()
+
+## Aplicar a função para cada patógeno e juntar os resultados para month
+result_month <- lapply(pathogens, function(p) pivot_and_summarize(combined, p, "month")) %>%
+  bind_rows()
+
+## Verificar os resultados
+head(result_epiweek)
+head(result_month)
 ```
 
 #### Avaliando o dataset
@@ -71,10 +116,9 @@ trend_data <- combined %>%
     Negative = sum(SC2_test_result == "Neg", na.rm = TRUE),
     Positive = sum(SC2_test_result == "Pos", na.rm = TRUE)
   ) %>%
-  mutate(
-    Total_Tests = Negative + Positive
-  ) %>%
+  mutate(Total_Tests = Negative + Positive) %>%
   arrange(epiweek) # Garantir que os dados estejam ordenados por data
+trend_data
 ```
 
 ```{r}
@@ -82,7 +126,6 @@ trend_data <- combined %>%
 # Selecionar colunas de resultados de testes
 colunas_testes <-
   grep("_test_result$", names(combined), value = TRUE)
-
 ```
 
 ```{r}
@@ -323,8 +366,8 @@ table(last_week$lab_id, last_week$SC2_test_result)
 # write.csv(combined, file = "combined.csv")
 
 #Exportando o arquivo em .csv
-#write_excel_csv2(x = combined,
-#                 file = "combined.csv", delim = ",")
+write_excel_csv2(x = combined,
+                file = "combined_month.csv", delim = ",")
 ```
 
 ```{r}

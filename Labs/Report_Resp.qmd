@@ -3,7 +3,7 @@ title: "Report Resp"
 author: "Bragatte"
 format: html
 editor: visual
-data: 2024-01-04
+data: 2024-01-10
 ---
 
 ## Report Resp
@@ -15,7 +15,7 @@ Análise de dados de patógenos respiratórios com laboratórios parceiros do IT
 knitr::opts_chunk$set(echo = FALSE, collapse = FALSE, error = FALSE, warning = FALSE, message = FALSE, cache = FALSE)
 ```
 
-### Semana 52 - 2023
+### Semana 01 - 2024
 
 ```{r}
 ## chama bibliotecas
@@ -29,6 +29,7 @@ combined <-
 ```
 
 ## ETL's
+
 ```{r}
 #| echo: FALSE
 ## Define as cores
@@ -54,33 +55,39 @@ combined <- combined %>%
   mutate(month = format(epiweek, "%Y-%m")) %>%
   relocate(month, .after = epiweek)
 ```
+
 ### Matrix agegroups
 
 ```{r}
 ## Lista de patógenos (baseado nas colunas *_test_result)
 pathogens <- c("SC2", "FLUA", "FLUB", "VSR", "COVS", "ADENO", "BOCA", "RINO", "PARA", "ENTERO", "META", "BAC")
 
-## Função para pivotar e somar os resultados por faixa etária e patógeno
-pivot_and_summarize <- function(data, pathogen, time_unit) {
+# Lista de colunas de resultados de testes
+colunas_testes <- grep("_test_result$", names(combined), value = TRUE)
+
+# Função para calcular e somar os resultados por faixa etária e test_result
+aggregate_results <- function(data, time_unit) {
   data %>%
-    filter(get(paste0(pathogen, "_test_result")) %in% c("Pos", "Neg")) %>%
-    group_by_at(vars(time_unit, paste0(pathogen, "_test_result"), "age_group")) %>%
-    summarise(count = n(), .groups = "drop") %>%
-    pivot_wider(
-      names_from = age_group, 
-      values_from = count, 
-      values_fill = list(count = 0)
-    ) %>%
-    mutate(pathogen = pathogen, country = "Brasil", .before = 1)
+    # Convertendo resultados de teste em valores numéricos (Pos = 1, Neg = -1, outros = 0)
+    mutate(across(all_of(colunas_testes),
+                  ~ case_when(. == "Pos" ~ 1,
+                              . == "Neg" ~ -1,
+                              TRUE ~ 0),
+                  .names = "numeric_{.col}")) %>%
+    # Somando todos os resultados positivos e negativos
+    mutate(Total_Pos = rowSums(select(., starts_with("numeric_")) == 1, na.rm = TRUE),
+           Total_Neg = rowSums(select(., starts_with("numeric_")) == -1, na.rm = TRUE)) %>%
+    group_by(get(time_unit), age_group) %>%
+    summarise(Total_Pos = sum(Total_Pos, na.rm = TRUE),
+              Total_Neg = sum(Total_Neg, na.rm = TRUE), .groups = "drop") %>%
+    pivot_longer(cols = c(Total_Pos, Total_Neg), names_to = "test_result", values_to = "count")
 }
 
-## Aplicar a função para cada patógeno e juntar os resultados para epiweek
-result_epiweek <- lapply(pathogens, function(p) pivot_and_summarize(combined, p, "epiweek")) %>%
-  bind_rows()
+# Aplicar a função para epiweek
+result_epiweek <- aggregate_results(combined, "epiweek")
 
-## Aplicar a função para cada patógeno e juntar os resultados para month
-result_month <- lapply(pathogens, function(p) pivot_and_summarize(combined, p, "month")) %>%
-  bind_rows()
+# Aplicar a função para month
+result_month <- aggregate_results(combined, "month")
 
 ## Verificar os resultados
 head(result_epiweek)
@@ -126,6 +133,7 @@ trend_data
 # Selecionar colunas de resultados de testes
 colunas_testes <-
   grep("_test_result$", names(combined), value = TRUE)
+colunas_testes
 ```
 
 ```{r}
@@ -179,8 +187,8 @@ total_analises <-
 
 # Mostrar resultados
 print(paste("Total de análises até a última semana:", total_analises))
-print(paste("Total de análises da última semana:", total_ultima_semana))
-print(paste("Total cumulativo do último ano:", total_cumulativo_ultimo_ano))
+print(paste("Total de análises SARS-CoV-2 da última semana:", total_ultima_semana))
+print(paste("Total cumulativo análises de SARS-CoV-2 no último ano:", total_cumulativo_ultimo_ano))
 ```
 
 #### Quantidade de resultados positivos e negativos de covid-19 nas análises do ITpS:

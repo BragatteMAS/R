@@ -1,0 +1,427 @@
+---
+title: "How2_1Bilion_lines"
+format: html
+editor: visual
+---
+
+*One of my new years resolutions is to blog a bit more on the random shenanigans I do with R. This is one of those.*[<sup>1</sup>](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/?utm_campaign=Data_Elixir&utm_source=Data_Elixir_467#fn1)
+
+The [One Billion Row challenge](https://www.morling.dev/blog/one-billion-row-challenge/) by Gunnar Morling is as follows:
+
+> write a Java program for retrieving temperature measurement values from a text file and calculating the min, mean, and max temperature per weather station. There’s just one caveat: the file has 1,000,000,000 rows!
+
+I didn’t take long, also thanks to [Hacker News](https://news.ycombinator.com/item?id=38851337), that the challenge spread to other programming languages. The original repository contains a [show & tell](https://github.com/gunnarmorling/1brc/discussions/categories/show-and-tell) where other results can be discussed.
+
+Obviously it also spread to R and there is a [GitHub repository](https://github.com/alejandrohagan/1br) from Alejandro Hagan dedicated to the challenge. There were some [critical discussions](https://github.com/alejandrohagan/1br/issues/5) on the seemingly bad performance of `data.table` but that issue thread also evolved to a discussion on other solutions.
+
+The obvious candidates for fast solutions with R are [`dplyr`](https://github.com/tidyverse/dplyr), [`data.table`](https://github.com/Rdatatable/data.table), [`collapse`](https://github.com/SebKrantz/collapse), and [`polars`](https://github.com/pola-rs/r-polars). From those, it appears that polars might solve the tasks the [fastest](https://github.com/alejandrohagan/1br/issues/5#issuecomment-1879737918).
+
+I was curious, how far one can get with base R.
+
+## Creating the data[ ](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/?utm_campaign=Data_Elixir&utm_source=Data_Elixir_467#creating-the-data)
+
+The R repository contains a [script](https://github.com/alejandrohagan/1br/blob/main/generate_data.R) to generate benchmark data. For the purpose of this post, I created files with 1e6 and 1e8 rows. Unfortunately, my personal laptop cannot handle 1 billion rows without dying.
+
+## Reading the data[ ](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/?utm_campaign=Data_Elixir&utm_source=Data_Elixir_467#reading-the-data)
+
+All base R functions will profit from reading the state column as a factor instead of a usual string.
+
+```{r}
+D <- data.table::fread("combined.csv", stringsAsFactors = TRUE)
+D
+```
+
+```         
+         measurement state
+      1:    0.981969    NC
+      2:    0.468715    MA
+      3:   -0.107971    TX
+      4:   -0.212878    VT
+      5:    1.158098    OR
+     ---                  
+ 999996:    0.743249    FL
+ 999997:   -1.685561    KS
+ 999998:   -0.118455    TX
+ 999999:    1.277437    MS
+1000000:   -0.280085    MD
+```
+
+Who would have thought that `stringAsFactors = TRUE` can be useful.
+
+## The obvious: aggregate and split/lapply[ ](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/?utm_campaign=Data_Elixir&utm_source=Data_Elixir_467#the-obvious-aggregate-and-splitlapply)
+
+The most obvious choice for me was to use `aggregate()`.
+
+```{r}
+sum_stats_vec <-
+    function(x)
+        c(min = min(x),
+          max = max(x),
+          mean = mean(x))
+aggregate(measurement ~ state, data = D, FUN = sum_stats_vec) |> head()
+```
+
+```         
+  state measurement.min measurement.max measurement.mean
+1    AK    -4.104494064     4.271009490      0.003082000
+2    AL    -3.635024969     4.538671919     -0.007811050
+3    AR    -3.813800485     4.101114941      0.008453876
+4    AZ    -4.415050930     3.965124829      0.000228734
+5    CA    -4.159725627     4.102446367      0.013649303
+6    CO    -3.860489118     4.231415117     -0.001334096
+```
+
+I was pretty sure that this might be the best solution.
+
+The other obvious solution is to split the data frame according to stats and then `lapply` the stats calculation on each list element.
+
+```{r}
+split_lapply <- function(D) {
+    result <- lapply(split(D, D$state), function(x) {
+        stats <- sum_stats_vec(x$measurement)
+        data.frame(
+            state = unique(x$state),
+            min = stats[1],
+            max = stats[2],
+            mean = stats[3]
+        )
+    })
+    do.call("rbind", result)
+}
+split_lapply(D) |> head()
+```
+
+```         
+   state      min     max         mean
+AK    AK -4.10449 4.27101  0.003082000
+AL    AL -3.63502 4.53867 -0.007811050
+AR    AR -3.81380 4.10111  0.008453876
+AZ    AZ -4.41505 3.96512  0.000228734
+CA    CA -4.15973 4.10245  0.013649303
+CO    CO -3.86049 4.23142 -0.001334096
+```
+
+## The elegant: by[ ](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/?utm_campaign=Data_Elixir&utm_source=Data_Elixir_467#the-elegant-by)
+
+I stumbled upon `by` when searching for alternatives. I think it is a quite elegant way of solving a group/summarize task with base R. Unfortunately it returns a list and not a data frame or matrix (I made that an implicit requirement).
+
+In the help for `by` I stumbled upon a function I wasn’t aware of yet: `array2DF`!
+
+```{r}
+array2DF(by(D$measurement, D$state, sum_stats_vec)) |> head()
+```
+
+```         
+  D$state      min     max         mean
+1      AK -4.10449 4.27101  0.003082000
+2      AL -3.63502 4.53867 -0.007811050
+3      AR -3.81380 4.10111  0.008453876
+4      AZ -4.41505 3.96512  0.000228734
+5      CA -4.15973 4.10245  0.013649303
+6      CO -3.86049 4.23142 -0.001334096
+```
+
+Does exactly what is needed here. For the benchmarks, I will also include a version without the `array2DF` call, to check its overhead.
+
+## Another apply: tapply[ ](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/?utm_campaign=Data_Elixir&utm_source=Data_Elixir_467#another-apply-tapply)
+
+In the help for `by`, I also stumbled upon this sentence
+
+> Function `by` is an object-oriented wrapper for `tapply` applied to data frames.
+
+So maybe we can construct a solution that uses tapply, but without any inbuilt overhead in `by`.
+
+```{r}
+do.call("rbind", tapply(D$measurement, D$state, sum_stats_vec)) |> head()
+```
+
+```         
+        min     max         mean
+AK -4.10449 4.27101  0.003082000
+AL -3.63502 4.53867 -0.007811050
+AR -3.81380 4.10111  0.008453876
+AZ -4.41505 3.96512  0.000228734
+CA -4.15973 4.10245  0.013649303
+CO -3.86049 4.23142 -0.001334096
+```
+
+At this point, I was also curious if the `do.call("rbind",list)` can be sped up, so I constructed a second tapply solution.
+
+```{r}
+sapply(tapply(D$measurement, D$state, sum_stats_vec), rbind) |> head()
+```
+
+```         
+            AK          AL          AR           AZ         CA         CO
+[1,] -4.104494 -3.63502497 -3.81380048 -4.415050930 -4.1597256 -3.8604891
+[2,]  4.271009  4.53867192  4.10111494  3.965124829  4.1024464  4.2314151
+[3,]  0.003082 -0.00781105  0.00845388  0.000228734  0.0136493 -0.0013341
+              CT          DE          FL          GA          HI         IA
+[1,] -3.91246424 -4.13994780 -3.74126137 -3.94660998 -4.01231812 -3.7908228
+[2,]  4.42439303  4.10320343  3.61461913  3.92890675  3.54210746  4.1666241
+[3,]  0.00365691  0.00300726  0.00364475  0.00998416  0.00831473  0.0121738
+              ID          IL         IN         KS          KY          LA
+[1,] -3.96453912 -3.89433528 -4.0396596 -4.0290851 -4.04857519 -3.83912209
+[2,]  3.57787653  3.79539851  3.8997433  3.6210916  3.86743373  3.56924325
+[3,]  0.00364403  0.00282924 -0.0116455  0.0147175 -0.00141356  0.00150667
+              MA         MD         ME          MI          MN           MO
+[1,] -4.03713867 -3.7447056 -3.9230949 -3.95286252 -4.41058377 -3.939103495
+[2,]  3.79263060  3.7162898  3.6639929  4.15578354  4.31107098  4.428823170
+[3,] -0.00695907 -0.0104974  0.0017803  0.00578387  0.00222535 -0.000530262
+              MS         MT          NC         ND         NE          NH
+[1,] -4.11033773 -4.0871006 -4.37736785 -4.0689381 -4.0600632 -3.91574348
+[2,]  4.04043436  4.1620591  3.98113456  3.7439708  4.1786719  4.12714205
+[3,]  0.00401617 -0.0051991 -0.00791303 -0.0065667 -0.0019952  0.00173286
+              NJ         NM         NV          NY          OH          OK
+[1,] -3.89749099 -3.8077381 -4.4999793 -4.10688778 -3.97073238 -4.01749904
+[2,]  4.09297430  3.8533329  3.9841584  3.77539030  4.05541378  3.92196743
+[3,] -0.00821633 -0.0045123  0.0059095 -0.00401249  0.00391791  0.00272036
+               OR          PA          RI         SC          SD          TN
+[1,] -3.755405173 -3.87864920 -3.65614672 -3.6360017 -4.25212184 -3.63011318
+[2,]  4.299120255  4.18986336  4.25751403  4.1131445  3.74296173  3.92052537
+[3,]  0.000427857 -0.00303136 -0.00419174 -0.0110226  0.00774345  0.00671216
+              TX          UT         VA           VT          WA          WI
+[1,] -4.20588875 -4.03481832 -4.2980081 -3.749369728 -3.76023936 -3.76302646
+[2,]  3.92935839  3.99530205  3.8614655  3.990961895  3.87463693  4.32264119
+[3,] -0.00784648 -0.00561814 -0.0124286 -0.000579563  0.00684453  0.00297232
+             WV          WY
+[1,] -3.6034317 -3.86099776
+[2,]  3.9029500  4.11653276
+[3,] -0.0090395 -0.00238027
+```
+
+and we should obviously also include our new found `array2DF`
+
+```{r}
+array2DF(tapply(D$measurement, D$state, sum_stats_vec)) |> head()
+```
+
+```         
+  Var1      min     max         mean
+1   AK -4.10449 4.27101  0.003082000
+2   AL -3.63502 4.53867 -0.007811050
+3   AR -3.81380 4.10111  0.008453876
+4   AZ -4.41505 3.96512  0.000228734
+5   CA -4.15973 4.10245  0.013649303
+6   CO -3.86049 4.23142 -0.001334096
+```
+
+## The obscure: reduce[ ](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/?utm_campaign=Data_Elixir&utm_source=Data_Elixir_467#the-obscure-reduce)
+
+I thought that this should be it, but then I remembered `reduce` exists. The solution is somewhat similar to split/lapply.
+
+```{r}
+reduce <- function(D) {
+    state_list <- split(D$measurement, D$state)
+    Reduce(function(x, y) {
+        res <- sum_stats_vec(state_list[[y]])
+        rbind(x, data.frame(
+            state = y,
+            mean = res[1],
+            min = res[2],
+            max = res[3]
+        ))
+    }, names(state_list), init = NULL)
+}
+
+reduce(D) |> head()
+```
+
+```         
+     state     mean     min          max
+min     AK -4.10449 4.27101  0.003082000
+min1    AL -3.63502 4.53867 -0.007811050
+min2    AR -3.81380 4.10111  0.008453876
+min3    AZ -4.41505 3.96512  0.000228734
+min4    CA -4.15973 4.10245  0.013649303
+min5    CO -3.86049 4.23142 -0.001334096
+```
+
+## The unfair contender: Rfast[ ](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/?utm_campaign=Data_Elixir&utm_source=Data_Elixir_467#the-unfair-contender-rfast)
+
+Pondering about how this functions could be sped up in general, I remembered the package [`Rfast`](https://github.com/RfastOfficial/Rfast/) and managed to construct a solution using this package.
+
+```{r}
+Rfast <- function(D) {
+    lev_int <- as.numeric(D$state)
+    minmax <-
+        Rfast::group(D$measurement, lev_int, method = "min.max")
+    data.frame(
+        state = levels(D$state),
+        mean = Rfast::group(D$measurement, lev_int, method = "mean"),
+        min = minmax[1,],
+        max = minmax[2,]
+    )
+}
+
+Rfast(D) |> head()
+```
+
+```         
+  state         mean      min     max
+1    AK  0.003082000 -4.10449 4.27101
+2    AL -0.007811050 -3.63502 4.53867
+3    AR  0.008453876 -3.81380 4.10111
+4    AZ  0.000228734 -4.41505 3.96512
+5    CA  0.013649303 -4.15973 4.10245
+6    CO -0.001334096 -3.86049 4.23142
+```
+
+Pretty sure that this will be the fastest, maybe even competitive with the other big packages!
+
+## Benchmark[ ](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/?utm_campaign=Data_Elixir&utm_source=Data_Elixir_467#benchmark)
+
+For better readability I reorder the benchmark results from `microbenchmark` according to median runtime, with a function provided by [Dirk Eddelbuettel](https://github.com/eddelbuettel/dang/blob/master/R/reorderMicrobenchmarkResults.R).
+
+```{r}
+reorderMicrobenchmarkResults <- function(res, order = "median") {
+    stopifnot("Argument 'res' must be a 'microbenchmark' result" = inherits(res, "microbenchmark"))
+    
+    smry <- summary(res)
+    res$expr <- factor(res$expr,
+                       levels = levels(res$expr)[order(smry[["median"]])],
+                       ordered = TRUE)
+    res
+}
+```
+
+First up the “small” dataset with 1e6 rows. I added the `dplyr` and `data.table` results as references.
+
+```{r}
+sum_stats_list <-
+    function(x)
+        list(min = min(x),
+             max = max(x),
+             mean = mean(x))
+sum_stats_tibble <-
+    function(x)
+        tibble::tibble(min = min(x),
+                       max = max(x),
+                       mean = mean(x))
+
+bench1e6 <- microbenchmark::microbenchmark(
+    aggregate = aggregate(measurement ~ state, data = D, FUN = sum_stats_vec),
+    split_lapply = split_lapply(D),
+    array2DF_by = array2DF(by(D$measurement, D$state, sum_stats_vec)),
+    raw_by = by(D$measurement, D$state, sum_stats_vec),
+    docall_tapply = do.call("rbind", tapply(D$measurement, D$state, sum_stats_vec)),
+    sapply_tapply = sapply(tapply(D$measurement, D$state, sum_stats_vec), rbind),
+    array2DF_tapply = array2DF(tapply(D$measurement, D$state, sum_stats_vec)),
+    reduce = reduce(D),
+    Rfast = Rfast(D),
+    dplyr = D |> dplyr::group_by(state) |> dplyr::summarise(sum_stats_tibble(measurement)) |> dplyr::ungroup(),
+    datatable = D[, .(sum_stats_list(measurement)), by = state],
+    times = 25
+)
+```
+
+```{r}
+ggplot2::autoplot(reorderMicrobenchmarkResults(bench1e6))
+```
+
+![](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/index_files/figure-html/plot-bench1e6-1.png)
+
+| expr            | min      | lq       | mean     | median   | uq       | max      | neval |
+|---------|---------|---------|---------|---------|---------|---------|---------|
+| datatable       | 13.4325  | 15.2802  | 16.8016  | 15.5527  | 17.6287  | 22.9133  | 25    |
+| Rfast           | 13.5639  | 16.5295  | 19.1905  | 18.0986  | 21.3507  | 33.5924  | 25    |
+| array2DF_tapply | 27.5491  | 30.9502  | 37.5948  | 32.3145  | 36.7538  | 132.9784 | 25    |
+| docall_tapply   | 28.4628  | 30.7052  | 39.9436  | 32.3174  | 33.7132  | 99.6504  | 25    |
+| sapply_tapply   | 28.8092  | 30.1596  | 46.0100  | 33.3971  | 37.7851  | 101.5850 | 25    |
+| raw_by          | 40.9116  | 44.1075  | 52.2293  | 45.9647  | 48.4539  | 119.5348 | 25    |
+| array2DF_by     | 43.2958  | 45.8177  | 58.4240  | 48.8741  | 52.2750  | 132.8981 | 25    |
+| reduce          | 50.1459  | 54.1688  | 62.8492  | 59.3776  | 62.6560  | 143.3252 | 25    |
+| dplyr           | 62.6194  | 66.1931  | 82.9065  | 68.9263  | 71.7941  | 364.2103 | 25    |
+| split_lapply    | 84.7424  | 90.0375  | 110.7041 | 96.4528  | 113.7201 | 168.3835 | 25    |
+| aggregate       | 319.9465 | 335.0173 | 386.0137 | 369.7291 | 429.6735 | 538.2916 | 25    |
+
+First of, I was very surprised by the bad performance of `aggregate`. I looked at the source code and it appears to be a more fancy lapply/split type of functions with a lot of `if/else` and `for` which do slow down the function heavily. For the benchmark with the bigger dataset, I actually discarded the function because it was way too slow.
+
+Apart from that, there are three groups. `Rfast` and `data.table` are the fastest clearly the fastest. The second group are the `tapply` versions. I am quite pleased with the fact that the data frame building via `do.call`, `sapply` and `array2DF` are very much comparable, because I really like my `array2DF` discovery. The remaining solutions are pretty much comparable. I am surprised though, that `dplyr` falls behind many of the base solutions.[<sup>2</sup>](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/?utm_campaign=Data_Elixir&utm_source=Data_Elixir_467#fn2)
+
+Moving on to the 100 million file to see if size makes a difference.
+
+```{r}
+D <- data.table::fread("measurements1e8.csv", stringsAsFactors = TRUE)
+
+bench1e8 <- microbenchmark::microbenchmark(
+    # aggregate = aggregate(measurement ~ state, data = D, FUN = sum_stats_vec),
+    split_lapply = split_lapply(D),
+    array2DF_by = array2DF(by(D$measurement, D$state, sum_stats_vec)),
+    raw_by = by(D$measurement, D$state, sum_stats_vec),
+    docall_tapply = do.call("rbind", tapply(D$measurement, D$state, sum_stats_vec)),
+    sapply_tapply = sapply(tapply(D$measurement, D$state, sum_stats_vec), rbind),
+    array2DF_tapply = array2DF(tapply(D$measurement, D$state, sum_stats_vec)),
+    reduce = reduce(D),
+    Rfast = Rfast(D),
+    dplyr = D |> dplyr::group_by(state) |> dplyr::summarise(sum_stats_tibble(measurement)) |> dplyr::ungroup(),
+    datatable = D[, .(sum_stats_list(measurement)), by = state],
+    times = 10
+)
+```
+
+```{r}
+ggplot2::autoplot(reorderMicrobenchmarkResults(bench1e8))
+```
+
+![](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/index_files/figure-html/plot-bench1e8-1.png)
+
+| expr            | min     | lq      | mean    | median  | uq      | max     | neval |
+|-----------------|---------|---------|---------|---------|---------|---------|-------|
+| Rfast           | 1.61404 | 2.00889 | 2.06342 | 2.09445 | 2.14546 | 2.41314 | 10    |
+| datatable       | 2.17933 | 2.20079 | 2.29543 | 2.23828 | 2.33378 | 2.70186 | 10    |
+| dplyr           | 2.80742 | 2.87777 | 3.04344 | 3.00719 | 3.17387 | 3.45470 | 10    |
+| reduce          | 2.72298 | 2.98724 | 3.19725 | 3.12715 | 3.46963 | 3.77594 | 10    |
+| docall_tapply   | 2.82332 | 2.91701 | 3.22054 | 3.25852 | 3.32141 | 3.73731 | 10    |
+| sapply_tapply   | 2.78456 | 2.81968 | 3.19675 | 3.29218 | 3.43617 | 3.66894 | 10    |
+| array2DF_tapply | 3.11413 | 3.17007 | 3.37320 | 3.30678 | 3.56680 | 3.70316 | 10    |
+| array2DF_by     | 5.01008 | 5.06045 | 5.48980 | 5.42499 | 5.82906 | 6.01545 | 10    |
+| raw_by          | 4.78366 | 5.33826 | 5.46399 | 5.56182 | 5.67001 | 6.04721 | 10    |
+| split_lapply    | 5.95249 | 6.44981 | 6.55665 | 6.56029 | 6.84631 | 6.87408 | 10    |
+
+Again we see three groups, but this time with clearer cut-offs. `Rfast` and `data.table` dominate and Rfast actually has a slight edge! The second group are `tapply`, `reduce` and `dplyr`. Surprisingly, `by` falls behind here, together with `split/lapply`.
+
+**Update**(2024-01-09)
+
+I managed to run some of the functions on a 1e9 file.
+
+```{r}
+bench1e9 <- microbenchmark::microbenchmark(
+    docall_tapply = do.call("rbind", tapply(D$measurement, D$state, sum_stats_vec)),
+    reduce = reduce(D),
+    Rfast = Rfast(D),
+    dplyr = D |> dplyr::group_by(state) |> dplyr::summarise(sum_stats_tibble(measurement)) |> dplyr::ungroup(),
+    datatable = D[, .(sum_stats_list(measurement)), by = state],
+    times = 5
+)
+```
+
+![](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/bench1e9.png)
+
+The previously fastest base solutions fall of a little bit, but are in my opinion still very good and still comparable with `dplyr`! Also, I learned that one can reorder microbenchmark results with the print command!
+
+## Summary[ ](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/?utm_campaign=Data_Elixir&utm_source=Data_Elixir_467#summary)
+
+This was a fun little exercise, and I think I learned a lot of new things about base R, especially the existence of `arry2DF`!
+
+What was surprising is how competitive base R actually is with the “big guns”. I was expecting a much bigger margin between data.table and the base solutions, but that was not the case.
+
+## Reuse[ ](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/?utm_campaign=Data_Elixir&utm_source=Data_Elixir_467#reuse)
+
+## Citation[ ](http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge/?utm_campaign=Data_Elixir&utm_source=Data_Elixir_467#citation)
+
+BibTeX citation:
+
+```         
+@online{schoch2024,
+  author = {Schoch, David},
+  title = {One Billion Row Challenge Using Base {R}},
+  date = {2024-01-08},
+  url = {http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge},
+  langid = {en}
+}
+```
+
+For attribution, please cite this work as:
+
+Schoch, David. 2024. “One Billion Row Challenge Using Base R.” January 8, 2024. <http://blog.schochastics.net/posts/2024-01-08_one-billion-rows-challenge>.

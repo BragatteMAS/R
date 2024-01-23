@@ -24,9 +24,10 @@ ggplot(regions) +
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
+
 ## Macro regiões
+
 ```{r}
 # Baixar dados das macro regiões do Brasil
 
 ```
-

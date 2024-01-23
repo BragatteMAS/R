@@ -4,8 +4,7 @@ format: html
 editor: visual
 ---
 
-```{r}
-{r setup, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, error = FALSE, warning = FALSE, message = FALSE)
 ```
 

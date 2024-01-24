@@ -15,6 +15,10 @@ Análise de dados de patógenos respiratórios com laboratórios parceiros do IT
 knitr::opts_chunk$set(echo = FALSE, collapse = FALSE, error = FALSE, warning = FALSE, message = FALSE, cache = FALSE)
 ```
 
+```{r}
+setwd("/Users/bragatte/Documents/GitHub/R/Labs")
+```
+
 ### Semana 01 - 2024
 
 ```{r}

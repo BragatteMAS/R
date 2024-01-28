@@ -23,7 +23,27 @@ owid %>%
 
 
 ```{r}
+unique(owid$location)
+```
 
+```{r}
+## selecionar a última data atualizada de World, aonde a coluna total_cases and total_deaths não estão vazias
+owid_world <- owid |>  
+  filter(location == "World", !is.na(total_cases), !is.na(total_deaths)) |>  
+  select(location, date, total_cases, total_deaths) |> 
+  arrange(desc(date)) |>  
+  slice(1)
+owid_world
+```
+
+```{r}
+## selecionar a última data atualizada de World, aonde a coluna total_cases and total_deaths não estão vazias
+owid_br <- owid |>  
+  filter(location == "Brazil", !is.na(total_cases), !is.na(total_deaths)) |>  
+  select(location, date, total_cases, total_deaths) |> 
+  arrange(desc(date)) |>  
+  slice(1)
+owid_br
 ```
 
 ```{r}

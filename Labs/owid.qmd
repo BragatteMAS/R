@@ -1,0 +1,31 @@
+---
+title: "owid"
+format: html
+editor: visual
+---
+## Owid data
+```{r}
+## chama bibliotecas
+pacman::p_load(tidyverse, vroom, lubridate, plotly, polars, duckdb, RColorBrewer)
+```
+
+```{r}
+## read this file
+owid <- vroom("~/Documents/GitHub/R/Labs/dados/owid-covid-data.csv")
+```
+
+```{r}
+# Verify column types/class
+owid %>% 
+  purrr::map(class) %>% 
+  tibble::enframe(name = "column", value = "class")
+```
+
+
+```{r}
+
+```
+
+```{r}
+glimpse(owid)
+```

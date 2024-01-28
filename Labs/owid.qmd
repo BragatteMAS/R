@@ -37,6 +37,20 @@ owid_world
 ```
 
 ```{r}
+## segundo filtro dentro do dataset owid_world para a última data de 2022
+owid_world_2022 <- owid |>
+    filter(
+        location == "World",
+        !is.na(total_cases),
+        !is.na(total_deaths),
+        date <= "2022-03-13"
+    ) |>
+    arrange(desc(date)) |>
+    slice(1)
+```
+
+
+```{r}
 ## selecionar a última data atualizada de World, aonde a coluna total_cases and total_deaths não estão vazias
 owid_br <- owid |>  
   filter(location == "Brazil", !is.na(total_cases), !is.na(total_deaths)) |>  

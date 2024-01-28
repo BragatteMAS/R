@@ -1,0 +1,90 @@
+---
+title: "Sintomas_covid_Lechien2020"
+author: "BragatteMAS"
+format: html
+editor: visual
+---
+
+## Melhorando a comunicação
+
+Sugestão de como aprimorar figura disponibilizada em artigo.
+
+Artigo original: [Lechien et al. (2020)](https://link.springer.com/article/10.1007/s00405-020-05965-1)
+
+[Exemplo da figura 2 do artigo.](https://link.springer.com/article/10.1007/s00405-020-05965-1/figures/2)
+
+### Preparando o código
+
+Formatando impressão de relatório se for do interesse:
+
+```{r config de visualização, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, error = FALSE, warning = FALSE, message = FALSE)
+```
+
+Chamando instalador e ativador de bibliotecas para executar as funções
+
+```{r instalando blibliotecas, include=FALSE}
+## Instale e carregue o pacote gt se ainda não o fez
+if (!require(pacman)) install.packages("pacman")
+```
+
+## Refatorando
+
+Aqui o código criando a tabela com os dados extraídos da figura e com sugestões para melhorar a comunicação como exemplo:
+
+```{r melhorando gráfico}
+## Carregando pacotes necessários
+pacman::p_load(tidyverse)
+
+## Criando os dados a partir da figura original
+dados <- data.frame(
+    ## criando a primeira coluna com os nomes dos sintomas
+    Sintomas = c(
+        "Tosse",
+        "Mialgia",
+        "Perda de apetite",
+        "Diarreia",
+        "Febre",
+        "Astenia",
+        "Dor de cabeça",
+        "Muco pegajoso/Catarro",
+        "Artralgia",
+        "Dor abdominal",
+        "Náusea e Vômito"
+    ),
+    ## criando a segunda coluna com o percentual de pacientes
+    Percentual = c(78, 58, 52, 50, 48, 45, 45, 34, 31, 30, 22)
+)
+
+## Ordenar Sintomas do maior Percentual para o menor
+dados <- dados %>%
+    mutate(Sintomas = factor(Sintomas, levels = rev(Sintomas[order(-Percentual)])))
+
+## Iniciando o gráfico com ggplot e mapeando as estéticas
+ggplot(dados, aes(x = Sintomas, y = Percentual, fill = Percentual)) +
+  ## Adicionando barras ao gráfico; stat = "identity" para usar os valores de 'y' como alturas das barras
+  geom_bar(stat = "identity") +
+  ## Girando o gráfico para ter barras horizontais
+  coord_flip() +
+  ## Aplicando uma escala de cor gradiente do azul para o vermelho baseado no Percentual
+  scale_fill_gradientn(colors = c("blue", "red"),
+                       values = scales::rescale(c(0, 1))) +
+  ## Adicionando rótulos de texto em cada barra, ajustados para a direita; cor branca para contraste
+  geom_text(aes(label = paste0(Percentual, "%")), hjust = 1, size = 3.5, color = "white") +
+  ## Definindo o título e os rótulos dos eixos
+  labs(title = "Percentual de Pacientes com Sintomas de COVID-19",
+       x = "Sintomas",
+       y = "Percentual (%)") +
+  ## Usando um tema minimalista como base
+  theme_minimal() +
+  ## Personalizando o tema para remover as linhas de grade horizontais
+  theme(
+    panel.grid.major.y = element_blank() ## remove linhas de grade horizontais
+  )
+
+## Salvar o gráfico em um arquivo PNG com as dimensões especificadas e resolução de 300 dpi
+ggsave("sintomas_covid19_barras.png", width = 10, height = 8, dpi = 300)
+
+```
+
+Uma imagem pode valer mais que muitos parágrafos de explicação e contexto.

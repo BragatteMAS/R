@@ -75,8 +75,10 @@ ggplot(dados, aes(x = Sintomas, y = Percentual, fill = Percentual)) +
   labs(title = "Percentual de Pacientes com Sintomas de COVID-19",
        x = "Sintomas",
        y = "Percentual (%)") +
-  ## Usando um tema minimalista como base
+  ## Usando um tema minimalista como fundo transparente
   theme_minimal() +
+  ## Para Usar fundo branco alternativamente, retirar a # da linha abaixo e comentar a anterior adicionando # na frente de "theme_minimal()"
+  # theme_light() +
   ## Personalizando o tema para remover as linhas de grade horizontais
   theme(
     panel.grid.major.y = element_blank() ## remove linhas de grade horizontais

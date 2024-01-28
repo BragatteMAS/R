@@ -88,3 +88,11 @@ ggsave("sintomas_covid19_barras.png", width = 10, height = 8, dpi = 300)
 ```
 
 Uma imagem pode valer mais que muitos parágrafos de explicação e contexto.
+
+## Ref
+
+[Git Repo](https://github.com/BragatteMAS/R/tree/master/Better_Plots) - repositório com os códigos abertos no GitHub
+
+[Report format](https://github.com/BragatteMAS/R/blob/master/Better_Plots/Sintomas_covid_Lechien2020.html) para abrir HTML no seu navegador
+
+[Nova figura](https://github.com/BragatteMAS/R/blob/master/Better_Plots/sintomas_covid19_barras.png) após executar o código

@@ -60,6 +60,15 @@ arbo_sum.tail
 ```
 
 ```{r}
+arbo_ns1 <- arbo %>%
+  select(epi_week, epi_year, NS1) %>%
+  filter(epi_year == 2023) %>%
+  group_by(epi_week) %>%
+  summarize(NS1 = sum(NS1, na.rm = TRUE))
+```
+
+```{r}
+colnames(arbo)
 ```
 
 ```{r}

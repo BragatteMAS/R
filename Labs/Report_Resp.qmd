@@ -3,7 +3,7 @@ title: "Report Resp"
 author: "Bragatte"
 format: html
 editor: visual
-data: 2024-01-10
+data: 2024-01-30
 ---
 
 ## Report Resp
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = FALSE, collapse = FALSE, error = FALSE, warning = F
 setwd("/Users/bragatte/Documents/GitHub/R/Labs")
 ```
 
-### Semana 01 - 2024
+### Semana 04 - 2024
 
 ```{r}
 ## chama bibliotecas
@@ -30,6 +30,48 @@ pacman::p_load(tidyverse, vroom, lubridate, plotly, polars, duckdb, RColorBrewer
 ## dados
 combined <-
   vroom("combined.tsv")
+```
+
+```{r}
+## OTHER DATA
+arbo <- vroom("dados/combined_matrix_country_posneg_allpat_weeks.tsv")
+```
+
+```{r}
+## soma total das linhas
+glimpse(arbo)
+```
+
+```{r}
+# Transformando o dataframe de formato largo para longo
+arbo_long <- arbo %>%
+  pivot_longer(cols = starts_with("20"), names_to = "date", values_to = "count") %>%
+  mutate(date = as.Date(date, format = "%Y-%m-%d"))
+
+# Calculando a soma semanal
+arbo_sum <- arbo_long %>%
+  group_by(date) %>%
+  summarize(weekly_sum = sum(count, na.rm = TRUE))
+
+arbo_sum <- arbo_sum %>%
+  mutate(epi_week = lubridate::isoweek(date),
+         epi_year = lubridate::year(date))
+arbo_sum.tail
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
 ```
 
 ## ETL's

@@ -1,0 +1,46 @@
+---
+title: "How2_easystats"
+author: "BragatteMAS"
+format: html
+editor: visual
+---
+
+## Easystats package examples
+### E.g 1
+
+```{r}
+#| echo: false
+model_dashboard(
+  model,
+  check_model_args = NULL,
+  parameters_args = NULL,
+  performance_args = NULL,
+  output_file = "easydashboard.html",
+  output_dir = getwd(),
+  rmd_dir = system.file("templates/easydashboard.Rmd", package = "easystats"),
+  quiet = FALSE,
+  browse_html = interactive()
+)
+```
+### E.g.2
+```{r}
+#| echo: false
+
+# define a regression model
+mod <- lm(wt ~ mpg, mtcars)
+
+# with default options
+model_dashboard(mod)
+
+# customizing 'parameters' output: standardize coefficients
+model_dashboard(mod, parameters_args = list(standardize = "refit"))
+
+# customizing 'performance' output: only show selected performance metrics
+model_dashboard(mod, performance_args = list(metrics = c("AIC", "RMSE")))
+
+# customizing output of model assumptions plot: don't show dots (faster plot)
+model_dashboard(mod, check_model_args = list(show_dots = FALSE))
+```
+
+ ### Ref
+ [Easystats](https://easystats.github.io/easystats/index.html)

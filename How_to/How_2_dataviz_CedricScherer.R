@@ -3,7 +3,7 @@
 ## created::October 24, 2023
 ## R: 4.3.2
 ## Refactor by BragatteMAS
-## updated: 2023-11-18
+## updated: 2024-02-18
 ########################################
 
 pacman::p_load(ggplot2, readr, dplyr, tibble, tidyr, lubridate,
@@ -12,8 +12,7 @@ pacman::p_load(ggplot2, readr, dplyr, tibble, tidyr, lubridate,
 
 remotes::install_github("AllanCameron/geomtextpath")
 
-
-## 
+##  
 bikes <- readr::read_csv(
   "https://cedricscherer.com/data/london-bikes-custom.csv",
   col_types = "Dcfffilllddddc"

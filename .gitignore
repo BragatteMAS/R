@@ -28,3 +28,7 @@ Labs/dados/combined_matrix_country_posneg_allpat_weeks.tsv
 Labs/results/casos_denv.tsv
 Labs/results/casosest_denv.tsv
 Labs/results/infodengue_casos_filtro.csv
+Labs/dados/arbo/combined_arbo.tsv
+Labs/dados/respat/combined_month.csv
+Labs/dados/respat/combined_matrix_country_posneg_allpat_weeks.tsv
+Labs/dados/respat/matrix_agegroups_weeks_FLUA_posrate.tsv

@@ -8,7 +8,7 @@ data: 2024-01-30
 
 ## Report Resp
 
-Análise de dados de patógenos respiratórios com laboratórios parceiros do ITpS
+Análise de dados de arboviroses com laboratórios parceiros do ITpS
 
 ```{r setup}
 #| echo: FALSE
@@ -29,12 +29,12 @@ pacman::p_load(tidyverse, vroom, lubridate, plotly, polars, duckdb, RColorBrewer
 ```{r}
 ## dados
 combined <-
-  vroom("combined.tsv")
+  vroom("dados/arbo/combined_arbo.tsv")
 ```
 
 ```{r}
 ## OTHER DATA
-arbo <- vroom("dados/combined_matrix_country_posneg_allpat_weeks.tsv")
+arbo <- vroom("dados/arbo/combined_matrix_country_posneg_allpat_weeks.tsv")
 ```
 
 ```{r}

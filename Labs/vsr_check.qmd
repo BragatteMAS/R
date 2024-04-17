@@ -1,0 +1,178 @@
+---
+title: "VSR check"
+author: "BragatteMAS"
+format: html
+editor: visual
+---
+
+
+## Report Resp
+
+Análise de dados de patógenos respiratórios com laboratórios parceiros do ITpS
+
+```{r setup}
+#| echo: FALSE
+knitr::opts_chunk$set(echo = FALSE, collapse = FALSE, error = FALSE, warning = FALSE, message = FALSE, cache = FALSE)
+```
+
+```{r}
+setwd("/Users/bragatte/Documents/GitHub/R/Labs")
+```
+
+### Semana 13 - 2024
+
+```{r}
+## chama bibliotecas
+pacman::p_load(tidyverse, vroom, lubridate, plotly, polars, duckdb, RColorBrewer)
+```
+
+```{r}
+## dados
+combined <-
+  vroom("combined.tsv")
+```
+
+### Dados por mês
+
+```{r}
+## Garantir que a coluna epiweek seja uma data
+combined$epiweek <- as.Date(combined$epiweek)
+
+## Criar a coluna month a partir da coluna epiweek e colocá-la após epiweek
+combined <- combined %>%
+  mutate(month = format(epiweek, "%Y-%m")) %>%
+  relocate(month, .after = epiweek)
+```
+
+### VSR
+
+```{r}
+## Calcular a soma de VSR na última semana entre pos e neg
+vsr <- combined %>%
+  ## filtrar a epiweek "2024-03-30"
+  filter(epiweek == "2024-03-30") %>%
+  summarize(VSR_Pos = sum(VSR_test_result == "Pos", na.rm = TRUE),
+            VSR_Neg = sum(VSR_test_result == "Neg", na.rm = TRUE)
+            )
+## print
+head(vsr)
+```
+
+```{r}
+## Define as cores para Positivos e Negativos
+color_map <- c(Pos = '#F26F61', Neg = '#577DBD')
+## Gráfico criar um gráfico de barras
+vsr %>%
+  pivot_longer(cols = starts_with("VSR"), names_to = "VSR", values_to = "count") %>%
+  ggplot(aes(x = VSR, y = count, fill = VSR,
+             marker = list(color = c(color_map["Pos"], color_map["Neg"]))
+              )) +
+  geom_col() +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  labs(title = "VSR na última semana", x = "Resultado", y = "Contagem")
+
+```
+
+### VSR por mês
+
+```{r}
+## Calcular a soma de VSR no últiimo ano entre pos e neg - gráfico de barras
+## Lista de patógenos (baseado nas colunas *_test_result)
+pathogens <- c("VSR")
+
+# Lista de colunas de resultados de testes
+colunas_testes <- grep("_test_result$", names(combined), value = TRUE)
+
+# Função para calcular e somar os resultados por faixa etária e test_result
+# Função ajustada para calcular e somar os resultados por faixa etária e test_result
+aggregate_results <- function(data, time_unit) {
+  # Identifica as colunas de teste
+  colunas_testes <- grep("_test_result$", names(data), value = TRUE)
+  
+  # Processa os dados
+  data %>%
+    # Converte resultados de teste em valores numéricos
+    mutate(across(all_of(colunas_testes),
+                  ~ case_when(. == "Pos" ~ 1,
+                              . == "Neg" ~ -1,
+                              TRUE ~ 0),
+                  .names = "numeric_{.col}")) %>%
+    # Soma os resultados positivos e negativos
+    mutate(Total_Pos = rowSums(select(., starts_with("numeric_")) == 1, na.rm = TRUE),
+           Total_Neg = rowSums(select(., starts_with("numeric_")) == -1, na.rm = TRUE)) %>%
+    # Agrupa pelos critérios desejados
+    group_by(across(all_of(time_unit)), age_group) %>%
+    summarise(Total_Pos = sum(Total_Pos, na.rm = TRUE),
+              Total_Neg = sum(Total_Neg, na.rm = TRUE), .groups = "drop") %>%
+    # Pivoteia os resultados para longo
+    pivot_longer(cols = c(Total_Pos, Total_Neg), names_to = "test_result", values_to = "count") %>%
+    # Renomeia baseado no valor de time_unit diretamente
+    # Aqui, precisamos garantir que renomeamos depois de remover os agrupamentos
+    rename_with(~ if_else(. == time_unit, "month", .))
+}
+
+# Aplicar a função para 'epiweek'
+result_epiweek <- aggregate_results(combined, "epiweek")
+
+# Aplicar a função para month
+result_month <- aggregate_results(combined, "month")
+
+## Verificar os resultados
+head(result_epiweek)
+head(result_month)
+```
+```{r}
+## test_result VSR by labs
+results_VSR_lab <- table(combined$VSR_test_result, combined$lab_id)
+results_VSR_lab
+```
+
+```{r}
+## Gráfico de barras VSR mes
+## Calcula o total de Positivos e Negativos
+## para o VSR
+total_positivos <- sum(results_VSR_lab["Pos", ])
+total_negativos <- sum(results_VSR_lab["Neg", ])
+## Cria o gráfico
+plot_ly() %>%
+  add_bars(
+    x = c("Positivos", "Negativos"),
+    y = c(total_positivos, total_negativos),
+    marker = list(color = c(color_map["Pos"], color_map["Neg"]))
+  ) %>%
+  layout(yaxis = list(title = 'Total de Testes'), xaxis = list(title = 'Resultado'),
+         title = 'Quantidade de resultados positivos e negativos de VSR nas análises do ITpS')
+
+```
+
+```{r}
+library(plotly)
+library(dplyr)
+
+# Primeiro, garantimos que o dataframe está com o nome correto das colunas.
+# Renomeia 'get(time_unit)' para 'month' para facilitar o entendimento.
+result_month <- result_month %>%
+  rename(month = get(time_unit)) %>%
+  mutate(month = as.factor(month),  # Converte 'month' para fator
+         test_result = factor(test_result, levels = c("Pos", "Neg")))  # Assegura que 'test_result' é um fator
+
+# Agora, criamos o gráfico com Plotly
+fig <- plot_ly(data = result_month, x = ~month, y = ~count, type = 'bar', split = ~test_result,
+               colors = c('Pos' = '#F26F61', 'Neg' = '#577DBD')) %>%
+  layout(yaxis = list(title = 'Total de Testes'), 
+         xaxis = list(title = 'Mês'),
+         barmode = 'group',  # Configura as barras para serem agrupadas
+         title = 'Resultados Positivos e Negativos de VSR por Mês')
+
+# Exibe o gráfico
+fig
+```
+
+```{r}
+## fazer uma média móvel com o pacote zoo para VSR
+## Calcular a média móvel de 7 dias para VSR
+## Criar uma série temporal para VSR
+
+```
+

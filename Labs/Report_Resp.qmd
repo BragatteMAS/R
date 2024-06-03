@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = FALSE, collapse = FALSE, error = FALSE, warning = F
 setwd("/Users/bragatte/Documents/GitHub/R/Labs")
 ```
 
-### Semana 04 - 2024
+### Semana 13 - 2024
 
 ```{r}
 ## chama bibliotecas
@@ -34,53 +34,41 @@ combined <-
 
 ```{r}
 ## OTHER DATA
-arbo <- vroom("dados/combined_matrix_country_posneg_allpat_weeks.tsv")
+# arbo <- vroom("dados/combined_matrix_country_posneg_allpat_weeks.tsv")
 ```
 
 ```{r}
 ## soma total das linhas
-glimpse(arbo)
+# glimpse(arbo)
 ```
 
 ```{r}
-# Transformando o dataframe de formato largo para longo
-arbo_long <- arbo %>%
-  pivot_longer(cols = starts_with("20"), names_to = "date", values_to = "count") %>%
-  mutate(date = as.Date(date, format = "%Y-%m-%d"))
-
-# Calculando a soma semanal
-arbo_sum <- arbo_long %>%
-  group_by(date) %>%
-  summarize(weekly_sum = sum(count, na.rm = TRUE))
-
-arbo_sum <- arbo_sum %>%
-  mutate(epi_week = lubridate::isoweek(date),
-         epi_year = lubridate::year(date))
-arbo_sum.tail
+# # Transformando o dataframe de formato largo para longo
+# arbo_long <- arbo %>%
+#   pivot_longer(cols = starts_with("20"), names_to = "date", values_to = "count") %>%
+#   mutate(date = as.Date(date, format = "%Y-%m-%d"))
+# 
+# # Calculando a soma semanal
+# arbo_sum <- arbo_long %>%
+#   group_by(date) %>%
+#   summarize(weekly_sum = sum(count, na.rm = TRUE))
+# 
+# arbo_sum <- arbo_sum %>%
+#   mutate(epi_week = lubridate::isoweek(date),
+#          epi_year = lubridate::year(date))
+# arbo_sum.tail
 ```
 
 ```{r}
-arbo_ns1 <- arbo %>%
-  select(epi_week, epi_year, NS1) %>%
-  filter(epi_year == 2023) %>%
-  group_by(epi_week) %>%
-  summarize(NS1 = sum(NS1, na.rm = TRUE))
+# arbo_ns1 <- arbo %>%
+#   select(epi_week, epi_year, NS1) %>%
+#   filter(epi_year == 2023) %>%
+#   group_by(epi_week) %>%
+#   summarize(NS1 = sum(NS1, na.rm = TRUE))
 ```
 
 ```{r}
-colnames(arbo)
-```
-
-```{r}
-```
-
-```{r}
-```
-
-```{r}
-```
-
-```{r}
+# colnames(arbo)
 ```
 
 ## ETL's
@@ -109,6 +97,28 @@ combined$epiweek <- as.Date(combined$epiweek)
 combined <- combined %>%
   mutate(month = format(epiweek, "%Y-%m")) %>%
   relocate(month, .after = epiweek)
+```
+
+### VSR
+
+```{r}
+max(combined$epiweek)
+```
+
+```{r}
+```
+
+```{r}
+
+## Calcular a soma de VSR na última semana entre pos e neg
+vsr <- combined %>%
+  ## filtrar a epiweek "2024-03-30"
+  filter(epiweek == "2024-03-30") %>%
+  summarize(VSR_Pos = sum(VSR_test_result == "Pos", na.rm = TRUE),
+            VSR_Neg = sum(VSR_test_result == "Neg", na.rm = TRUE)
+            )
+## print
+head(vsr)
 ```
 
 ### Matrix agegroups
@@ -163,7 +173,7 @@ glimpse(combined)
 combined$epiweek <- as.Date(combined$epiweek)
 
 ## EDITAR AQUI SEMANA DE INTERESSE (formato: "aaaa-mm-dd")
-data_ultima_semana <- "2023-12-30" # Alterar a data conforme interesse e calendario SINAN
+data_ultima_semana <- "2024-03-30" # Alterar a data conforme interesse e calendario SINAN
 
 # Extrair dados da última semana
 last_week <- combined[combined$epiweek == as.Date(data_ultima_semana), ]
@@ -273,6 +283,26 @@ plot_ly() %>%
   ) %>%
   layout(yaxis = list(title = 'Total de Testes'), xaxis = list(title = 'Resultado'),
          title = 'Quantidade de resultados positivos e negativos de Covid-19 nas análises do ITpS')
+```
+
+```{r}
+
+## Define as cores para Positivos e Negativos
+color_map <- c(Pos = '#F26F61', Neg = '#577DBD')
+
+## Calcula o total de Positivos e Negativos
+total_positivos <- sum(results_VSR_lab["Pos", ])
+total_negativos <- sum(results_VSR_lab["Neg", ])
+
+## Cria o gráfico
+plot_ly() %>%
+  add_bars(
+    x = c("Positivos", "Negativos"),
+    y = c(total_positivos, total_negativos),
+    marker = list(color = c(color_map["Pos"], color_map["Neg"]))
+  ) %>%
+  layout(yaxis = list(title = 'Total de Testes'), xaxis = list(title = 'Resultado'),
+         title = 'Quantidade de resultados positivos e negativos para VSR nas análises do ITpS')
 ```
 
 #### Quantidade de resultados positivos e negativos de Covid por laboratório parceiro:

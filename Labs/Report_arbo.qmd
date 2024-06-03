@@ -1,5 +1,5 @@
 ---
-title: "Report Resp"
+title: "Report Arbo"
 author: "Bragatte"
 format: html
 editor: visual
@@ -28,7 +28,7 @@ pacman::p_load(tidyverse, vroom, lubridate, plotly, polars, duckdb, RColorBrewer
 
 ```{r}
 ## dados
-combined <-
+arbo <-
   vroom("dados/arbo/combined_arbo.tsv")
 ```
 
@@ -268,7 +268,7 @@ plot_ly() %>%
 Objetivo: Mostrar a distribuição de resultados positivos e negativos para cada laboratório.
 
 ```{r}
-## 
+##
 plot_ly() %>%
   add_bars(
     x = ~colnames(results_SARS_lab),
@@ -377,7 +377,7 @@ plot_ly() %>%
     x = ~ rownames(labs_state),
     y = ~ rowSums(labs_state),
     name = 'Laboratórios'
-    
+
   ) %>%
   layout(yaxis = list(title = 'Quantidade de Laboratórios'),
          title = 'Quantidade de laboratórios por estado')
@@ -407,7 +407,7 @@ plot_ly() %>%
 Objetivo: Comparar resultados de testes na última semana por laboratório.
 
 ```{r}
-## test_lab by test_results in last week 
+## test_lab by test_results in last week
 table(last_week$lab_id, last_week$SC2_test_result)
 ```
 

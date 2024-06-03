@@ -6,6 +6,7 @@ editor: visual
 ---
 
 ## Easystats package examples
+
 ### E.g 1
 
 ```{r}
@@ -22,7 +23,9 @@ model_dashboard(
   browse_html = interactive()
 )
 ```
+
 ### E.g.2
+
 ```{r}
 #| echo: false
 
@@ -42,5 +45,4 @@ model_dashboard(mod, performance_args = list(metrics = c("AIC", "RMSE")))
 model_dashboard(mod, check_model_args = list(show_dots = FALSE))
 ```
 
- ### Ref
- [Easystats](https://easystats.github.io/easystats/index.html)
+\### Ref [Easystats](https://easystats.github.io/easystats/index.html)

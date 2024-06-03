@@ -21,7 +21,7 @@ pacman::p_load(tidyverse, #manipulation
 ```
 
 ```{r}
-## check files 
+## check files
 files <- list.files(path ="data/",
                     pattern = "*.xlsx",
                     full.names = TRUE)
@@ -48,14 +48,14 @@ glimpse(last_lab)
 
 ```{r}
 # Verify column types/class
-last_lab %>% 
-  purrr::map(class) %>% 
+last_lab %>%
+  purrr::map(class) %>%
   tibble::enframe(name = "column", value = "class")
 ```
 
 ```{r}
 ## Verify column types/class
-last_lab %>% 
+last_lab %>%
   reframe(across(everything(), class))
 ```
 
@@ -71,8 +71,8 @@ mixed_type_check <- function(column) {
 ```
 
 ```{r}
-last_lab %>% 
-  purrr::map_lgl(mixed_type_check) %>% 
+last_lab %>%
+  purrr::map_lgl(mixed_type_check) %>%
   tibble::enframe(name = "column", value = "has_mixed_types")
 ```
 
@@ -98,7 +98,7 @@ check_string_inconsistencies <- function(column) {
 
     ## Checking for the presence of unallowed characters (example: special characters)
     ## Modify the regex to define allowed characters
-    allowed_chars_regex <- "^[A-Za-z0-9]+$" 
+    allowed_chars_regex <- "^[A-Za-z0-9]+$"
     results$unallowed_chars <- any(!str_detect(column, allowed_chars_regex) & column != "")
 
     ## Checking for case consistency

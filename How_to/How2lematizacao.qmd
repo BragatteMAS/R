@@ -1,0 +1,56 @@
+---
+title: "lematizacao"
+author: BragatteMAS
+format: html
+editor: visual
+---
+# Lematização em pt-br
+Tentativa de fazer lematização para o amigo Vital
+
+## Libs
+
+```{r}
+#| echo: false
+pacman::p_load(textstem, udpipe)
+```
+
+## Textstem
+
+```{r}
+## Exemplo de texto
+texto <- c("running", "jumps", "easily", "better")
+
+## Realizar lematização
+lematizado <- lemmatize_words(texto)
+
+## Exibir o resultado
+print(lematizado)
+```
+
+### NLP (Processamento de Linguagem Natural) como **`udpipe`** ou **`spacyr`**
+
+```{r}
+ud_model <- udpipe_download_model(language = "portuguese")
+
+## Carregar o modelo
+ud_model <- udpipe_load_model(ud_model$file_model)
+```
+
+exemplo
+```{r}
+## Exemplo de texto
+texto <- c("corremos", "saltos", "facilmente", "melhor")
+
+## Analisar o texto
+anotacao <- udpipe_annotate(ud_model, x = texto)
+
+## Converter para data frame
+anotacao_df <- as.data.frame(anotacao)
+
+## Obter as lematizações
+lematizado <- anotacao_df$lemma
+
+## Exibir o resultado
+print(lematizado)
+```
+

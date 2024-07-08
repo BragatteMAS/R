@@ -1,0 +1,50 @@
+---
+title: "How2 ggplot multiline"
+format: html
+author: BragatteMAS
+create: 2024_07_03
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, error = FALSE, warning = FALSE, message = FALSE)
+```
+
+```{r setup, include=FALSE}
+pacman::p_load(tidyverse,ggplot2)
+```
+
+
+```{r setup, include=FALSE}
+my_text <- "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+my_subtitle <- paste(rep(my_text, 5), collapse = " ")
+
+```
+
+```{r setup, include=FALSE}
+df <- tibble(
+  my_text = rep(my_text, 3),
+  x = c(1, 2, 3),
+  y = c(2, 1, 0),
+  hjust = c(0, 0.5, 1),
+  vjust = c(0, 0.5, 1)
+)
+```
+
+```{r setup, include=FALSE}
+ggplot() +
+  ggtitle("ggplot2::geom_text() with line breaks inserted via str_wrap()") +
+  ggplot2::geom_text(data = df,
+                     aes(
+                       label = str_wrap(my_text, 45),
+                       x = vjust,
+                       y = hjust,
+                       hjust = hjust,
+                       vjust = vjust
+                     )) +
+  labs(subtitle = str_wrap(my_subtitle, 100)) +
+  theme(plot.subtitle = element_text(hjust = 0))
+```
+
+```md
+Ref: https://stackoverflow.com/questions/73384281/justify-multiline-text-in-ggplot2-title-subtitle-caption-geom-text-etc
+```

@@ -1,0 +1,28 @@
+---
+title: " How 2 Copilot in Positron"
+format: html
+R: 4.4.0
+author: BragatteMAS
+Created: 2024_06_30
+---
+# W2H - MAS
+## Using Copilot at Positron
+```{r}
+## install remotes to access github repos
+> install.packages("remotes")
+```
+
+```{r}
+## specific repo with shinymod for copilot
+remotes::install_github("mlverse/chattr")
+```
+
+```{r}
+chattr::chattr_app()
+## Choose in the console
+# 1: OpenAI - GitHub Copilot Chat -  (copilot) 
+# 2: OpenAI - Chat Completions - gpt-4o (gpt4o) 
+```
+
+## Ref
+[Positron accessing GitHub Copilot via {chattr} R Package (Public Beta) - YouTube](https://www.youtube.com/watch?v=zXlJUJePiv0)

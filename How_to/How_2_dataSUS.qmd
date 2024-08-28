@@ -13,10 +13,17 @@ knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, error = FALSE, warning = FAL
 ```{r}
 install.packages("devtools")
 devtools::install_github("rfsaldanha/microdatasus")
+```
 
+```{r}
 library(microdatasus)
-dados <- datasus_fetch(year_start = 2013, year_end = 2014, uf = "SP", information_system = "SIM-DO")
+dados <- fetch_datasus(year_start = 2022, year_end = 2023, uf = "SP", information_system = "SIM-DO")
 dados <- process_sim(dados)
+```
+
+```{r}
+sinan_denv <- fetch_datasus(year_start = 2022, year_end = 2023, uf = "SP", information_system = "SINAN-DENGUE")
+sinan_denv <- process_sim(sinan_denv)
 ```
 
 ### HackDATASUS

@@ -1,0 +1,114 @@
+---
+title: "Tidyplots"
+author: "BRAGATTE"
+format: html
+editor: visual
+created: <https://github.com/business-science/free_r_tips/blob/master/091_tidyplots/091_tidyplots.R>
+---
+
+## Tidyplots
+1. Instalação e Carregamento do Pacote: Utilize o pacman para instalar e carregar o tidyplots.
+```{r}
+#| warning: false
+## install with pacman
+if (!require("pacman")) install.packages("pacman")  ## Instala o pacman se necessário
+pacman::p_load(tidyplots, plotly)  ## Carrega o tidyplots e plotly
+```
+2. Carregamento dos Dados: O pacote tidyplots fornece conjuntos de dados de exemplo, como energy, energy_week, spendings, time_course e study. Certifique-se de que esses dados estejam carregados corretamente.
+```{r}
+## ENGERY (TIME SERIES EXAMPLES) ----
+data("energy")
+data("energy_week")
+data("spendings")
+data("time_course")
+data("study")
+```
+
+```{r}
+## Gráfico 1: Produção de Energia ao Longo do Tempo (Barra Empilhada)
+energy |>
+  tidyplot(x = year, y = energy, color = energy_source) |>  ## Define as variáveis e a estética do gráfico
+  add_barstack_absolute() |>                                ## Adiciona barras empilhadas absolutas
+  adjust_size(width = NA, height = NA) |>                   ## Ajusta o tamanho do gráfico (opcional)
+  adjust_font(fontsize = 12) |>                             ## Ajusta o tamanho da fonte
+  add_title("Produção de Energia ao Longo do Tempo")        ## Adiciona um título ao gráfico
+
+
+## Gráfico 2: Produção de Energia ao Longo do Tempo (Área Empilhada)
+energy |>
+  tidyplot(x = year, y = energy, color = energy_source) |>
+  add_areastack_absolute() |>
+  adjust_size(width = NA, height = NA) |>
+  adjust_font(fontsize = 12) |>
+  add_title("Produção de Energia ao Longo do Tempo")
+
+## Gráfico 3: Distribuição de Tipos de Energia (Pizza)
+energy |>
+  tidyplot(color = energy_type) |>
+  add_pie() |>
+  adjust_size(width = NA, height = NA) |>
+  adjust_font(fontsize = 12) |>
+  add_title("Distribuição de Tipos de Energia")
+
+## Gráfico 4: Produção de Energia por Semana
+energy_week |>
+  tidyplot(x = date, y = power, color = energy_source) |>
+  add_areastack_absolute() |>
+  adjust_size(width = NA, height = NA) |>
+  adjust_font(fontsize = 12) |>
+  add_title("Produção de Energia por Semana")
+
+## Gráfico 5: Despesas Mensais
+spendings |>
+  tidyplot(x = date, y = amount, color = category) |>
+  add_barstack_absolute() |>
+  adjust_size(width = NA, height = NA) |>
+  adjust_font(fontsize = 12) |>
+  add_title("Despesas Mensais")
+
+## Gráfico 6: Categorias de Despesas Mensais
+spendings |>
+  tidyplot(y = category, x = amount) |>
+  add_sum_bar() |>
+  adjust_size(width = NA, height = NA) |>
+  adjust_font(fontsize = 12) |>
+  sort_y_axis_labels() |>
+  add_title("Categorias de Despesas Mensais")
+
+## Gráfico 7: Curso Temporal com Barras de Incerteza
+time_course |>
+  tidyplot(x = day, y = score, color = treatment) |>
+  add_mean_line() |>
+  add_mean_dot() |>
+  add_sem_errorbar(width = 1) |>
+  adjust_size(width = NA, height = NA) |>
+  adjust_font(fontsize = 12) |>
+  add_title("Curso Temporal com Barras de Incerteza")
+
+## Gráfico 8: Curso Temporal com Faixa de Incerteza
+time_course |>
+  tidyplot(x = day, y = score, color = treatment) |>
+  add_mean_line() |>
+  add_mean_dot() |>
+  add_sem_ribbon() |>
+  adjust_size(width = NA, height = NA) |>
+  adjust_font(fontsize = 12) |>
+  add_title("Curso Temporal com Faixa de Incerteza")
+```
+
+```{r}
+## Gráfico Interativo: Produção de Energia ao Longo do Tempo
+ggplotly(
+    time_course |>
+        tidyplot(x = day, y = score, color = treatment) |>
+        add_mean_line() |>
+        add_mean_dot() |>
+        add_sem_ribbon() |>
+        adjust_size(width = NA, height = NA) |>
+        adjust_font(fontsize = 12) |>
+        add_title("Curso Temporal com Faixa de Incerteza")
+)
+```
+## Ref
+
+[free_r_tips091_tidyplots091_tidyplots.R at master · business-science/free_r_tips](https://github.com/business-science/free_r_tips/blob/master/091_tidyplots/091_tidyplots.R)

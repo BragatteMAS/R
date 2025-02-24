@@ -22,7 +22,9 @@ library(sf)
 library(geobr)
 library(ggplot2)
 library(dplyr)
-#remotes::install_github("abjur/abjData")
+```
+```{r}
+remotes::install_github("abjur/abjData")
 library(abjData)
 ```
 

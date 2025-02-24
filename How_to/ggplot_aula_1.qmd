@@ -1,0 +1,131 @@
+---
+title: "ggplot aula pratica 1 gapminder"
+author: "Bragatte"
+format: html
+---
+
+# Introdução
+
+## Motivação
+
+Você já se perguntou por que alguns gráficos comunicam melhor do que outros? A visualização de dados é essencial para transformar informações numéricas em insights claros e compreensíveis.
+
+Nesta aula, exploraremos o `ggplot2` e suas camadas utilizando o conjunto de dados `gapminder`.
+
+```{r}
+# install.packages("gapminder")
+```
+
+# Carregando Pacotes
+
+```{r setup, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(gapminder)
+library(dplyr)
+```
+
+# Explorando os Dados
+
+```{r}
+# Visualizando as primeiras linhas
+dplyr::glimpse(gapminder)
+
+# Estrutura do dataset
+summary(gapminder)
+```
+
+O `gapminder` contém dados de diferentes países, abrangendo expectativa de vida (`lifeExp`), PIB per capita (`gdpPercap`), população (`pop`) e continente.
+
+# Construindo um Gráfico Passo a Passo
+
+## 1 Criando a Base do Gráfico
+
+```{r}
+ggplot(gapminder, aes(x = gdpPercap, y = lifeExp))
+```
+
+Este código apenas define a base do gráfico, sem exibir nenhuma geometria.
+
+## 2 Adicionando Pontos
+
+```{r}
+ggplot(gapminder, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point()
+```
+
+Agora temos um gráfico de dispersão, mas ele pode ser aprimorado.
+
+## 3 Melhorando a Visualização
+
+-   **Escala logarítmica** para o PIB per capita.
+-   **Cores por continente**.
+
+```{r}
+ggplot(gapminder, aes(x = gdpPercap, y = lifeExp, color = continent)) +
+  geom_point() +
+  scale_x_log10()
+```
+
+## 4 Adicionando Linha de Tendência
+
+```{r}
+ggplot(gapminder, aes(x = gdpPercap, y = lifeExp, color = continent)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_x_log10() +
+  theme_minimal()
+```
+
+Agora conseguimos visualizar tendências entre PIB per capita e expectativa de vida.
+
+## 5 Explorando a Evolução Temporal
+
+Podemos visualizar a relação ao longo do tempo utilizando `facet_wrap()`:
+
+```{r}
+ggplot(gapminder, aes(x = gdpPercap, y = lifeExp, color = continent)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_x_log10() +
+  theme_minimal() +
+  facet_wrap(~year)
+```
+
+Cada gráfico representa um período de tempo, permitindo analisar a evolução histórica.
+
+```{r}
+#install.packages("plotly")
+```
+
+```{r}
+library("plotly")
+```
+
+```{r}
+dica_da_Nubia <- ggplot(gapminder, aes(x = gdpPercap, y = lifeExp, color = continent)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_x_log10() +
+  theme_minimal()
+```
+
+```{r}
+ggplotly(dica_da_Nubia)
+```
+
+```{r}
+ggplot(gapminder, aes(x = lifeExp, y = continent))+
+  geom_boxplot()
+```
+
+# Desafio Final
+
+Agora é sua vez! Como você pode modificar este gráfico para destacar um continente específico?
+
+Sugestões: - Filtrar apenas um continente: `filter(gapminder, continent == "Asia")` - Experimentar `geom_jitter()` para evitar sobreposição de pontos.
+
+# Referências
+
+-   [Cheatsheet do ggplot2](https://raw.githubusercontent.com/rstudio/cheatsheets/main/translations/portuguese/data-visualization_pt.pdf)
+-   [R Graph Gallery - ggplot2](https://r-graph-gallery.com/ggplot2-package.html)
+-   [Livro Curso-R - ggplot2](https://livro.curso-r.com/8-1-o-pacote-ggplot2.html)

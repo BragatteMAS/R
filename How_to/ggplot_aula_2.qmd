@@ -1,0 +1,188 @@
+---
+title: "ggplot2 aula pratica 2"
+author: "Bragatte"
+format: html
+---
+
+# Introdução
+
+O **ggplot2** é um dos pacotes mais populares para visualização de dados no R. Ele segue a "Gramática dos Gráficos", permitindo a construção de gráficos de maneira estruturada e flexível.
+
+Neste documento, aprenderemos os conceitos básicos do ggplot2, explorando diferentes tipos de gráficos e suas aplicações.
+
+# Instalação e Carregamento do Pacote
+
+Antes de começar, certifique-se de que o pacote ggplot2 está instalado. Caso não esteja, instale-o com o comando abaixo:
+
+```{r}
+# install.packages("ggplot2")
+```
+
+Agora, carregamos o pacote para utilizá-lo:
+
+```{r}
+library(ggplot2)
+```
+
+# Carregando os Dados de Saúde Pública
+
+Para este exemplo, utilizaremos um conjunto de dados fictício da área de saúde pública que representa casos de doenças por região.
+
+```{r}
+# Criando um conjunto de dados fictício com número de casos por região e ano
+df_saude <- data.frame(
+  regiao = rep(c("Norte", "Sul", "Leste", "Oeste"), each = 10),
+  casos = sample(50:500, 40, replace = TRUE),
+  ano = rep(2010:2019, 4)
+)
+
+# Visualizando um resumo dos dados
+summary(df_saude)
+```
+
+# Criando Gráficos com ggplot2
+
+O ggplot2 usa uma abordagem baseada em camadas. O gráfico básico é criado com a função `ggplot()`, e camadas adicionais são adicionadas com `geom_*`.
+
+## 1. Gráfico de Dispersão
+
+O gráfico de dispersão é usado para visualizar a relação entre duas variáveis contínuas, como o número de casos e os anos.
+
+```{r}
+ggplot(df_saude, aes(x = ano, y = casos)) +  # Define os eixos
+  geom_point(color = "blue") +               # Adiciona pontos ao gráfico
+  geom_smooth(method = "loess", color = "red", se = FALSE) + # Adiciona linha de tendência
+  labs(title = "Casos de Doenças ao Longo dos Anos",
+       x = "Anos",
+       y = "Número de Casos") +
+  theme_minimal()
+```
+
+## 2. Gráfico de Barras
+
+O gráfico de barras é útil para visualizar contagens ou comparar categorias, como o número de casos por região.
+
+```{r}
+ggplot(df_saude, aes(x = regiao, y = casos, fill = regiao)) +  # Define os eixos e agrupa por região
+  geom_bar(stat = "identity") +  # Adiciona barras
+  labs(title = "Casos de Doenças por Região",
+       x = "Região",
+       y = "Número de Casos") +
+  theme_light()
+```
+
+## 3. Histograma
+
+O histograma mostra a distribuição de uma variável contínua, como a quantidade de casos registrados.
+
+```{r}
+ggplot(df_saude, aes(x = casos)) +
+  geom_histogram(binwidth = 50, fill = "green", color = "black", alpha = 0.7) +
+  labs(title = "Distribuição do Número de Casos",
+       x = "Número de Casos",
+       y = "Frequência") +
+  theme_minimal()
+```
+
+## 4. Boxplot
+
+O boxplot exibe a distribuição de uma variável e possíveis outliers, permitindo uma visão da dispersão dos casos por região.
+
+```{r}
+ggplot(df_saude, aes(x = regiao, y = casos, fill = regiao)) +
+  geom_boxplot() +
+  labs(title = "Distribuição de Casos por Região",
+       x = "Região",
+       y = "Número de Casos") +
+  theme_minimal()
+```
+
+## 5. Gráfico de Linhas
+
+O gráfico de linhas é usado para visualizar tendências temporais, como a evolução dos casos ao longo dos anos.
+
+```{r}
+ggplot(df_saude, aes(x = ano, y = casos, group = regiao, color = regiao)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Evolução dos Casos ao Longo dos Anos",
+       x = "Ano",
+       y = "Número de Casos") +
+  theme_minimal()
+```
+
+## 6. Facets para Comparação de Regiões
+
+Podemos dividir os gráficos por região usando `facet_wrap()` para visualizar melhor as tendências individuais.
+
+```{r}
+ggplot(df_saude, aes(x = ano, y = casos, group = regiao, color = regiao)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~regiao) +
+  labs(title = "Evolução dos Casos por Região",
+       x = "Ano",
+       y = "Número de Casos") +
+  theme_minimal()
+```
+
+## 7. Gráfico Interativo com Plotly
+
+Podemos transformar um gráfico do ggplot2 em um gráfico interativo com o `plotly`.
+
+```{r, warning=FALSE, message=FALSE}
+# install.packages("plotly")
+library(plotly)
+```
+
+```{r}
+p <- ggplot(df_saude, aes(x = ano, y = casos, group = regiao, color = regiao)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~regiao) +
+  labs(title = "Evolução dos Casos por Região",
+       x = "Ano",
+       y = "Número de Casos") +
+  theme_minimal()
+
+# Transformando o gráfico ggplot em um gráfico interativo
+plotly::ggplotly(p)
+```
+
+## 8. Pequeno Exemplo Adicional: Mapa de Calor
+
+Podemos criar um **mapa de calor** para visualizar padrões de distribuição de casos por região e ano.
+
+```{r}
+ggplot(df_saude, aes(x = ano, y = regiao, fill = casos)) +
+  geom_tile() +
+  labs(title = "Mapa de Calor: Distribuição de Casos por Região e Ano",
+       x = "Ano",
+       y = "Região") +
+  scale_fill_gradient(low = "white", high = "red") +
+  theme_minimal()
+```
+
+E tornar interativo da mesma forma...
+
+```{r}
+p2 <- ggplot(df_saude, aes(x = ano, y = regiao, fill = casos)) +
+  geom_tile() +
+  labs(title = "Mapa de Calor: Distribuição de Casos por Região e Ano",
+       x = "Ano",
+       y = "Região") +
+  scale_fill_gradient(low = "white", high = "red") +
+  theme_minimal()
+
+ggplotly(p2)
+```
+
+# Reflexões
+
+-   O que podemos inferir ao observar a distribuição dos casos por região?
+-   Alguma região apresenta maior variação de casos ao longo dos anos?
+-   Há alguma tendência clara de aumento ou redução?
+
+# Conclusão
+
+O **ggplot2** é uma ferramenta essencial para visualização de dados no R. A construção de gráficos baseia-se na adição de camadas para personalização e melhoria da visualização. O uso de dados reais ou simulados da área de saúde pública pode fornecer insights valiosos para análise epidemiológica e tomada de decisão. A personalização e o uso de `facet_wrap()` ajudam a melhorar a interpretação dos gráficos.

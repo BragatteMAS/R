@@ -1,0 +1,128 @@
+---
+title: "Mapa Bayesiano para o Rafa"
+author: "Bragatte"
+format: html
+editor: visual
+---
+
+```{r setup, include=FALSE}
+# Configuração inicial
+if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
+library(pacman)
+p_load(
+  sf,        # Manipulação de dados espaciais
+  spdep,     # Análise de dependência espacial
+  tmap,      # Visualização de mapas
+  geobr,     # Dados geográficos do Brasil
+  dplyr,     # Manipulação de dados
+  microdatasus, # Acesso aos dados do DataSUS
+  INLA       # Modelagem Bayesiana
+)
+```
+
+## Introdução
+
+Este relatório apresenta uma análise espacial dos casos de dengue no Brasil em 2020, utilizando dados do DataSUS. O foco está na identificação de clusters espaciais antes e depois da suavização bayesiana.
+
+## Dados e Preparação
+
+```{r data-preparation, message=FALSE, warning=FALSE}
+# Carregar shapefile dos municípios brasileiros usando o pacote geobr
+municipios <- read_municipality(year = 2022)  # Ano válido mais recente
+
+# Baixar dados de dengue do DataSUS usando o pacote microdatasus
+dados_raw <- fetch_datasus(
+  year_start = 2024, 
+  year_end = 2024, 
+  uf = "all", 
+  information_system = "SINAN-DENGUE"
+)
+
+# Processar os dados baixados
+## dados <- process_sinan(dados_raw) # formato antigo
+dados <- process_sinan_dengue(dados_raw) # função atualizada no microdatasus
+
+# Ajustar nomes das colunas e verificar a estrutura dos dados
+colnames(dados) <- tolower(colnames(dados)) # Converter nomes de colunas para minúsculas
+
+# Criar dataset agregado por estado
+casos_estado <- dados %>%
+  group_by(sg_uf) %>%  # Usando a coluna correta dos estados
+  summarise(casos_totais = sum(as.numeric(classi_fin == "Dengue" | classi_fin == "Dengue Grave"), na.rm = TRUE), .groups = "drop")
+
+# Criar dataset agregado por município
+casos_municipio <- dados %>%
+  group_by(id_mn_resi, sg_uf) %>%  # Usando a coluna correta para municípios
+  summarise(casos_totais = sum(as.numeric(classi_fin == "Dengue" | classi_fin == "Dengue Grave"), na.rm = TRUE), .groups = "drop")
+# Renomear colunas para junção
+municipios <- municipios %>%
+  rename(id_municip = code_muni, sg_uf = abbrev_state)
+
+# Unir dados agregados por município ao shapefile
+municipios_casos <- municipios %>%
+  left_join(casos_municipio, by = c("id_municip", "sg_uf"))
+
+```
+
+## Análise Espacial
+
+### Mapa Original
+
+```{r original-map, echo=FALSE}
+# Criar vizinhança baseada na contiguidade
+municipios_sp <- as(municipios_casos, "Spatial")
+vizinhos <- poly2nb(municipios_sp)
+
+# Criar matriz de pesos espaciais
+pesos <- nb2listw(vizinhos, style = "W")
+
+# Calcular o Índice Local de Moran
+moran_local <- localmoran(municipios_sp$casos_totais, pesos)
+
+# Adicionar resultados ao shapefile
+municipios_casos$Ii <- moran_local[, "Ii"]
+municipios_casos$P_valor <- moran_local[, "Pr(z > 0)"]
+
+# Mapa LISA
+tm_shape(municipios_casos) +
+  tm_polygons("Ii", 
+              title = "Índice Local de Moran (Original)",
+              style = "quantile", 
+              palette = "RdBu",
+              midpoint = NA) +
+  tm_layout(title = "Mapa LISA dos Casos Confirmados de Dengue (Original)")
+```
+
+### Suavização Bayesiana
+
+```{r bayesian-smoothing, message=FALSE, warning=FALSE}
+# Modelagem Bayesiana usando INLA
+library(INLA)
+
+# Criar vizinhança no formato esperado pelo INLA
+nb2inla <- nb2mat(vizinhos, style = "B", zero.policy = TRUE)
+
+# Suavização Bayesiana
+inla_model <- inla(
+  casos_totais ~ 1,
+  data = municipios_casos,
+  family = "poisson",
+  control.predictor = list(compute = TRUE),
+  control.inla = list(strategy = "simplified.laplace")
+)
+
+# Adicionar os valores suavizados ao shapefile
+municipios_casos$casos_suavizados <- inla_model$summary.fitted.values[, "mean"]
+
+# Mapa Suavizado
+tm_shape(municipios_casos) +
+  tm_polygons("casos_suavizados", 
+              title = "Casos Suavizados (Bayes)",
+              style = "quantile", 
+              palette = "Blues") +
+  tm_layout(title = "Mapa Suavizado dos Casos de Dengue")
+```
+
+## Conclusão
+
+Este relatório demonstrou a utilização de análises espaciais para identificar clusters de casos de dengue e aplicar técnicas de suavização bayesiana para melhorar a interpretação dos dados. Ambas as abordagens oferecem insights complementares sobre a distribuição espacial da doença no Brasil.

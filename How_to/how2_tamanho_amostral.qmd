@@ -1,0 +1,32 @@
+---
+title: "tamanho amostral"
+author: "Sa"
+format: html
+editor: visual
+---
+
+## Calculando tamanho amostral
+
+```{r}
+## Função para calcular tamanho amostral com desvio padrão
+calcula_tamanho_amostral_desvio <- function(desvio_padrao, erro_amostral, nivel_confianca) {
+  
+  ## Valor crítico Z
+  z <- qnorm(1 - (1 - nivel_confianca) / 2)
+  
+  ## Cálculo do tamanho amostral
+  n <- (z * desvio_padrao / erro_amostral)^2
+  
+  ## Retorna o tamanho arredondado para cima
+  return(ceiling(n))
+}
+```
+
+Dados do exemplo
+```{r}
+#| echo: false
+## Exemplo: desvio padrão = 5, erro amostral = 0.3, confiança = 95%
+resultado <- calcula_tamanho_amostral_desvio(desvio_padrao = 5, erro_amostral = 0.3, nivel_confianca = 0.95)
+resultado
+```
+
